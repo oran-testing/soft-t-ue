@@ -501,9 +501,6 @@ static int parse_args(all_args_t* args, int argc, char* argv[])
         bpo::value<bool>(&args->stack.have_tti_time_stats)->default_value(true),
         "Calculate TTI execution statistics");
 
-  args->stack.rrc_nr.sdu_fuzzed_bits = 3;
-  cout << "\n\nCLI OPTION: " << args->stack.rrc_nr.sdu_fuzzed_bits << "\n\n";
-
 
   // Positional options - config file location
   bpo::options_description position("Positional options");
