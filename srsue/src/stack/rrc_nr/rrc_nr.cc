@@ -45,16 +45,10 @@ rrc_nr::rrc_nr(srsran::task_sched_handle task_sched_) :
   cell_selector(*this),
   meas_cells(task_sched_)
 {
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  random_gen = srsran_random_init(tv.tv_usec);
   set_phy_default_config();
 }
 
-rrc_nr::~rrc_nr()
-{
-  srsran_random_free(random_gen);
-}
+rrc_nr::~rrc_nr() = default;
 
 int rrc_nr::init(phy_interface_rrc_nr*       phy_,
                  mac_interface_rrc_nr*       mac_,
@@ -542,7 +536,7 @@ int rrc_nr::write_sdu(srsran::unique_byte_buffer_t sdu)
     logger.warning("Received ULInformationTransfer SDU when in IDLE");
     return SRSRAN_ERROR;
   }
-  send_ul_info_transfer(std::move(sdu));
+    send_ul_info_transfer(std::move(sdu));
   return SRSRAN_SUCCESS;
 }
 
@@ -616,7 +610,8 @@ void rrc_nr::send_setup_request(srsran::nr_establishment_cause_t cause)
 
   // TODO: implement ng_minus5_g_s_tmsi_part1
   rrc_setup_req->ue_id.set_random_value();
-  uint64_t random_id = srsran_random_uniform_int_dist(random_gen, 0, 12345);
+  // TODO use proper RNG
+  uint64_t random_id = 0;
   for (uint i = 0; i < 5; i++) { // fill random ID bytewise, 40 bits = 5 bytes
     random_id |= ((uint64_t)rand() & 0xFF) << i * 8;
   }
@@ -677,6 +672,13 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
 
   if (msg.msg.type() == ul_dcch_msg_type_c::types_opts::options::c1) {
     log_rrc_message(get_rb_name(lcid), Tx, pdu.get(), msg, msg.msg.c1().type().to_string());
+  }
+
+  // FUZZING HERE
+  for(int i = 0; i < 4; ++i){
+    uint32_t byte_to_flip = std::rand() % pdu->N_bytes;
+    uint8_t bit_to_flip = std::rand() % 8;
+    pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip the bit
   }
 
   pdcp->write_sdu(lcid, std::move(pdu));
