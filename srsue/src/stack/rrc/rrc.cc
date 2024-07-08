@@ -1720,9 +1720,9 @@ void rrc::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
 
   // FUZZING HERE
   for(int i = 0; i < 4; ++i){
-    uint32_t byte_to_flip = std::rand() % pdu->N_bytes;
+    uint32_t byte_to_flip = std::rand() % pdcp_buf->N_bytes;
     uint8_t bit_to_flip = std::rand() % 8;
-    pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip the bit
+    pdcp_buf->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip the bit
   }
 
   pdcp->write_sdu(lcid, std::move(pdcp_buf));
@@ -3038,4 +3038,6 @@ void rrc::nr_scg_failure_information(const scg_failure_cause_t cause)
   scg_fail_info_nr.crit_exts.c1().scg_fail_info_nr_r15().fail_report_scg_nr_r15.fail_type_r15 =
       (fail_report_scg_nr_r15_s::fail_type_r15_opts::options)cause;
   send_ul_dcch_msg(srb_to_lcid(lte_srb::srb1), ul_dcch_msg);
+}
+
 }
