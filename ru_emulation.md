@@ -29,6 +29,76 @@ this should be the output:
 
 ## Step 2: running the testing gNB
 
+Create a minimal config file ~/gnb.yml, then run the following:
+```
+cat << EOF > ~/gnb.yml
+ru_ofh: 
+  gps_alpha: 0 
+  gps_beta: 0 
+  ru_bandwidth_MHz: 20  
+  t1a_max_cp_dl: 500   
+  t1a_min_cp_dl: 258  
+  t1a_max_cp_ul: 500 
+  t1a_min_cp_ul: 258
+  t1a_max_up: 300  
+  t1a_min_up: 85  
+  ta4_max: 300   
+  ta4_min: 85   
+  is_prach_cp_enabled: true   
+  is_dl_broadcast_enabled: false
+  ignore_ecpri_seq_id: false  
+  ignore_ecpri_payload_size: false
+  warn_unreceived_ru_frames: true
+  compr_method_ul: bfp        
+  compr_bitwidth_ul: 9       
+  compr_method_dl: bfp      
+  compr_bitwidth_dl: 9     
+  compr_method_prach: bfp 
+  compr_bitwidth_prach: 9
+  enable_ul_static_compr_hdr: true   
+  enable_dl_static_compr_hdr: true  
+  iq_scaling: 0.35                 
+  cells:
+    - network_interface: 0000:17:00.0
+      ru_mac_addr: 80:61:5f:0d:df:ab
+      du_mac_addr: 64:b3:79:10:00:37
+      vlan_tag_cp: 2               
+      vlan_tag_up: 2              
+      prach_port_id: [4,5]       
+      dl_port_id: [0,1]         
+      ul_port_id: [0,1]          
+
+cell_cfg:
+  dl_arfcn: 637212                                               
+  band: 78                                                       
+  channel_bandwidth_MHz: 20                                     
+  common_scs: 30                                                 
+  plmn: "00101"                                                  
+  tac: 7                                                         
+  pci: 1                                                         
+  nof_antennas_dl: 2                                             
+  nof_antennas_ul: 2                                             
+  prach:
+    prach_config_index: 7                                        
+    prach_root_sequence_index: 1                                 
+    zero_correlation_zone: 0                                     
+    prach_frequency_start: 0                                     
+  tdd_ul_dl_cfg:
+    dl_ul_tx_period: 10                                          
+    nof_dl_slots: 7                                              
+    nof_dl_symbols: 6                                            
+    nof_ul_slots: 2                                              
+    nof_ul_symbols: 4
+
+hal:
+  eal_args: "--lcores (0-1)@(0-15) -a 0000:17:00.0"
+EOF
+```
+
+Then run the gNB in test mode: `sudo ./gnb -c ~/gnb.yml amf --no_core true test_mode test_ue --rnti 0x1 --ri 2`
+
+once the RU emulator is functional run without the test ue and use the soft T-UE
+
 ## Step 3: running the RU emulator
 
 create a file ~/ru_em.yaml and run the following:
