@@ -2,6 +2,10 @@ import tkinter as tk
 from tkinter import scrolledtext
 from tkinter import messagebox
 from scapy.all import *
+import time
+
+from ue_interface import UeInterface
+from gnb_interface import GnbInterface
 
 class PacketSnifferApp:
     def __init__(self, root):
@@ -9,8 +13,10 @@ class PacketSnifferApp:
         self.root.title("Packet Sniffer")
         self.root.geometry("800x600")
 
-        # Variable to store captured packets
+
         self.captured_packets = []
+        self.ue = UeInterface()
+        self.gnb = GnbInterface()
 
         # Text area to display captured packets
         self.text_area = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, width=80, height=30)
@@ -25,10 +31,13 @@ class PacketSnifferApp:
         self.save_button.pack()
 
     def start_capture(self):
+        self.gnb.start(["-c","~/Downloads/gnb_zmq.yaml"])
+        time.sleep(1)
+        self.ue.start(["~/Downloads/ue_zmq.conf"])
         self.text_area.delete('1.0', tk.END)  # Clear previous text
         self.captured_packets = []  # Clear previous packets
         try:
-            sniff(iface='br-e55ff388d513', prn=self.packet_handler, count=10)
+            sniff(iface='br-e55ff388d513', prn=self.packet_handler, count=100)
         except PermissionError:
             messagebox.showerror("Permission Error", "Permission denied. Try running as root or administrator.")
 
