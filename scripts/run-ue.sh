@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check if the script is run as root
+if [ "$EUID" -ne 0 ]; then
+	echo "This script must be run as root."
+	exit 1
+fi
+
 function run_screen {
 	local screen_name="$1"
 	local command_to_run="$2"
@@ -18,4 +24,4 @@ function run_screen {
 	echo "Started process '$command_to_run' in screen session '$screen_name'."
 }
 
-run_screen "srsRAN tester UE" "sudo srsue"
+run_screen "srsRAN tester UE" "srsue"
