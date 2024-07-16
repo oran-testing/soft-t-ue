@@ -682,17 +682,18 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
     log_rrc_message(get_rb_name(lcid), Tx, pdu.get(), msg, msg.msg.c1().type().to_string());
   }
 
-  // FUZZING HERE
-  if(args.sdu_fuzzed_bits > 0){
-    std::cout << "Fuzzing message: rb_name: " << get_rb_name(lcid) << " address: " << pdu.get() << " TX: " << Tx << " Msg length(bytes): " << pdu->N_bytes
-      << " \n\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl;
-    for(int i = 0; i < args.sdu_fuzzed_bits; ++i){
-      uint32_t byte_to_flip = std::rand() % pdu->N_bytes;
-      uint8_t bit_to_flip = std::rand() % 8;
-      pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip the bit
+  if (args.sdu_fuzzed_bits > 0) {
+    std::cout << "Fuzzing message: rb_name: " << get_rb_name(lcid) 
+                << " address: " << pdu.get() 
+                << " TX: " << Tx 
+                << " Msg length(bytes): " << pdu->N_bytes
+                << " \n\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl;
+    for (uint32_t i = 0; i < args.sdu_fuzzed_bits; ++i) {
+          uint32_t byte_to_flip = std::rand() % pdu->N_bytes;
+          uint8_t bit_to_flip = std::rand() % 8;
+          pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
     }
   }
-  
   pdcp->write_sdu(lcid, std::move(pdu));
 }
 
