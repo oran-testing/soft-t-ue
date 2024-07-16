@@ -40,7 +40,7 @@ struct rrc_nr_args_t {
   srsran_subcarrier_spacing_t ssb_scs;
   std::string                 log_level;
   uint32_t                    log_hex_limit;
-  int                         sdu_fuzzed_bits;
+  uint32_t                    sdu_fuzzed_bits;
 };
 
 } // namespace srsue
