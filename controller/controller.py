@@ -3,12 +3,14 @@ from tkinter import scrolledtext
 from tkinter import messagebox
 from scapy.all import *
 
-
 class PacketSnifferApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Packet Sniffer")
         self.root.geometry("800x600")
+
+        # Variable to store captured packets
+        self.captured_packets = []
 
         # Text area to display captured packets
         self.text_area = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, width=80, height=30)
@@ -18,17 +20,30 @@ class PacketSnifferApp:
         self.start_button = tk.Button(self.root, text="Start Capture", command=self.start_capture)
         self.start_button.pack()
 
+        # Save button to save captured packets to a file
+        self.save_button = tk.Button(self.root, text="Save Capture", command=self.save_capture)
+        self.save_button.pack()
+
     def start_capture(self):
         self.text_area.delete('1.0', tk.END)  # Clear previous text
+        self.captured_packets = []  # Clear previous packets
         try:
             sniff(iface='br-e55ff388d513', prn=self.packet_handler, count=10)
         except PermissionError:
             messagebox.showerror("Permission Error", "Permission denied. Try running as root or administrator.")
 
     def packet_handler(self, packet):
+        self.captured_packets.append(packet)
         self.text_area.insert(tk.END, packet.summary() + "\n")
         self.text_area.see(tk.END)  # Scroll to the end of the text area
 
+    def save_capture(self):
+        if self.captured_packets:
+            file_path = "captured_packets.pcap"
+            wrpcap(file_path, self.captured_packets)
+            messagebox.showinfo("Save Capture", f"Packets saved to {file_path}")
+        else:
+            messagebox.showwarning("Save Capture", "No packets to save")
 
 if __name__ == "__main__":
     root = tk.Tk()
