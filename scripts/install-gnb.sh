@@ -7,6 +7,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 PS4='[DEBUG] '
+INSTALL_DIR=$(pwd)
 set -x
 
 # Install build tools
@@ -41,21 +42,5 @@ cd build
 cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
 make -j $(nproc)
 make install
-cp ./srsue/src/srsue /usr/local/bin/
-
-# Clone and install srsRAN 4G
-cd /opt
-
-git clone https://github.com/oran-testing/soft-t-ue
-cd soft-t-ue
-mkdir -p build
-cd build
-cmake ../
-make -j $(nproc)
-make install
-srsran_install_configs.sh user
-
-ip netns add ue1
-ip netns list
 
 set -x
