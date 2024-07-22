@@ -1718,6 +1718,19 @@ void rrc::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
     }
   }
 
+  if (args.sdu_fuzzed_bits > 0) {
+    std::cout << "Fuzzing message: rb_name: " << get_rb_name(lcid) 
+                << " address: " << pdcp_buf.get() 
+                << " TX: " << Tx 
+                << " Msg length(bytes): " << pdcp_buf->N_bytes
+                << " \n\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl;
+    for (uint32_t i = 0; i < args.sdu_fuzzed_bits; ++i) {
+          uint32_t byte_to_flip = std::rand() % pdcp_buf->N_bytes;
+          uint8_t bit_to_flip = std::rand() % 8;
+          pdcp_buf->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
+    }
+  }
+
   pdcp->write_sdu(lcid, std::move(pdcp_buf));
 }
 
@@ -3033,4 +3046,4 @@ void rrc::nr_scg_failure_information(const scg_failure_cause_t cause)
   send_ul_dcch_msg(srb_to_lcid(lte_srb::srb1), ul_dcch_msg);
 }
 
-} // namespace srsue
+}

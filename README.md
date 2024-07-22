@@ -48,3 +48,4 @@ Legend:
 - A solid line indicates a process/subprocess relationship. If bidirectional,
   the subprocess provides data back to the process via pipes.
 - A dotted line indicates data movement between two processes.
+![soft-t-ue.png](https://github.com/oran-testing/soft-t-ue/blob/main/docs/images/soft-t-ue.png)
