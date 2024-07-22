@@ -4,4 +4,4 @@ An SDR security testing UE based on srsRAN's UE.
 
 ## Overview
 
-![python-controller.png](https://github.com/oran-testing/soft-t-ue/blob/main/docs/images/python-controller.png)
+![soft-t-ue.png](https://github.com/oran-testing/soft-t-ue/blob/main/docs/images/soft-t-ue.png)
