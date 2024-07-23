@@ -24,3 +24,7 @@ packets = rdpcap('ue_mac_nr.pcap')
 
 test = RRC_setup(bytes(packets[0]))
 print(test.show())
+
+
+for packet in packets:
+    print(packet.summary())
