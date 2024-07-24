@@ -27,6 +27,7 @@ class Ue:
                 if line:
                     self.output += '\n' + line.decode().strip()
             else:
+                self.output += "Process Terminated"
                 break
 
     def __repr__(self):

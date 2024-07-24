@@ -1,5 +1,5 @@
-import os
 import time
+import threading
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
@@ -9,23 +9,24 @@ from kivy.uix.popup import Popup
 from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.spinner import Spinner
 from kivy.uix.floatlayout import FloatLayout
-
+from kivy.uix.scrollview import ScrollView
 
 
 
 from ue_interface import Ue
 from gnb_interface import Gnb
 
+
 class ProcessesPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation='vertical')
-        label = Label(text='Current UE Processes')
-        self.process_container = BoxLayout(orientation='vertical')
-        self.process_container.add_widget(label)
-        layout.add_widget(self.process_container)
+        self.process_container = BoxLayout(orientation='vertical', padding=0, height=500)
+        self.process_scroll_wrapper = ScrollView()
+        self.process_scroll_wrapper.add_widget(self.process_container)
+        layout.add_widget(self.process_scroll_wrapper)
 
-        add_ue_button = Button(text='Add UE', on_press=self.open_add_ue_popup, background_color=[0,1,0,1])
+        add_ue_button = Button(text='Add UE', on_press=self.open_add_ue_popup, background_color=[0,1,0,1], size_hint_y=None)
         layout.add_widget(add_ue_button)
 
         self.config_file = ""
@@ -69,7 +70,7 @@ class ProcessesPage(Screen):
 
     def open_select_file_popup(self, instance):
         content = BoxLayout(orientation='vertical')
-        filechooser = FileChooserListView(path=os.path.expanduser('~'))
+        filechooser = FileChooserListView(path='/home/')
         button_layout = BoxLayout(size_hint_y=None, height=50)
         select_button = Button(text="Select", size_hint_y=None, height=50)
         cancel_button = Button(text="Cancel", size_hint_y=None, height=50)
@@ -107,21 +108,33 @@ class ProcessesPage(Screen):
             'config': self.config_file,
             'handle': new_ue
         })
-        time.sleep(1)
-        new_ue_label = Label(text=f"UE ({self.ue_type})")
-        content_label = Label(text="")
-        content_container = FloatLayout()
 
-        self.process_container.add_widget(new_ue_label)
-        content_container.add_widget(content_label)
-        self.process_container.add_widget(content_container)
-        new_ue_label.text = new_ue.output
+        log_view = ScrollView(size_hint=(1, 0.9))
+
+        new_ue_label = Label(text=f"starting UE ({self.ue_type})...", width=200)
+        threading.Thread(target=self.collect_logs, args=(new_ue_label, new_ue, log_view), daemon=True).start()
+        content_label = Label(text=f"sudo srsue {self.config_file} ({self.ue_type})")
+
+        self.process_container.add_widget(content_label)
+        log_view.add_widget(new_ue_label)
+        self.process_container.add_widget(log_view)
 
 
+        self._update_scroll_height()
 
         self.config_file = ""
         self.ue_type = "clean"
         self.popup.dismiss()
+
+    def collect_logs(self, label_ref, output_ref, log_ref):
+        while True:
+            time.sleep(1)
+            label_ref.text = output_ref.output
+            log_ref.scroll_y = 0
+
+    def _update_scroll_height(self):
+        self.process_scroll_wrapper.scroll_y = 0
+
 
 class AttacksPage(Screen):
     def __init__(self, **kwargs):
