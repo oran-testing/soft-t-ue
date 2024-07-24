@@ -1690,6 +1690,19 @@ void rrc::send_ul_ccch_msg(const ul_ccch_msg_s& msg)
   uint32_t lcid = srb_to_lcid(lte_srb::srb0);
   log_rrc_message(get_rb_name(lcid), Tx, pdcp_buf.get(), msg, msg.msg.c1().type().to_string());
 
+  if (args.sdu_fuzzed_bits > 0 && (args.target_message == msg.msg.c1().type().to_string() || args.target_message == "")) {
+    std::cout << "Fuzzing message: " << std::endl
+                << "\tMessage Type: " << msg.msg.c1().type().to_string() << std::endl
+                << "\taddress: " << pdcp_buf.get()  << std::endl
+                << "\tMsg length(bytes): " << pdcp_buf->N_bytes << std::endl
+                << "\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl;
+    for (uint32_t i = 0; i < args.sdu_fuzzed_bits; ++i) {
+          uint32_t byte_to_flip = std::rand() % pdcp_buf->N_bytes;
+          uint8_t bit_to_flip = std::rand() % 8;
+          pdcp_buf->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
+    }
+  }
+
   rlc->write_sdu(lcid, std::move(pdcp_buf));
 }
 
@@ -1718,12 +1731,12 @@ void rrc::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
     }
   }
 
-  if (args.sdu_fuzzed_bits > 0) {
-    std::cout << "Fuzzing message: rb_name: " << get_rb_name(lcid) 
-                << " address: " << pdcp_buf.get() 
-                << " TX: " << Tx 
-                << " Msg length(bytes): " << pdcp_buf->N_bytes
-                << " \n\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl;
+  if (args.sdu_fuzzed_bits > 0 && (args.target_message == msg.msg.c1().type().to_string() || args.target_message == "")) {
+    std::cout << "Fuzzing message: " << std::endl
+                << "\tMessage Type: " << msg.msg.c1().type().to_string() << std::endl
+                << "\taddress: " << pdcp_buf.get()  << std::endl
+                << "\tMsg length(bytes): " << pdcp_buf->N_bytes << std::endl
+                << "\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl;
     for (uint32_t i = 0; i < args.sdu_fuzzed_bits; ++i) {
           uint32_t byte_to_flip = std::rand() % pdcp_buf->N_bytes;
           uint8_t bit_to_flip = std::rand() % 8;
