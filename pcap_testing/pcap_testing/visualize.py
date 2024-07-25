@@ -6,8 +6,6 @@ import tkinter as tk
 
 def packet_to_canvas(input_packet, layer_shift=0, rebuild=1):
     # type: (int, int) -> pyx.canvas.canvas
-    if PYX == 0:
-        raise ImportError("PyX and its dependencies must be installed")
     canvas = pyx.canvas.canvas()
     if rebuild:
         _, t = input_packet.__class__(raw(input_packet)).build_ps()
