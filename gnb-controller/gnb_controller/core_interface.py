@@ -7,6 +7,8 @@ class CoreNetwork:
         self.isRunning = False
         self.process = None
         self.output = ""
+        self.initialized = False
+        self.name = "Open5GS Core Network"
 
     def start(self):
         command = ["sudo", "docker","compose","-f", "/opt/srsRAN_Project/docker/docker-compose.yml","up", "--build", "5gc"]
@@ -21,11 +23,15 @@ class CoreNetwork:
         self.isRunning = False
 
     def collect_logs(self):
+        completed_text = "NF registered"
         while self.isRunning:
             if self.process:
                 line = self.process.stdout.readline()
                 if line:
                     self.output += '\n' + line.decode().strip()
+                    if completed_text in self.output:
+                        self.initialized = True
+
             else:
                 self.output += "Process Terminated"
                 break
