@@ -2,14 +2,14 @@ from utils import start_subprocess, kill_subprocess
 import threading
 import time
 
-class Ue:
+class CoreNetwork:
     def __init__(self):
         self.isRunning = False
         self.process = None
         self.output = ""
 
-    def start(self, args):
-        command = ["sudo", "srsue"] + args
+    def start(self, config):
+        command = ["sudo", "docker","compose", "up","-f", "/opt/srsRAN_Project/docker/docker-compose.yml" "--build" "5gc"]
         self.process = start_subprocess(command)
         self.isRunning = True
 
@@ -31,5 +31,5 @@ class Ue:
                 break
 
     def __repr__(self):
-        return f"srsRAN UE object, running: {self.isRunning}"
+        return f"srsRAN gNB object, running: {self.isRunning}"
 
