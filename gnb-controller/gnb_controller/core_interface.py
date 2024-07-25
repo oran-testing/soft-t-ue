@@ -8,8 +8,8 @@ class CoreNetwork:
         self.process = None
         self.output = ""
 
-    def start(self, config):
-        command = ["sudo", "docker","compose", "up","-f", "/opt/srsRAN_Project/docker/docker-compose.yml" "--build" "5gc"]
+    def start(self):
+        command = ["sudo", "docker","compose","-f", "/opt/srsRAN_Project/docker/docker-compose.yml","up", "--build", "5gc"]
         self.process = start_subprocess(command)
         self.isRunning = True
 
@@ -32,4 +32,3 @@ class CoreNetwork:
 
     def __repr__(self):
         return f"srsRAN gNB object, running: {self.isRunning}"
-

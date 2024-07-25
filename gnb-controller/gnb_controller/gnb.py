@@ -16,7 +16,6 @@ from ue_interface import Ue
 from gnb_interface import Gnb
 
 def ue_controller():
-    #connect to ue controller
     
     #recieve configuration
     self.config_file = "idk"
@@ -45,10 +44,6 @@ def start_gnb():
     gnb = Gnb()
     gnb.start([self.config_file])
     
-#def start_core(self, instance):
-    #make sure core isn't already running
-    #run core
-
 def main():
     ue_controller()
     

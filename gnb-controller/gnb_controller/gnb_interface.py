@@ -8,7 +8,7 @@ class Gnb:
         self.process = None
         self.output = ""
 
-    def start(self, config, args):
+    def start(self, args):
         command = ["sudo", "gnb", "-c"] + args
         self.process = start_subprocess(command)
         self.isRunning = True
