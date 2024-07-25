@@ -30,3 +30,7 @@ cd <repo folder>
 clangd --clang-tidy .
 ```
 Then the clangd process will format code passed through stdout
+
+## Repo Management
+
+what repos should we have? Should everything be committed to one or should we split based on responsiblites.
