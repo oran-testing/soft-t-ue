@@ -1,19 +1,18 @@
-from scapy.all import Packet, PacketField, Raw
+from scapy.all import Packet, PacketField, Raw, rdpcap
 from scapy.layers.inet import UDP
-from scapy.all import rdpcap
+
+from utils import extract_bits
 from visualize import packet_to_canvas, write_to_pdf
-from utils import *
-import hexdump
-import sys
+
 
 class RRCSetupRequest(Packet):
     name = "RRCSetupRequest"
-    
+
     fields_desc = [
         PacketField("udp", UDP(), UDP),
-        PacketField("payload", Raw(), Raw)  # Use Raw for handling raw byte data
+        PacketField("payload", Raw(), Raw),
     ]
-    
+
     def __init__(self, *args, **kwargs):
         if len(args) > 0:
             bytes_input = args[0]
@@ -23,9 +22,10 @@ class RRCSetupRequest(Packet):
             kwargs["payload"] = Raw(load=remaining_payload)
         super().__init__(*args, **kwargs)
 
+
 class DedicatedNASMessage(Packet):
     name = "DedicatedNASMessage"
-    
+
     fields_desc = [
         PacketField("protocol", Raw(), Raw),
         PacketField("message_type", Raw(), Raw),
@@ -33,11 +33,11 @@ class DedicatedNASMessage(Packet):
         PacketField("imsi", Raw(), Raw),
         PacketField("security_capability", Raw(), Raw),
     ]
-    
+
     def __init__(self, *args, **kwargs):
         if len(args) > 0:
             _, extracted_bytes = extract_bits(args[0], 27, 202)
-            extracted_bytes += b'\x70'
+            extracted_bytes += b"\x70"
             kwargs["protocol"] = Raw(load=extracted_bytes[0:1])
             kwargs["message_type"] = Raw(load=extracted_bytes[1:3])
             kwargs["NAS_key_id"] = Raw(load=extracted_bytes[3:4])
@@ -48,7 +48,7 @@ class DedicatedNASMessage(Packet):
 
 class RRCConnectionRequest(Packet):
     name = "RRCConnectionRequest"
-    
+
     fields_desc = [
         PacketField("udp", UDP(), UDP),
         PacketField("inter", Raw(), Raw),
@@ -57,7 +57,7 @@ class RRCConnectionRequest(Packet):
         PacketField("DedicatedNAS", DedicatedNASMessage(), DedicatedNASMessage),
         PacketField("footer", Raw(), Raw),
     ]
-    
+
     def __init__(self, *args, **kwargs):
         if len(args) > 0:
             bytes_input = args[0]
@@ -71,10 +71,9 @@ class RRCConnectionRequest(Packet):
         super().__init__(*args, **kwargs)
 
 
-packets = rdpcap('ue_mac_nr.pcap')
+packets = rdpcap("ue_mac_nr.pcap")
 
 test = RRCConnectionRequest(bytes(packets[4]))
 
 print(test.show())
-write_to_pdf(packet_to_canvas(test.DedicatedNAS, rebuild=0),"./test.pdf")
-
+write_to_pdf(packet_to_canvas(test.DedicatedNAS, rebuild=0), "./test.pdf")
