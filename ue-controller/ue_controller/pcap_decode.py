@@ -10,6 +10,9 @@ class RRCSetupRequest(Packet):
 
     fields_desc = [
         PacketField("udp", UDP(), UDP),
+        StrLenField("message_type",b''),
+        ByteField("radio_type",0),
+        ByteField("message_direction",0),
         PacketField("payload", Raw(), Raw),
     ]
 
@@ -18,8 +21,10 @@ class RRCSetupRequest(Packet):
             bytes_input = args[0]
             udp_header = UDP(bytes_input[:8])
             kwargs["udp"] = udp_header
-            remaining_payload = bytes_input[8:]
-            kwargs["payload"] = Raw(load=remaining_payload)
+            kwargs["message_type"] = bytes_input[8:14]
+            kwargs["radio_type"] = int.from_bytes(bytes_input[14:15], byteorder='big')
+            kwargs["message_direction"] = int.from_bytes(bytes_input[15:16], byteorder='big')
+            kwargs["payload"] = Raw(load=bytes_input[16:])
         super().__init__(*args, **kwargs)
 
 
@@ -72,8 +77,8 @@ class RRCConnectionRequest(Packet):
 
 
 packets = rdpcap("ue_mac_nr.pcap")
-
-test = RRCConnectionRequest(bytes(packets[4]))
+#test = RRCConnectionRequest(bytes(packets[4]))
+test = RRCSetupRequest(bytes(packets[0]))
 
 print(test.show())
 write_to_pdf(packet_to_canvas(test, rebuild=0), "./test.pdf")
