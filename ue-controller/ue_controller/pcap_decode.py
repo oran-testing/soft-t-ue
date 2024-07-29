@@ -1,4 +1,4 @@
-from scapy.all import Packet, PacketField, Raw, rdpcap
+from scapy.all import Packet, PacketField, Raw, rdpcap, ByteField, RawVal, StrLenField
 from scapy.layers.inet import UDP
 
 from utils import extract_bits
@@ -51,11 +51,11 @@ class RRCConnectionRequest(Packet):
 
     fields_desc = [
         PacketField("udp", UDP(), UDP),
-        PacketField("inter", Raw(), Raw),
-        PacketField("lcid", Raw(), Raw),
-        PacketField("sdu_len", Raw(), Raw),
+        StrLenField('inter', b''),
+        ByteField("lcid", 0),
+        ByteField("sdu_len", 0),
         PacketField("DedicatedNAS", DedicatedNASMessage(), DedicatedNASMessage),
-        PacketField("footer", Raw(), Raw),
+        StrLenField("footer", b''),
     ]
 
     def __init__(self, *args, **kwargs):
@@ -63,11 +63,11 @@ class RRCConnectionRequest(Packet):
             bytes_input = args[0]
             udp_header = UDP(bytes_input[:8])
             kwargs["udp"] = udp_header
-            kwargs["inter"] = Raw(load=bytes_input[8:31])
-            kwargs["lcid"] = Raw(load=bytes_input[31:32])
-            kwargs["sdu_len"] = Raw(load=bytes_input[32:33])
+            kwargs["inter"] = bytes_input[8:31]
+            kwargs["lcid"] = int.from_bytes(bytes_input[31:32], byteorder='big')
+            kwargs["sdu_len"] = int.from_bytes(bytes_input[32:33], byteorder='big')
             kwargs["DedicatedNAS"] = DedicatedNASMessage(bytes_input[37:63])
-            kwargs["footer"] = Raw(load=bytes_input[60:72])
+            kwargs["footer"] = load=bytes_input[60:72]
         super().__init__(*args, **kwargs)
 
 
@@ -76,4 +76,4 @@ packets = rdpcap("ue_mac_nr.pcap")
 test = RRCConnectionRequest(bytes(packets[4]))
 
 print(test.show())
-write_to_pdf(packet_to_canvas(test.DedicatedNAS, rebuild=0), "./test.pdf")
+write_to_pdf(packet_to_canvas(test, rebuild=0), "./test.pdf")
