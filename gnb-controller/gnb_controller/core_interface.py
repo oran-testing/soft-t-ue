@@ -48,4 +48,4 @@ class CoreNetwork:
                 break
 
     def __repr__(self):
-        return f"srsRAN gNB object, running: {self.isRunning}"
+        return f"{self.name}, running: {self.isRunning}"

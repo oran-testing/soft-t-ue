@@ -35,7 +35,8 @@ class Gnb:
                     self.output += "\n" + line.decode().strip()
             else:
                 self.output += "Process Terminated"
+                self.isRunning = False
                 break
 
     def __repr__(self):
-        return f"srsRAN gNB object, running: {self.isRunning}"
+        return f"{self.name}, running: {self.isRunning}"
