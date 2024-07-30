@@ -1,4 +1,4 @@
-from scapy.all import Packet, PacketField, Raw, rdpcap, ByteField, RawVal, StrLenField
+from scapy.all import Packet, PacketField, Raw, rdpcap, ByteField, RawVal, StrLenField, BitField
 from scapy.layers.inet import UDP
 
 from utils import extract_bits
@@ -13,6 +13,19 @@ class RRCSetupRequest(Packet):
         StrLenField("message_type",b''),
         ByteField("radio_type",0),
         ByteField("message_direction",0),
+        StrLenField("padding_a", 0),
+        BitField("RNTI",0, 16),
+        ByteField("C_RNTI",0),
+        StrLenField("padding_b", 0),
+        ByteField("HarqId",0),
+        StrLenField("padding_c", 0),
+        ByteField("reserved",0),
+        ByteField("LCID", 0),
+        ByteField("serving_cell_id", 0),
+        ByteField("coreset_id", 0),
+        ByteField("tci_state_id", 0),
+        ByteField("reserved_b", 0),
+        ByteField("resource_set_activation", 0),
         PacketField("payload", Raw(), Raw),
     ]
 
@@ -24,7 +37,20 @@ class RRCSetupRequest(Packet):
             kwargs["message_type"] = bytes_input[8:14]
             kwargs["radio_type"] = int.from_bytes(bytes_input[14:15], byteorder='big')
             kwargs["message_direction"] = int.from_bytes(bytes_input[15:16], byteorder='big')
-            kwargs["payload"] = Raw(load=bytes_input[16:])
+            kwargs["padding_a"] = bytes_input[16:18]
+            kwargs["RNTI"] = int.from_bytes(bytes_input[18:20], byteorder='big')
+            kwargs["C_RNTI"] = int.from_bytes(bytes_input[20:21], byteorder='big')
+            kwargs["padding_b"] = bytes_input[21:24]
+            kwargs["HarqId"] = int.from_bytes(bytes_input[24:25], byteorder='big')
+            kwargs["padding_c"] = bytes_input[25:30]
+            kwargs["reserved"] = int.from_bytes(bytes_input[30:31], byteorder='big') & 0b11
+            kwargs["LCID"] = int.from_bytes(bytes_input[30:31], byteorder='big') & 0b00111111
+            kwargs["serving_cell_id"] = int.from_bytes(bytes_input[31:32], byteorder='big') & 0b11111
+            kwargs["coreset_id"] = int.from_bytes(bytes_input[31:33], byteorder='big') & 0b00000111
+            kwargs["tci_state_id"] = int.from_bytes(bytes_input[32:33], byteorder='big') & 0b000001111
+            kwargs["reserved_b"] = int.from_bytes(bytes_input[33:34], byteorder='big') & 0b11
+            kwargs["resource_set_activation"] = int.from_bytes(bytes_input[33:34], byteorder='big') & 0b00111111
+            kwargs["payload"] = Raw(load=bytes_input[33:])
         super().__init__(*args, **kwargs)
 
 
