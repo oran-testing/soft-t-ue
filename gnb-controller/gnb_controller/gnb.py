@@ -6,6 +6,7 @@ import itertools
 
 from core_interface import CoreNetwork
 from gnb_interface import Gnb
+from iperf_interface import Iperf
 
 class ue_controller:
     def __init__(self):
