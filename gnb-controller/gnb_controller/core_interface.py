@@ -1,6 +1,7 @@
-from utils import start_subprocess, kill_subprocess
 import threading
-import time
+
+from utils import kill_subprocess, start_subprocess
+
 
 class CoreNetwork:
     def __init__(self):
@@ -11,11 +12,21 @@ class CoreNetwork:
         self.name = "Open5GS Core Network"
 
     def start(self):
-        command = ["sudo", "docker","compose","-f", "/opt/srsRAN_Project/docker/docker-compose.yml","up", "--build", "5gc"]
+        command = [
+            "sudo",
+            "docker",
+            "compose",
+            "-f",
+            "/opt/srsRAN_Project/docker/docker-compose.yml",
+            "up",
+            "--build",
+            "5gc",
+        ]
         self.process = start_subprocess(command)
         self.isRunning = True
 
-        self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
+        self.log_thread = threading.Thread(target=self.collect_logs,
+                                           daemon=True)
         self.log_thread.start()
 
     def stop(self):
@@ -28,7 +39,7 @@ class CoreNetwork:
             if self.process:
                 line = self.process.stdout.readline()
                 if line:
-                    self.output += '\n' + line.decode().strip()
+                    self.output += "\n" + line.decode().strip()
                     if completed_text in self.output:
                         self.initialized = True
 

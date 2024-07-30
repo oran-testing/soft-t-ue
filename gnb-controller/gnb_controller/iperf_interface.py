@@ -1,6 +1,8 @@
-from utils import start_subprocess, kill_subprocess
 import threading
 import time
+
+from utils import kill_subprocess, start_subprocess
+
 
 class Iperf:
     def __init__(self):
@@ -10,11 +12,13 @@ class Iperf:
         self.initialized = False
         self.name = "Iperf -- Stopped"
 
-    def start(self, process_type="server", args):
+    def start(self, args, process_type="server"):
         if process_type == "server":
             command = ["iperf", "-s"] + args
         elif process_type == "client":
-            command = ["sudo", "ip", "netns", "ue1","exec", "iperf", "-c"] + args
+            command = ["sudo", "ip", "netns",
+                       "ue1", "exec", "iperf",
+                       "-c"] + args
         else:
             raise ValueError("Invalid Process Type")
             return
@@ -22,7 +26,8 @@ class Iperf:
         self.isRunning = True
         self.name = f"Iperf -- {process_type}"
 
-        self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
+        self.log_thread = threading.Thread(target=self.collect_logs,
+                                           daemon=True)
         self.log_thread.start()
         time.sleep(5)
         self.initialized = True
@@ -37,11 +42,10 @@ class Iperf:
             if self.process:
                 line = self.process.stdout.readline()
                 if line:
-                    self.output += '\n' + line.decode().strip()
+                    self.output += "\n" + line.decode().strip()
             else:
                 self.output += "Process Terminated"
                 break
 
     def __repr__(self):
         return f"Iperf Process Object, running: {self.isRunning}"
-
