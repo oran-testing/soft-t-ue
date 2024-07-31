@@ -101,7 +101,8 @@ class ProcessesPage(Screen):
 
     def add_ue(self, instance):
         new_ue = Ue()
-        new_ue.start([self.config_file])
+        global attack_args
+        new_ue.start([self.config_file] + attack_args)
         global ue_list
         ue_list.append({
             'type': self.ue_type,
@@ -150,16 +151,48 @@ class AttacksPage(Screen):
         layout.add_widget(attack_option)
         self.title = Label(text="Attack Type: None")
         self.attack_type = "None"
-        self.attack_settings = ScrollView()
+        self.attack_settings = BoxLayout(orientation='vertical')
         layout.add_widget(self.title)
         layout.add_widget(self.attack_settings)
         self.add_widget(layout)
+        self.num_fuzzed_bits = 1
+        self.target_message = "All"
 
     def set_attack_type(self, spinner, text):
         self.title.text = f'Attack Type: {text}'
         self.attack_type = text
         if text == "SDU Fuzzing":
-            self.attack_settings.add_widget(Label(text="Here is some text"))
+            target_message = Spinner(
+                text='Target Message',
+                values=('All', 'RRCSetupRequest','RRCRegistrationRequest'),
+                size_hint=(None, None),
+                size=(400, 44)
+            )
+            target_message.bind(text=self.set_target_message)
+            bits_to_fuzz = Spinner(
+                text='Number of Bits to Fuzz',
+                values=[str(i) for i in range(1, 11)],
+                size_hint=(None, None),
+                size=(200, 44)
+            )
+            bits_to_fuzz.bind(text=self.set_fuzzed_bits)
+            self.attack_settings.add_widget(target_message)
+            self.attack_settings.add_widget(bits_to_fuzz)
+
+    def set_target_message(self, spinner, text):
+        self.target_message = text
+        if text != "All":
+            global attack_args
+            attack_args = ["--rrc.sdu_fuzzed_bits", str(self.num_fuzzed_bits)]
+            # TODO: merge target message branch to main
+                           #, "--rrc.fuzz_target_message", self.target_message]
+
+    def set_fuzzed_bits(self, spinner, text):
+        self.num_fuzzed_bits = int(text)
+        global attack_args
+        attack_args = ["--rrc.sdu_fuzzed_bits", str(self.num_fuzzed_bits)]
+                       #, "--rrc.fuzz_target_message", self.target_message]
+        self.title.text = f"--rrc.sdu_fuzzed_bits {self.num_fuzzed_bits} --rrc.fuzz_target_message {self.target_message}"
 
 
 class ResultsPage(Screen):
@@ -227,6 +260,8 @@ class MainApp(App):
 def main():
     global ue_list
     ue_list = list()
+    global attack_args
+    attack_args = list()
     MainApp().run()
 
 if __name__ == '__main__':

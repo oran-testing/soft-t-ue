@@ -10,6 +10,7 @@ class Ue:
 
     def start(self, args):
         command = ["sudo", "srsue"] + args
+        print(command)
         self.process = start_subprocess(command)
         self.isRunning = True
 
@@ -32,4 +33,11 @@ class Ue:
 
     def __repr__(self):
         return f"srsRAN UE object, running: {self.isRunning}"
+
+if __name__ == "__main__":
+    handle = Ue()
+    handle.start(["/home/ntia/Downloads/ue_zmq.conf", "--rrc.sdu_fuzzed_bits", "1", "--rrc.sdu_target_message", "RRCSetupRequest"])
+    while True:
+        print(handle.output)
+        time.sleep(0.5)
 
