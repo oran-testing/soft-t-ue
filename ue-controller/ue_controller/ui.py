@@ -10,6 +10,8 @@ from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.spinner import Spinner
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.scrollview import ScrollView
+from kivy.clock import Clock
+
 
 
 
@@ -113,7 +115,8 @@ class ProcessesPage(Screen):
         log_view = ScrollView(size_hint=(1, 0.9))
 
         new_ue_label = Label(text=f"starting UE ({self.ue_type})...", width=200)
-        threading.Thread(target=self.collect_logs, args=(new_ue_label, new_ue, log_view), daemon=True).start()
+        #threading.Thread(target=self.collect_logs, args=(new_ue_label, new_ue, log_view), daemon=True).start()
+        Clock.schedule_interval(lambda dt: self.collect_logs(new_ue_label, new_ue, log_view), 1)
         content_label = Label(text=f"sudo srsue {self.config_file} ({self.ue_type})")
 
         self.process_container.add_widget(content_label)
@@ -127,11 +130,10 @@ class ProcessesPage(Screen):
         self.ue_type = "clean"
         self.popup.dismiss()
 
+
     def collect_logs(self, label_ref, output_ref, log_ref):
-        while True:
-            time.sleep(1)
-            label_ref.text = output_ref.output
-            log_ref.scroll_y = 0
+        label_ref.text = output_ref.output
+        log_ref.scroll_y = 0
 
     def _update_scroll_height(self):
         self.process_scroll_wrapper.scroll_y = 0
