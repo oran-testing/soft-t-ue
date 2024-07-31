@@ -140,9 +140,27 @@ class AttacksPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation='vertical')
-        label = Label(text='This is Page One')
-        layout.add_widget(label)
+        attack_option = Spinner(
+            text='Attack Type',
+            values=('None', 'SDU Fuzzing'),
+            size_hint=(None, None),
+            size=(400, 44)
+        )
+        attack_option.bind(text=self.set_attack_type)
+        layout.add_widget(attack_option)
+        self.title = Label(text="Attack Type: None")
+        self.attack_type = "None"
+        self.attack_settings = ScrollView()
+        layout.add_widget(self.title)
+        layout.add_widget(self.attack_settings)
         self.add_widget(layout)
+
+    def set_attack_type(self, spinner, text):
+        self.title.text = f'Attack Type: {text}'
+        self.attack_type = text
+        if text == "SDU Fuzzing":
+            self.attack_settings.add_widget(Label(text="Here is some text"))
+
 
 class ResultsPage(Screen):
     def __init__(self, **kwargs):
