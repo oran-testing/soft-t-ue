@@ -180,6 +180,20 @@ class RRCConnectionRequest(Packet):
             kwargs["footer"] = load=bytes_input[60:72]
         super().__init__(*args, **kwargs)
 
+#DLInformationTransfer ::=           SEQUENCE {
+#    rrc-TransactionIdentifier           RRC-TransactionIdentifier,
+#    criticalExtensions                  CHOICE {
+#        dlInformationTransfer           DLInformationTransfer-IEs,
+#        criticalExtensionsFuture            SEQUENCE {}
+#    }
+#}
+#
+#DLInformationTransfer-IEs ::=   SEQUENCE {
+#    dedicatedNAS-Message                DedicatedNAS-Message    OPTIONAL,   -- Need N
+#    lateNonCriticalExtension            OCTET STRING            OPTIONAL,
+#    nonCriticalExtension                SEQUENCE {} OPTIONAL
+#}
+
 class DLInformationTransfer(Packet):
 
     fields_desc = [
@@ -193,7 +207,20 @@ class DLInformationTransfer(Packet):
             kwargs["udp"] = udp_header
         super().__init__(*args, **kwargs)
 
-class ULNASTransport(Packet):
+#ULInformationTransfer ::=           SEQUENCE {
+#    criticalExtensions                  CHOICE {
+#        ulInformationTransfer           ULInformationTransfer-IEs,
+#        criticalExtensionsFuture            SEQUENCE {}
+#    }
+#}
+#
+#ULInformationTransfer-IEs ::=   SEQUENCE {
+#    dedicatedNAS-Message                DedicatedNAS-Message                OPTIONAL,
+#    lateNonCriticalExtension            OCTET STRING                        OPTIONAL,
+#    nonCriticalExtension                SEQUENCE {}                         OPTIONAL
+#}
+
+class ULInformationTransport(Packet):
 
     fields_desc = [
         PacketField("udp", UDP(), UDP),
