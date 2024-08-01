@@ -4,6 +4,29 @@ from scapy.layers.inet import UDP
 from utils import extract_bits
 from visualize import packet_to_canvas, write_to_pdf
 
+#RRCSetupRequest ::=                 SEQUENCE {
+#    rrcSetupRequest                     RRCSetupRequest-IEs
+#}
+#
+#RRCSetupRequest-IEs ::=             SEQUENCE {
+#    ue-Identity                         InitialUE-Identity,
+#    establishmentCause                  EstablishmentCause,
+#    spare                               BIT STRING (SIZE (1))
+#}
+#
+#InitialUE-Identity ::=              CHOICE {
+#    ng-5G-S-TMSI-Part1                  BIT STRING (SIZE (39)),
+#    randomValue                         BIT STRING (SIZE (39))
+#}
+#
+#EstablishmentCause ::=              ENUMERATED {
+#                                        emergency, highPriorityAccess, 
+#                                        mt-Access, mo-Signalling,
+#                                        mo-Data, mo-VoiceCall, 
+#                                        mo-VideoCall, mo-SMS, mps-PriorityAccess,
+#                                        mcs-PriorityAccess,
+#                                        spare6, spare5, spare4, 
+#                                        spare3, spare2, spare1}
 
 class RRCSetupRequest(Packet):
     name = "RRCSetupRequest"
@@ -53,6 +76,36 @@ class RRCSetupRequest(Packet):
             kwargs["payload"] = Raw(load=bytes_input[33:])
         super().__init__(*args, **kwargs)
 
+#RRCSetup ::=                        SEQUENCE {
+#    rrc-TransactionIdentifier           RRC-TransactionIdentifier,
+#    criticalExtensions                  CHOICE {
+#        rrcSetup                            RRCSetup-IEs,
+#        criticalExtensionsFuture            SEQUENCE {}
+#    }
+#}
+#
+#RRCSetup-IEs ::=                    SEQUENCE {
+#    radioBearerConfig                   RadioBearerConfig,
+#    masterCellGroup                     OCTET STRING (CONTAINING CellGroupConfig),
+#    lateNonCriticalExtension            OCTET STRING   OPTIONAL,
+#    nonCriticalExtension                SEQUENCE{}     OPTIONAL
+#}
+
+class RRCSetup(Packet):
+
+    fields_desc = [
+        PacketField("udp", UDP(), UDP),
+    ]
+
+    def __init__(self, *args, **kwargs):
+        if len(args) > 0:
+            bytes_input = args[0]
+            udp_header = UDP(bytes_input[:8])
+            kwargs["udp"] = udp_header
+        super().__init__(*args, **kwargs)
+
+
+
 
 class DedicatedNASMessage(Packet):
     name = "DedicatedNASMessage"
@@ -76,6 +129,32 @@ class DedicatedNASMessage(Packet):
             kwargs["security_capability"] = Raw(load=extracted_bytes[19:23])
         super().__init__(*args, **kwargs)
 
+#RRCSetupComplete ::=                SEQUENCE {
+#    rrc-TransactionIdentifier           RRC-TransactionIdentifier,
+#    criticalExtensions                  CHOICE {
+#        rrcSetupComplete                    RRCSetupComplete-IEs,
+#        criticalExtensionsFuture            SEQUENCE {}
+#    }
+#}
+#
+#RRCSetupComplete-IEs ::=            SEQUENCE {
+#    selectedPLMN-Identity               INTEGER (1..maxPLMN),
+#    registeredAMF                       RegisteredAMF                                   OPTIONAL,
+#    guami-Type                          ENUMERATED {native, mapped}                     OPTIONAL,
+#    s-nssai-List                        SEQUENCE (SIZE (1..maxNrofS-NSSAI)) OF S-NSSAI  OPTIONAL,
+#    dedicatedNAS-Message                DedicatedNAS-Message,
+#    ng-5G-S-TMSI-Value                  CHOICE {
+#        ng-5G-S-TMSI                        NG-5G-S-TMSI,
+#        ng-5G-S-TMSI-Part2                  BIT STRING (SIZE (9))
+#    }                   OPTIONAL,
+#    lateNonCriticalExtension            OCTET STRING                                    OPTIONAL,
+#    nonCriticalExtension                SEQUENCE{}                                      OPTIONAL
+#}
+#
+#RegisteredAMF ::=                   SEQUENCE {
+#    plmn-Identity                       PLMN-Identity                                   OPTIONAL,
+#    amf-Identifier                      AMF-Identifier
+#}
 
 class RRCConnectionRequest(Packet):
     name = "RRCConnectionRequest"
@@ -99,6 +178,32 @@ class RRCConnectionRequest(Packet):
             kwargs["sdu_len"] = int.from_bytes(bytes_input[32:33], byteorder='big')
             kwargs["DedicatedNAS"] = DedicatedNASMessage(bytes_input[37:63])
             kwargs["footer"] = load=bytes_input[60:72]
+        super().__init__(*args, **kwargs)
+
+class DLInformationTransfer(Packet):
+
+    fields_desc = [
+        PacketField("udp", UDP(), UDP),
+    ]
+
+    def __init__(self, *args, **kwargs):
+        if len(args) > 0:
+            bytes_input = args[0]
+            udp_header = UDP(bytes_input[:8])
+            kwargs["udp"] = udp_header
+        super().__init__(*args, **kwargs)
+
+class ULNASTransport(Packet):
+
+    fields_desc = [
+        PacketField("udp", UDP(), UDP),
+    ]
+
+    def __init__(self, *args, **kwargs):
+        if len(args) > 0:
+            bytes_input = args[0]
+            udp_header = UDP(bytes_input[:8])
+            kwargs["udp"] = udp_header
         super().__init__(*args, **kwargs)
 
 
