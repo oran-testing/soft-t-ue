@@ -35,7 +35,7 @@ def shift_bytes_left(byte_obj, shift_amount):
     shifted_bytes = binary_to_bytes(shifted_binary_str)
 
     return shifted_bytes
-=======
+
 def start_subprocess(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return process
