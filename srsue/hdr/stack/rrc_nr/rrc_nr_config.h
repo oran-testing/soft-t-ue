@@ -41,6 +41,7 @@ struct rrc_nr_args_t {
   std::string                 log_level;
   uint32_t                    log_hex_limit;
   uint32_t                    sdu_fuzzed_bits;
+  std::string                 target_message;
 };
 
 } // namespace srsue
