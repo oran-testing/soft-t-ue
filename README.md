@@ -49,3 +49,28 @@ Legend:
   the subprocess provides data back to the process via pipes.
 - A dotted line indicates data movement between two processes.
 ![soft-t-ue.png](https://github.com/oran-testing/soft-t-ue/blob/main/docs/images/soft-t-ue.png)
+
+## Installation
+
+To install the UE run:
+`./scripts/install-ue.sh`
+
+To install the gNB run:
+```
+./scripts/install-open5gs.sh
+./scripts/install-gnb.sh
+```
+
+To install dependencies for the UE controller:
+```
+cd ue-controller
+poetry install
+```
+
+## Running 
+
+To run the controller:
+```
+cd ue-controller
+poetry run python ue_controller/ui.py
+```
