@@ -16,7 +16,6 @@ from kivy.clock import Clock
 
 
 from ue_interface import Ue
-from gnb_interface import Gnb
 
 
 class ProcessesPage(Screen):
@@ -166,7 +165,7 @@ class AttacksPage(Screen):
         if text == "SDU Fuzzing":
             target_message = Spinner(
                 text='Target Message',
-                values=('All', 'RRCSetupRequest','RRCRegistrationRequest'),
+                values=('All', 'rrcSetupRequest','rrcRegistrationRequest'),
                 size_hint=(None, None),
                 size=(400, 44)
             )
@@ -185,15 +184,15 @@ class AttacksPage(Screen):
         self.target_message = text
         if text != "All":
             global attack_args
-            attack_args = ["--rrc.sdu_fuzzed_bits", str(self.num_fuzzed_bits)]
-            # TODO: merge target message branch to main
-                           #, "--rrc.fuzz_target_message", self.target_message]
+            attack_args = ["--rrc.sdu_fuzzed_bits", str(self.num_fuzzed_bits)
+                           , "--rrc.fuzz_target_message", self.target_message]
+            self.title.text = f"--rrc.sdu_fuzzed_bits {self.num_fuzzed_bits} --rrc.fuzz_target_message {self.target_message}"
 
     def set_fuzzed_bits(self, spinner, text):
         self.num_fuzzed_bits = int(text)
         global attack_args
-        attack_args = ["--rrc.sdu_fuzzed_bits", str(self.num_fuzzed_bits)]
-                       #, "--rrc.fuzz_target_message", self.target_message]
+        attack_args = ["--rrc.sdu_fuzzed_bits", str(self.num_fuzzed_bits)
+                       , "--rrc.fuzz_target_message", self.target_message]
         self.title.text = f"--rrc.sdu_fuzzed_bits {self.num_fuzzed_bits} --rrc.fuzz_target_message {self.target_message}"
 
 
