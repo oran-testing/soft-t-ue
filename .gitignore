@@ -1,1 +1,10 @@
 build
+controller/lib
+controller/lib64
+controller/bin
+controller/include
+controller/pyvenv.cfg
+controller/share
+
+ue-controller/ue_controller/__pycache__
+ue-controller/ue_controller/__pycache__/*
