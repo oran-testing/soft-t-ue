@@ -3,6 +3,8 @@ import sys
 import threading
 import time
 import os
+import pathlib
+import argparse
 
 import tailer
 
@@ -12,7 +14,7 @@ from gnb_interface import Gnb
 
 
 class gnb_controller:
-    def start(self):
+    def start(self, gnb_config_str):
         # connect to ue controller
 
         # recieve configuration
@@ -26,7 +28,7 @@ class gnb_controller:
         print("Starting gNB...")
 
         self.gnb_handle = Gnb()
-        self.gnb_handle.start([sys.argv[1]])
+        self.gnb_handle.start([gnb_config_str])
 
         # sending metrics
         self.gnb_logs_process = threading.Thread(
@@ -48,12 +50,28 @@ class gnb_controller:
             sys.stdout.flush()
             sys.stdout.write("\b")
             time.sleep(0.1)
+
+def parse():
+    current_script_path = pathlib.Path(__file__).resolve()
+    repo_root = current_script_path.parent.parent.parent
+    code_root = repo_root.parent
+    parser = argparse.ArgumentParser(
+        description="Run an srsRAN gNB and Open5GS, then send metrics to the ue_controller")
+    parser.add_argument(
+        "--gnb_config",
+        type=pathlib.Path,
+        default=repo_root / "configs" / "gnb_zmq.yaml",
+        help="Path of the gNB config file")
+    return parser.parse_args()
+
 def main():
+    args = parse()
+    print(args)
     os.system("sudo kill -9 $(ps aux | awk '!/gnb\.py/ && /gnb/{print $2}')")
     os.system("sudo kill -9 $(ps aux | awk '/open5gs/{print $2}')")
     time.sleep(0.1)
     controller = gnb_controller()
-    controller.start()
+    controller.start(str(args.gnb_config))
     while controller.gnb_handle.isRunning and controller.core_handle.isRunning:
         time.sleep(0.5)
         print(f"\n\n{time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())}\n")
