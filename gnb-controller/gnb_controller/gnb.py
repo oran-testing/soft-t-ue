@@ -2,6 +2,7 @@ import itertools
 import sys
 import threading
 import time
+import os
 
 import tailer
 
@@ -47,9 +48,10 @@ class gnb_controller:
             sys.stdout.flush()
             sys.stdout.write("\b")
             time.sleep(0.1)
-
-
-if __name__ == "__main__":
+def main():
+    os.system("sudo kill -9 $(ps aux | awk '!/gnb\.py/ && /gnb/{print $2}')")
+    os.system("sudo kill -9 $(ps aux | awk '/open5gs/{print $2}')")
+    time.sleep(0.1)
     controller = gnb_controller()
     controller.start()
     while controller.gnb_handle.isRunning and controller.core_handle.isRunning:
@@ -67,3 +69,8 @@ if __name__ == "__main__":
         print(f"✨ {controller.gnb_handle.iperf_server}")
         iperf_end = '\n\t'.join(controller.gnb_handle.iperf_server.output.split('\n')[-5:])
         print(f"\t{iperf_end}\n\n")
+    return 0
+
+if __name__ == "__main__":
+    rc = main()
+    sys.exit(rc)

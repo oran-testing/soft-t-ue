@@ -1,5 +1,6 @@
 import time
 import threading
+import os
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
@@ -101,6 +102,7 @@ class ProcessesPage(Screen):
         self.ue_type = text
 
     def add_ue(self, instance):
+        self.popup.dismiss()
         new_ue = Ue()
         global attack_args
         new_ue.start([self.config_file] + attack_args)
@@ -127,7 +129,6 @@ class ProcessesPage(Screen):
 
         self.config_file = ""
         self.ue_type = "clean"
-        self.popup.dismiss()
 
 
     def collect_logs(self, label_ref, output_ref, log_ref):
@@ -259,6 +260,7 @@ class MainApp(App):
         active_button.background_color = self.highlighted_color
     
 def main():
+    os.system("sudo kill -9 $(ps aux | awk '/srsue/{print $2}')")
     global ue_list
     ue_list = list()
     global attack_args
