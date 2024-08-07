@@ -2,6 +2,7 @@ import threading
 import time
 
 from utils import kill_subprocess, start_subprocess
+from iperf_interface import Iperf
 
 
 class Gnb:
@@ -11,10 +12,12 @@ class Gnb:
         self.output = ""
         self.initialized = False
         self.name = "srsRAN gNB"
+        self.iperf_server = Iperf()
 
     def start(self, args):
         command = ["sudo", "gnb", "-c"] + args
         self.process = start_subprocess(command)
+        self.iperf_server.start(['-i', '1'])
         self.isRunning = True
 
         self.log_thread = threading.Thread(target=self.collect_logs,

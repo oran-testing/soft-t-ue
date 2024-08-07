@@ -10,11 +10,11 @@ class Iperf:
         self.initialized = False
         self.name = "Iperf -- Stopped"
 
-    def start(self, process_type="server", args):
+    def start(self, args, process_type="server"):
         if process_type == "server":
-            command = ["iperf", "-s"] + args
+            command = ["iperf3", "-s"] + args
         elif process_type == "client":
-            command = ["sudo", "ip", "netns", "ue1","exec", "iperf", "-c"] + args
+            command = ["sudo", "ip", "netns", "ue1","exec", "iperf3", "-c"] + args
         else:
             raise ValueError("Invalid Process Type")
             return

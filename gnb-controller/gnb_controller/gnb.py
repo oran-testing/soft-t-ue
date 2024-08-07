@@ -55,9 +55,15 @@ if __name__ == "__main__":
     while controller.gnb_handle.isRunning and controller.core_handle.isRunning:
         time.sleep(0.5)
         print(f"\n\n{time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())}\n")
+        # Core Network Logs
         print(f"✨ {controller.core_handle}")
         core_end = '\n\t'.join(controller.core_handle.output.split('\n')[-5:])
         print(f"\t{core_end}\n\n")
+        # GNB Logs
         print(f"✨ {controller.gnb_handle}")
         gnb_end = '\n\t'.join(controller.gnb_handle.output.split('\n')[-5:])
         print(f"\t{gnb_end}\n\n")
+        #  Iperf Server Logs
+        print(f"✨ {controller.gnb_handle.iperf_server}")
+        iperf_end = '\n\t'.join(controller.gnb_handle.iperf_server.output.split('\n')[-5:])
+        print(f"\t{iperf_end}\n\n")

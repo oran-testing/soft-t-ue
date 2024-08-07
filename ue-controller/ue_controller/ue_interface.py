@@ -1,4 +1,5 @@
 from utils import start_subprocess, kill_subprocess
+from iperf_interface import Iperf
 import threading
 import time
 
@@ -6,12 +7,13 @@ class Ue:
     def __init__(self):
         self.isRunning = False
         self.process = None
+        self.iperf_client = Iperf()
         self.output = ""
 
     def start(self, args):
         command = ["sudo", "srsue"] + args
-        print(command)
         self.process = start_subprocess(command)
+        self.iperf_client.start(['-c', '10.53.1.1', '-t', '3000', '-u', '-b', '10M'], process_type='client')
         self.isRunning = True
 
         self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
@@ -19,6 +21,7 @@ class Ue:
 
     def stop(self):
         kill_subprocess(self.process)
+        self.iperf_client.stop()
         self.isRunning = False
 
     def collect_logs(self):
