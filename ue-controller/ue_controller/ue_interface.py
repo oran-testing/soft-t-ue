@@ -2,6 +2,7 @@ from utils import start_subprocess, kill_subprocess
 from iperf_interface import Iperf
 import threading
 import time
+import os
 
 class Ue:
     def __init__(self):
@@ -13,6 +14,7 @@ class Ue:
     def start(self, args):
         command = ["sudo", "srsue"] + args
         self.process = start_subprocess(command)
+        os.system("sudo ip netns exec ue1 ip ro add default via 10.45.1.1 dev tun_srsue")
         self.iperf_client.start(['-c', '10.53.1.1', '-t', '3000', '-u', '-b', '10M'], process_type='client')
         self.isRunning = True
 
@@ -39,8 +41,11 @@ class Ue:
 
 if __name__ == "__main__":
     handle = Ue()
-    handle.start(["/home/ntia/Downloads/ue_zmq.conf", "--rrc.sdu_fuzzed_bits", "1", "--rrc.sdu_target_message", "RRCSetupRequest"])
+    handle.start(["/home/ntia/Downloads/ue_zmq.conf"])
+    time.sleep(20)
     while True:
         print(handle.output)
+        print("\n\nIperf:")
+        print(handle.iperf_client.output)
         time.sleep(0.5)
 

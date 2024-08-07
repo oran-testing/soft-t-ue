@@ -14,7 +14,7 @@ class Iperf:
         if process_type == "server":
             command = ["iperf3", "-s"] + args
         elif process_type == "client":
-            command = ["sudo", "ip", "netns", "ue1","exec", "iperf3", "-c"] + args
+            command = ["sudo", "ip", "netns","exec", "ue1", "iperf3", "-c"] + args
         else:
             raise ValueError("Invalid Process Type")
             return
@@ -35,7 +35,7 @@ class Iperf:
     def collect_logs(self):
         while self.isRunning:
             if self.process:
-                line = self.process.stdout.readline()
+                line = self.process.stderr.readline()
                 if line:
                     self.output += '\n' + line.decode().strip()
             else:
