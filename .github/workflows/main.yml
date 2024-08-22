@@ -1,0 +1,26 @@
+name: Run Script and Commands
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x' # Specify your Python version if needed
+
+      - name: Run install scripts
+        run: |
+          sudo ./scripts/install-open5gs.sh && sudo ./scripts/install-gnb.sh && sudo ./install-ue.sh
+
+      - name: Run commands
+        run: |
+          poetry run ./gnb-controller/gnb_controller/gnb.py
