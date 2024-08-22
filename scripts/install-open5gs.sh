@@ -31,6 +31,6 @@ git clone https://github.com/oran-testing/srsRAN_Project.git
 cd srsRAN_Project
 git checkout ue-tester
 cd docker
-docker compose up --build 5gc
+docker compose build 5gc
 
 set -x
