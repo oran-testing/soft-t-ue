@@ -1,6 +1,7 @@
 import time
 import threading
 import os
+import sys
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
@@ -117,7 +118,6 @@ class ProcessesPage(Screen):
         log_view = ScrollView(size_hint=(1, 0.9))
 
         new_ue_label = Label(text=f"starting UE ({self.ue_type})...", width=200)
-        #threading.Thread(target=self.collect_logs, args=(new_ue_label, new_ue, log_view), daemon=True).start()
         Clock.schedule_interval(lambda dt: self.collect_logs(new_ue_label, new_ue, log_view), 1)
         content_label = Label(text=f"sudo srsue {self.config_file} ({self.ue_type})")
 
@@ -133,7 +133,7 @@ class ProcessesPage(Screen):
 
 
     def collect_logs(self, label_ref, output_ref, log_ref):
-        label_ref.text = output_ref.output
+        label_ref.text = output_ref.iperf_client.output
         log_ref.scroll_y = 0
 
     def _update_scroll_height(self):
