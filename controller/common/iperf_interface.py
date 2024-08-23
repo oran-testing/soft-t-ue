@@ -3,14 +3,17 @@ import threading
 import time
 import select
 import sys
+import re
+
 
 class Iperf:
     def __init__(self):
         self.isRunning = False
         self.process = None
-        self.output = ""
+        self.output = []
         self.initialized = False
         self.name = "Iperf -- Stopped"
+        self.process_type = ""
 
     def start(self, args, process_type="server"):
         if process_type == "server":
@@ -28,6 +31,7 @@ class Iperf:
         self.log_thread.start()
         time.sleep(5)
         self.initialized = True
+        self.process_type = process_type
 
     def stop(self):
         kill_subprocess(self.process)
@@ -35,11 +39,17 @@ class Iperf:
         self.name = "Iperf -- Stopped"
 
     def collect_logs(self):
+        bitrate_pattern = re.compile(r'(\d+\.\d+) Mbits/sec')
         while self.isRunning:
             if self.process:
                 line = self.process.stdout.readline()
                 if line:
-                    self.output += "\n" + line.decode().strip()
+                    if self.process_type == "server":
+                        self.output.append(line.decode().strip().split())
+                    else:
+                        bitrate = bitrate_pattern.findall(line.decode().strip())[0]
+                        self.output.append(float(bitrate))
+
             else:
                 self.output += "Process Terminated"
                 self.isRunning = False
