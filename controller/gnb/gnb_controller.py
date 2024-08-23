@@ -8,9 +8,13 @@ import argparse
 
 import tailer
 
+
+# add the common directory to the import path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
+
 from core_interface import CoreNetwork
 from gnb_interface import Gnb
-# from iperf_interface import Iperf
 
 
 class gnb_controller:
@@ -67,7 +71,7 @@ def parse():
 def main():
     args = parse()
     print(args)
-    os.system("sudo kill -9 $(ps aux | awk '!/gnb\.py/ && /gnb/{print $2}')")
+    os.system("sudo kill -9 $(ps aux | awk '!/gnb_controller\.py/ && /gnb/{print $2}')")
     os.system("sudo kill -9 $(ps aux | awk '/open5gs/{print $2}')")
     time.sleep(0.1)
     controller = gnb_controller()

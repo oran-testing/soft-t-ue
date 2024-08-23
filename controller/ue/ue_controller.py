@@ -13,8 +13,9 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.clock import Clock
 
-
-
+# add the common directory to the import path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
 
 from ue_interface import Ue
 

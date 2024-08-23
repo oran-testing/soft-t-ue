@@ -1,8 +1,8 @@
 import threading
 import time
 
-from utils import kill_subprocess, start_subprocess
-from iperf_interface import Iperf
+from common.utils import start_subprocess, kill_subprocess
+from common.iperf_interface import Iperf
 
 
 class Gnb:

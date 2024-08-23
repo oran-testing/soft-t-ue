@@ -1,4 +1,4 @@
-from utils import start_subprocess, kill_subprocess
+from common.utils import start_subprocess, kill_subprocess
 import threading
 import time
 
@@ -35,7 +35,7 @@ class Iperf:
     def collect_logs(self):
         while self.isRunning:
             if self.process:
-                line = self.process.stderr.readline()
+                line = self.process.stdout.readline()
                 if line:
                     self.output += '\n' + line.decode().strip()
             else:
