@@ -1,8 +1,11 @@
-from utils import start_subprocess, kill_subprocess
-from iperf_interface import Iperf
 import threading
 import time
 import os
+import sys
+
+from common.utils import start_subprocess, kill_subprocess
+from common.iperf_interface import Iperf
+
 
 class Ue:
     def __init__(self):
