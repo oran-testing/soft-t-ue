@@ -36,7 +36,6 @@ cu_cp:
 
 log:
   filename: /tmp/gnb.log            # Path of the log file.
-  all_level: info                   # Logging level applied to all layers.
   hex_max_size: 0
 
 pcap:
