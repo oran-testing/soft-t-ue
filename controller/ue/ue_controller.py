@@ -133,7 +133,7 @@ class ProcessesPage(Screen):
 
 
     def collect_logs(self, label_ref, output_ref, log_ref):
-        label_ref.text = output_ref.iperf_client.output
+        label_ref.text = output_ref.output
         log_ref.scroll_y = 0
 
     def _update_scroll_height(self):
