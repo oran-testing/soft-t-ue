@@ -14,9 +14,9 @@ class Iperf:
 
     def start(self, args, process_type="server"):
         if process_type == "server":
-            command = ["iperf3", "-s"] + args + ['2>&1']
+            command = ["iperf3", "-s"] + args
         elif process_type == "client":
-            command = ["sudo", "ip", "netns","exec", "ue1", "iperf3", "-c"] + args + ['2>&1']
+            command = ["sudo", "ip", "netns","exec", "ue1", "iperf3"] + args
         else:
             raise ValueError("Invalid Process Type")
             return

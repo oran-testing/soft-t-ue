@@ -23,8 +23,9 @@ class Ue:
         command = ["sudo", "srsue"] + args
         self.process = start_subprocess(command)
         time.sleep(10)
+        os.system("sudo ip ro add 10.45.0.0/16 via 10.53.1.2")
         os.system("sudo ip netns exec ue1 ip ro add default via 10.45.1.1 dev tun_srsue")
-        self.iperf_client.start(['-c', '10.53.1.1', '-t', '3000', '-u', '-b', '10M'], process_type='client')
+        self.iperf_client.start(['-c', '10.53.1.1','-i', '1', '-t', '3000', '-u', '-b', '10M'], process_type='client')
         self.isRunning = True
 
         self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
