@@ -89,7 +89,7 @@ def main():
         print(f"\t{gnb_end}\n\n")
         #  Iperf Server Logs
         print(f"✨ {controller.gnb_handle.iperf_server}")
-        iperf_end = '\n\t'.join(controller.gnb_handle.iperf_server.output.split('\n')[-5:])
+        iperf_end = '\n\t'.join(controller.gnb_handle.iperf_server.output)
         print(f"\t{iperf_end}\n\n")
     return 0
 

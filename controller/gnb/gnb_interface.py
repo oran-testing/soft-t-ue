@@ -17,7 +17,7 @@ class Gnb:
     def start(self, args):
         command = ["sudo", "gnb", "-c"] + args
         self.process = start_subprocess(command)
-        self.iperf_server.start(['-s', '-i', '1', '-J'])
+        self.iperf_server.start(['-s', '-i', '1'])
         self.isRunning = True
 
         self.log_thread = threading.Thread(target=self.collect_logs,
