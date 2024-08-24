@@ -10,6 +10,7 @@ sys.path.insert(0, parent_dir)
 
 from common.utils import start_subprocess, kill_subprocess
 from common.iperf_interface import Iperf
+from common.ping_interface import Ping
 
 
 class Ue:
@@ -17,6 +18,7 @@ class Ue:
         self.isRunning = False
         self.process = None
         self.iperf_client = Iperf()
+        self.ping_client = Ping()
         self.output = ""
 
     def start(self, args):
@@ -27,6 +29,7 @@ class Ue:
         os.system("sudo ip ro add 10.45.0.0/16 via 10.53.1.2")
         os.system("sudo ip netns exec ue1 ip ro add default via 10.45.1.1 dev tun_srsue")
         self.iperf_client.start(['-c', '10.53.1.1','-i', '1', '-t', '3000', '-u', '-b', '100M', '-R'], process_type='client')
+        self.ping_client.start(['10.53.1.1'])
         self.isRunning = True
 
         self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
