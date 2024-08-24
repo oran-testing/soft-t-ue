@@ -1,6 +1,5 @@
 from common.utils import start_subprocess, kill_subprocess
 import threading
-import time
 import select
 import sys
 import re
@@ -29,7 +28,6 @@ class Iperf:
 
         self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
         self.log_thread.start()
-        time.sleep(5)
         self.initialized = True
         self.process_type = process_type
 
