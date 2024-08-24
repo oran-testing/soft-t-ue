@@ -4,7 +4,8 @@ import subprocess
 def start_subprocess(command):
     process = subprocess.Popen(command,
                                stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+                               stderr=subprocess.PIPE,
+                               text=True)
     return process
 
 

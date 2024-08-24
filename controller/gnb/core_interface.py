@@ -39,7 +39,7 @@ class CoreNetwork:
             if self.process:
                 line = self.process.stdout.readline()
                 if line:
-                    self.output += "\n" + line.decode().strip()
+                    self.output += line
                     if completed_text in self.output:
                         self.initialized = True
 

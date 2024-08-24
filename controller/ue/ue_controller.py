@@ -13,6 +13,16 @@ from kivy.uix.spinner import Spinner
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.clock import Clock
+from kivy.uix.image import Image
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+import matplotlib.pyplot as plt
+import numpy as np
+import io
+from kivy.graphics.texture import Texture
+import PIL.Image
+
+
+
 
 # add the common directory to the import path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -115,15 +125,19 @@ class ProcessesPage(Screen):
             'handle': new_ue
         })
 
-        log_view = ScrollView(size_hint=(1, 0.9))
+        log_view = ScrollView(size_hint=(1, 2))
+        iperf_view = ScrollView(size_hint=(1, 2))
 
         new_ue_label = Label(text=f"starting UE ({self.ue_type})...", width=200)
-        Clock.schedule_interval(lambda dt: self.collect_logs(new_ue_label, new_ue, log_view), 1)
+        new_iperf_label = Label(text=f"starting iperf for UE ({self.ue_type})...", width=200)
+        Clock.schedule_interval(lambda dt: self.collect_logs(new_ue_label, new_iperf_label,new_ue, log_view, iperf_view), 1)
         content_label = Label(text=f"sudo srsue {self.config_file} ({self.ue_type})")
 
         self.process_container.add_widget(content_label)
         log_view.add_widget(new_ue_label)
+        iperf_view.add_widget(new_iperf_label)
         self.process_container.add_widget(log_view)
+        self.process_container.add_widget(iperf_view)
 
 
         self._update_scroll_height()
@@ -132,9 +146,11 @@ class ProcessesPage(Screen):
         self.ue_type = "clean"
 
 
-    def collect_logs(self, label_ref, output_ref, log_ref):
+    def collect_logs(self, label_ref, iperf_label_ref, output_ref, log_ref, iperf_ref):
         label_ref.text = output_ref.output
+        iperf_label_ref.text = str(output_ref.iperf_client.output)
         log_ref.scroll_y = 0
+        iperf_ref.scroll_y = 0
 
     def _update_scroll_height(self):
         self.process_scroll_wrapper.scroll_y = 0
@@ -201,10 +217,62 @@ class AttacksPage(Screen):
 class ResultsPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        layout = BoxLayout(orientation='vertical')
-        label = Label(text='This is Page Two')
-        layout.add_widget(label)
-        self.add_widget(layout)
+        self.layout = BoxLayout(orientation='vertical')
+        self.add_widget(self.layout)
+
+    def create_graphs(self):
+        global ue_list
+        for ue_ref in ue_list:
+            canvas_widget = Image()
+            canvas_label = Label(text=f'Iperf of {str(ue_ref["handle"])}')
+            self.layout.add_widget(canvas_label)
+            self.layout.add_widget(canvas_widget)
+            fig, ax = plt.subplots()
+            fig.patch.set_facecolor('black')
+            ax.set_facecolor('black')
+            ax.tick_params(axis='both', colors='white')
+            ax.xaxis.label.set_color('white')
+            ax.yaxis.label.set_color('white')
+
+            ax.spines['bottom'].set_color('white')
+            ax.spines['left'].set_color('white')
+
+            ax.set_xlim(0, 30)
+            ax.set_ylim(0, 10)
+            line, = ax.plot([], [], lw=2)
+            xdata, ydata = list(range(30)), list(np.zeros(30))
+            iperf_ref = ue_ref["handle"].iperf_client.output
+            Clock.schedule_interval(lambda dt: self.update_graph(iperf_ref, xdata, ydata, ax, fig, canvas_widget), 1)
+
+
+    def update_graph(self, iperf_ref, xdata, ydata, ax, fig, canvas_widget):
+        new_x = xdata[-1] + 1 if xdata else 0
+        new_y = 0
+        if len(iperf_ref) > 0:
+            new_y = iperf_ref[-1]
+        xdata.append(new_x)
+        ydata.append(new_y)
+
+        # Update the plot
+        ax.clear()
+        ax.plot(xdata, ydata, lw=2)
+        ax.set_xlim(max(0, new_x - 30), new_x + 1)
+
+        fig.canvas.draw()
+        buf = io.BytesIO()
+        fig.savefig(buf, format='png', bbox_inches='tight', pad_inches=0)
+        buf.seek(0)
+        canvas_widget.texture = self.texture_from_image(buf)
+
+    def texture_from_image(self, buf):
+        from kivy.graphics.texture import Texture
+        image = PIL.Image.open(buf)
+        image = image.convert('RGB')
+        image = image.transpose(PIL.Image.FLIP_TOP_BOTTOM)
+        texture = Texture.create(size=image.size, colorfmt='rgb')
+        texture.blit_buffer(image.tobytes(), colorfmt='rgb', bufferfmt='ubyte')
+        return texture
+
 
 class MainApp(App):
     def build(self):
@@ -248,6 +316,7 @@ class MainApp(App):
         self.update_button_colors(self.button_attacks_page)
 
     def switch_to_results(self, instance):
+        self.screen_manager.get_screen('results').create_graphs()
         self.screen_manager.current = 'results'
         self.update_button_colors(self.button_results_page)
 

@@ -17,9 +17,9 @@ class Iperf:
 
     def start(self, args, process_type="server"):
         if process_type == "server":
-            command = ["iperf3"] + args
+            command = ["stdbuf","-oL","-eL","iperf3"] + args
         elif process_type == "client":
-            command = ["sudo", "ip", "netns","exec", "ue1", "iperf3"] + args
+            command = ["sudo", "ip", "netns","exec", "ue1", "stdbuf", "-oL", "-eL", "iperf3"] + args
         else:
             raise ValueError("Invalid Process Type")
             return
@@ -45,13 +45,14 @@ class Iperf:
                 line = self.process.stdout.readline()
                 if line:
                     if self.process_type == "server":
-                        self.output.append(line.decode().strip().split())
+                        self.output.append(line)
                     else:
-                        bitrate = bitrate_pattern.findall(line.decode().strip())[0]
-                        self.output.append(float(bitrate))
+                        bitrate = bitrate_pattern.findall(line)
+                        if len(bitrate) > 0:
+                            self.output.append(float(bitrate[0]))
 
             else:
-                self.output += "Process Terminated"
+                self.output.append(0.0)
                 self.isRunning = False
                 break
 
