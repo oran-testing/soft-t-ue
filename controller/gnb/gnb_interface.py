@@ -35,7 +35,7 @@ class Gnb:
             if self.process:
                 line = self.process.stdout.readline()
                 if line:
-                    self.output += "\n" + line.decode().strip()
+                    self.output += line
             else:
                 self.output += "Process Terminated"
                 self.isRunning = False
