@@ -223,32 +223,40 @@ class ResultsPage(Screen):
         self.add_widget(self.layout)
         self.rendered_ue_list = []
 
-    def create_graphs(self):
+    def init_results(self):
         global ue_list
         for ue_ref in ue_list:
             if ue_ref['id'] in self.rendered_ue_list:
                 continue
             self.rendered_ue_list.append(ue_ref["id"])
-            canvas_widget = Image()
-            canvas_label = Label(text=f'Iperf of {str(ue_ref["handle"])}')
-            self.layout.add_widget(canvas_label)
-            self.layout.add_widget(canvas_widget)
-            fig, ax = plt.subplots()
-            fig.patch.set_facecolor('black')
-            ax.set_facecolor('black')
-            ax.tick_params(axis='both', colors='white')
-            ax.xaxis.label.set_color('white')
-            ax.yaxis.label.set_color('white')
+            self.create_graph("iperf", ue_ref)
+            self.create_graph("ping", ue_ref)
 
-            ax.spines['bottom'].set_color('white')
-            ax.spines['left'].set_color('white')
 
-            ax.set_xlim(0, 30)
-            ax.set_ylim(0, 10)
-            line, = ax.plot([], [], lw=2)
-            xdata, ydata = list(range(30)), list(np.zeros(30))
+    def create_graph(self, graph_type, ue_ref):
+        canvas_widget = Image()
+        canvas_label = Label(text=f'Iperf of {str(ue_ref["handle"])}')
+        self.layout.add_widget(canvas_label)
+        self.layout.add_widget(canvas_widget)
+        fig, ax = plt.subplots()
+        fig.patch.set_facecolor('black')
+        ax.set_facecolor('black')
+        ax.tick_params(axis='both', colors='white')
+        ax.xaxis.label.set_color('white')
+        ax.yaxis.label.set_color('white')
+        ax.spines['bottom'].set_color('white')
+        ax.spines['left'].set_color('white')
+
+        ax.set_xlim(0, 30)
+        ax.set_ylim(0, 10)
+        line, = ax.plot([], [], lw=2)
+        xdata, ydata = list(range(30)), list(np.zeros(30))
+        if graph_type == "iperf":
             iperf_ref = ue_ref["handle"].iperf_client.output
             Clock.schedule_interval(lambda dt: self.update_graph(iperf_ref, xdata, ydata, ax, fig, canvas_widget), 1)
+        else:
+            ping_ref = ue_ref["handle"].ping_client.output
+            Clock.schedule_interval(lambda dt: self.update_graph(ping_ref, xdata, ydata, ax, fig, canvas_widget), 1)
 
 
     def update_graph(self, iperf_ref, xdata, ydata, ax, fig, canvas_widget):
@@ -322,7 +330,7 @@ class MainApp(App):
         self.update_button_colors(self.button_attacks_page)
 
     def switch_to_results(self, instance):
-        self.screen_manager.get_screen('results').create_graphs()
+        self.screen_manager.get_screen('results').init_results()
         self.screen_manager.current = 'results'
         self.update_button_colors(self.button_results_page)
 
