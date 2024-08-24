@@ -1,4 +1,5 @@
 import time
+import uuid
 import threading
 import os
 import sys
@@ -120,6 +121,7 @@ class ProcessesPage(Screen):
         new_ue.start([self.config_file] + attack_args)
         global ue_list
         ue_list.append({
+            'id':str(uuid.uuid4()),
             'type': self.ue_type,
             'config': self.config_file,
             'handle': new_ue
@@ -219,10 +221,14 @@ class ResultsPage(Screen):
         super().__init__(**kwargs)
         self.layout = BoxLayout(orientation='vertical')
         self.add_widget(self.layout)
+        self.rendered_ue_list = []
 
     def create_graphs(self):
         global ue_list
         for ue_ref in ue_list:
+            if ue_ref['id'] in self.rendered_ue_list:
+                continue
+            self.rendered_ue_list.append(ue_ref["id"])
             canvas_widget = Image()
             canvas_label = Label(text=f'Iperf of {str(ue_ref["handle"])}')
             self.layout.add_widget(canvas_label)
