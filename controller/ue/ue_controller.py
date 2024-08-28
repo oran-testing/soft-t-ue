@@ -117,8 +117,13 @@ class ProcessesPage(Screen):
     def add_ue(self, instance):
         self.popup.dismiss()
         new_ue = Ue()
-        global attack_args
-        new_ue.start([self.config_file] + attack_args)
+        #global attack_args
+        attack_args = ["--phy.cqi_max", "200", "--phy.cqi_fixed", "200"]
+        if self.ue_type == "tester":
+            print(attack_args)
+            new_ue.start([self.config_file] + attack_args)
+        else:
+            new_ue.start([self.config_file])
         global ue_list
         ue_list.append({
             'id':str(uuid.uuid4()),
