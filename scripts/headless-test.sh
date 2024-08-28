@@ -35,12 +35,10 @@ start_screen_session() {
 	return 0
 }
 
-if ! ps aux | awk '/open/ && !/awk/'; then
-	cd /opt/srsRAN_Project/docker/ && docker compose up 5gc -d
-fi
+cd /opt/srsRAN_Project/docker/ && docker compose up --build 5gc -d
 
 echo "waiting for open5gs..."
-sleep 10
+sleep 30
 
 start_screen_session "$SESSION_1_NAME" "$SESSION_1_COMMAND" "$SESSION_1_LOG"
 SESSION_1_STATUS=$?
@@ -64,6 +62,9 @@ screen -S "ue" -X attach
 
 kill_existing_screen "$SESSION_1_NAME"
 kill_existing_screen "$SESSION_2_NAME"
+
+cat $SESSION_1_LOG
+cat $SESSION_2_LOG
 
 if cat $SESSION_2_LOG | grep 'PDU Session'; then
 	echo "T UE Connected successfully"
