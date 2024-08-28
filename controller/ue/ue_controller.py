@@ -35,6 +35,7 @@ from ue_interface import Ue
 class ProcessesPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.ue_index = 1
         layout = BoxLayout(orientation='vertical')
         self.process_container = BoxLayout(orientation='vertical', padding=0, height=500)
         self.process_scroll_wrapper = ScrollView()
@@ -116,7 +117,7 @@ class ProcessesPage(Screen):
 
     def add_ue(self, instance):
         self.popup.dismiss()
-        new_ue = Ue()
+        new_ue = Ue(self.ue_index)
         #global attack_args
         attack_args = ["--phy.cqi_max", "200", "--phy.cqi_fixed", "200"]
         if self.ue_type == "tester":
@@ -151,6 +152,7 @@ class ProcessesPage(Screen):
 
         self.config_file = ""
         self.ue_type = "clean"
+        self.ue_index += 1
 
 
     def collect_logs(self, label_ref, iperf_label_ref, output_ref, log_ref, iperf_ref):
