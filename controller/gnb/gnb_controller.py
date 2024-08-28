@@ -64,7 +64,7 @@ def parse():
     parser.add_argument(
         "--gnb_config",
         type=pathlib.Path,
-        default=repo_root / "configs" / "gnb_zmq.yaml",
+        default=repo_root / "configs" / "zmq" / "gnb_zmq.yaml",
         help="Path of the gNB config file")
     return parser.parse_args()
 
