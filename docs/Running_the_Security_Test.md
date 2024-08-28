@@ -53,13 +53,43 @@ In 4G & 5G, the signaling between UE and mobile network can be divided into two 
 - **Mobility Management (MM)**: MM is responsible for tracking the UE’s location, managing location updates, and handling authentication and security-related procedures during the mobility of the UE.
 - **Connection Management (CM)**: CM manages the establishment, modification, and termination of connections between the UE and the core network.
         
+**About the Project - NTIA**  
+In NTIA project, UE tests the security of srsRAN using srsRAN's UE. In this project, The tester consists of a client PC running the test GUI and a server PC running the base station. (In some cases, a single PC can run both the client and the server.) The client GUI launches a series of applications to run a test. It communicates with the server to indirectly launch server-side applications with appropriate configurations.
 
-        
-        
+ Soft_UE_Architecture:-
+   ![Soft_UE_Architecture](https://github.com/oran-testing/soft-t-ue/blob/main/docs/images/soft-t-ue.png)  
+   
+   GNB Controller Architecture :- 
+   ![GNB Controller Architecture](https://github.com/oran-testing/soft-t-ue/blob/main/docs/images/gnb-controller.png)  
+   UE Controller Architecure :-  
+   ![UE Controller Architecure](https://github.com/oran-testing/soft-t-ue/blob/main/docs/images/ue-controller.png)  
+   Message Architecture :-  
+   ![Message Architecture](https://github.com/oran-testing/soft-t-ue/blob/main/docs/images/full_message_diagram.png)
+   
+   PDU Session Establishment is the process of establishing a data path between the UE and the 5G core network.  
+   **Running the Security Test**:-
+This tutorial assumes that you have already installed the srsRAN project and dependencies. The installation procedure can be found [here](https://github.com/oran-testing/soft-t-ue).
 
-      
+**Run the SrsRAN Project**:- 
+```
+cd /opt/srsRAN_Project/docker/ 
+sudo docker compose up 5gc     
+```
+**Run the ZMQ Config file** :-
+```
+cd /opt/soft-t-ue/configs
+sudo gnb -c ./gnb_zmq.yaml
+```
+**Build the file and send the message** :-
+```
+cd soft-t-ue/build/
+cmake .. 
+make -j16 
+sudo make install
+cd srsue/src/
+sudo ./srsue ../../../configs/ue_zmq.conf --rrc.sdu_fuzzed_bits 1 --rrc.fuzz_target_message "rrcSetupRequest" 
+```
 
-        
 
         
 
