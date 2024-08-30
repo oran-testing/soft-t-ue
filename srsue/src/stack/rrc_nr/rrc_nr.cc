@@ -710,11 +710,11 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
     }
   }
 
-  if (args.signal_storm_injection > 0 && (args.target_signal_attack == msg.msg.c1().type().to_string() || args.target_message == ""))
+  if (args.signal_storm_injection && (args.target_signal_attack == msg.msg.c1().type().to_string() || args.target_message == ""))
   {
-    while true 
+    while (true) 
     {
-      std::cout << "TestSingalAttack: " << std::endl;
+      std::cout << "TestSignalAttack: " << std::endl;
       pdcp->write_sdu(lcid, std::move(pdu));
 
     }
