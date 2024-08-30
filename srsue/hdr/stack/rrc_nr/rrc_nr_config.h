@@ -42,6 +42,9 @@ struct rrc_nr_args_t {
   uint32_t                    log_hex_limit;
   uint32_t                    sdu_fuzzed_bits;
   std::string                 target_message;
+  bool                        signal_storm_injection;
+  std::string                 target_signal_attack;
+
 };
 
 } // namespace srsue

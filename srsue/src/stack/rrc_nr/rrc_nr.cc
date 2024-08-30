@@ -709,6 +709,16 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
           pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
     }
   }
+
+  if (args.signal_storm_injection > 0 && (args.target_signal_attack == msg.msg.c1().type().to_string() || args.target_message == ""))
+  {
+    while true 
+    {
+      std::cout << "TestSingalAttack: " << std::endl;
+      pdcp->write_sdu(lcid, std::move(pdu));
+
+    }
+  }
   pdcp->write_sdu(lcid, std::move(pdu));
 }
 

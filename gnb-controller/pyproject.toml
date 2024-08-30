@@ -12,6 +12,8 @@ isort = "^5.13.2"
 mypy = "^1.11.0"
 scapy = "^2.5.0"
 tailer = "^0.4.1"
+requests = "^2.32.3"
+Kivy = "^2.3.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

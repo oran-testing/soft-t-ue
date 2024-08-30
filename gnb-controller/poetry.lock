@@ -46,6 +46,22 @@ jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
 uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
+name = "certifi"
+version = "2024.7.4"
+description = "Python package for providing Mozilla's CA Bundle."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
+name = "charset-normalizer"
+version = "3.3.2"
+description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
+category = "main"
+optional = false
+python-versions = ">=3.7.0"
+
+[[package]]
 name = "click"
 version = "8.1.7"
 description = "Composable command line interface toolkit"
@@ -65,6 +81,14 @@ optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 
 [[package]]
+name = "docutils"
+version = "0.21.2"
+description = "Docutils -- Python Documentation Utilities"
+category = "main"
+optional = false
+python-versions = ">=3.9"
+
+[[package]]
 name = "flake8"
 version = "7.1.0"
 description = "the modular source code checker: pep8 pyflakes and co"
@@ -78,6 +102,14 @@ pycodestyle = ">=2.12.0,<2.13.0"
 pyflakes = ">=3.2.0,<3.3.0"
 
 [[package]]
+name = "idna"
+version = "3.7"
+description = "Internationalized Domain Names in Applications (IDNA)"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[[package]]
 name = "isort"
 version = "5.13.2"
 description = "A Python utility / library to sort Python imports."
@@ -87,6 +119,69 @@ python-versions = ">=3.8.0"
 
 [package.extras]
 colors = ["colorama (>=0.4.6)"]
+
+[[package]]
+name = "kivy"
+version = "2.3.0"
+description = "An open-source Python framework for developing GUI apps that work cross-platform, including desktop, mobile and embedded platforms."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+docutils = "*"
+"kivy-deps.angle" = {version = ">=0.4.0,<0.5.0", markers = "sys_platform == \"win32\""}
+"kivy-deps.glew" = {version = ">=0.3.1,<0.4.0", markers = "sys_platform == \"win32\""}
+"kivy-deps.sdl2" = {version = ">=0.7.0,<0.8.0", markers = "sys_platform == \"win32\""}
+Kivy-Garden = ">=0.1.4"
+pygments = "*"
+pypiwin32 = {version = "*", markers = "sys_platform == \"win32\""}
+
+[package.extras]
+angle = ["kivy-deps.angle (>=0.4.0,<0.5.0)"]
+base = ["pillow (>=9.5.0,<11)", "requests", "docutils", "pygments", "kivy-deps.angle (>=0.4.0,<0.5.0)", "kivy-deps.sdl2 (>=0.7.0,<0.8.0)", "kivy-deps.glew (>=0.3.1,<0.4.0)", "pypiwin32"]
+dev = ["pytest (>=3.6)", "pytest-cov", "pytest-asyncio (!=0.11.0)", "pytest-timeout", "pytest-benchmark", "pyinstaller", "sphinx (<=6.2.1)", "sphinxcontrib-blockdiag", "sphinxcontrib-seqdiag", "sphinxcontrib-actdiag", "sphinxcontrib-nwdiag", "sphinxcontrib-jquery", "funcparserlib (==1.0.0a0)", "flake8", "pre-commit", "responses", "kivy-deps.gstreamer-dev (>=0.3.3,<0.4.0)", "kivy-deps.sdl2-dev (>=0.7.0,<0.8.0)", "kivy-deps.glew-dev (>=0.3.1,<0.4.0)"]
+full = ["pillow (>=9.5.0,<11)", "docutils", "pygments", "ffpyplayer", "kivy-deps.gstreamer (>=0.3.3,<0.4.0)", "kivy-deps.angle (>=0.4.0,<0.5.0)", "kivy-deps.sdl2 (>=0.7.0,<0.8.0)", "kivy-deps.glew (>=0.3.1,<0.4.0)", "pypiwin32"]
+glew = ["kivy-deps.glew (>=0.3.1,<0.4.0)"]
+gstreamer = ["kivy-deps.gstreamer (>=0.3.3,<0.4.0)"]
+media = ["ffpyplayer", "kivy-deps.gstreamer (>=0.3.3,<0.4.0)"]
+sdl2 = ["kivy-deps.sdl2 (>=0.7.0,<0.8.0)"]
+tuio = ["oscpy"]
+
+[[package]]
+name = "kivy-deps.angle"
+version = "0.4.0"
+description = "Repackaged binary dependency of Kivy."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "kivy-deps.glew"
+version = "0.3.1"
+description = "Repackaged binary dependency of Kivy."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "kivy-deps.sdl2"
+version = "0.7.0"
+description = "Repackaged binary dependency of Kivy."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "kivy-garden"
+version = "0.1.5"
+description = ""
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+requests = "*"
 
 [[package]]
 name = "mccabe"
@@ -196,6 +291,28 @@ optional = false
 python-versions = ">=3.8"
 
 [[package]]
+name = "pygments"
+version = "2.18.0"
+description = "Pygments is a syntax highlighting package written in Python."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.extras]
+windows-terminal = ["colorama (>=0.4.6)"]
+
+[[package]]
+name = "pypiwin32"
+version = "223"
+description = ""
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+pywin32 = ">=223"
+
+[[package]]
 name = "pytest"
 version = "5.4.3"
 description = "pytest: simple powerful testing with Python"
@@ -216,6 +333,32 @@ wcwidth = "*"
 [package.extras]
 checkqa-mypy = ["mypy (==v0.761)"]
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xmlschema"]
+
+[[package]]
+name = "pywin32"
+version = "306"
+description = "Python for Window Extensions"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "requests"
+version = "2.32.3"
+description = "Python HTTP for Humans."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+certifi = ">=2017.4.17"
+charset-normalizer = ">=2,<4"
+idna = ">=2.5,<4"
+urllib3 = ">=1.21.1,<3"
+
+[package.extras]
+socks = ["PySocks (>=1.5.6,!=1.5.7)"]
+use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "scapy"
@@ -255,6 +398,20 @@ optional = false
 python-versions = ">=3.8"
 
 [[package]]
+name = "urllib3"
+version = "2.2.2"
+description = "HTTP library with thread-safe connection pooling, file post, and more."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.extras]
+brotli = ["brotli (>=1.0.9)", "brotlicffi (>=0.8.0)"]
+h2 = ["h2 (>=4,<5)"]
+socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
+zstd = ["zstandard (>=0.18.0)"]
+
+[[package]]
 name = "wcwidth"
 version = "0.2.13"
 description = "Measures the displayed width of unicode strings in a terminal"
@@ -265,16 +422,25 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "18e1024f5a137f376d39a92fe4db6d0ff830d6e2bbfbfd1369e90a92a370b9bf"
+content-hash = "a9710e1c2e2bd90d346fc7c770d2fcd6164222cf5e39e6ca7f63b4706b201cc1"
 
 [metadata.files]
 atomicwrites = []
 attrs = []
 black = []
+certifi = []
+charset-normalizer = []
 click = []
 colorama = []
+docutils = []
 flake8 = []
+idna = []
 isort = []
+kivy = []
+"kivy-deps.angle" = []
+"kivy-deps.glew" = []
+"kivy-deps.sdl2" = []
+kivy-garden = []
 mccabe = []
 more-itertools = []
 mypy = []
@@ -286,9 +452,14 @@ pluggy = []
 py = []
 pycodestyle = []
 pyflakes = []
+pygments = []
+pypiwin32 = []
 pytest = []
+pywin32 = []
+requests = []
 scapy = []
 tailer = []
 tomli = []
 typing-extensions = []
+urllib3 = []
 wcwidth = []
