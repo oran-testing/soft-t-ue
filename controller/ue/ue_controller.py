@@ -46,6 +46,7 @@ class ProcessesPage(Screen):
 
         self.config_file = ""
         self.ue_type = "clean"
+        self.ue_index = 1
 
 
         self.add_widget(layout)
@@ -118,7 +119,7 @@ class ProcessesPage(Screen):
         self.popup.dismiss()
         new_ue = Ue()
         global attack_args
-        new_ue.start([self.config_file] + attack_args)
+        new_ue.start([self.config_file] + attack_args, self.ue_index)
         global ue_list
         ue_list.append({
             'id':str(uuid.uuid4()),
@@ -126,6 +127,7 @@ class ProcessesPage(Screen):
             'config': self.config_file,
             'handle': new_ue
         })
+        self.ue_index += 1
 
         log_view = ScrollView(size_hint=(1, 2))
         iperf_view = ScrollView(size_hint=(1, 2))

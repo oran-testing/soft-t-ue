@@ -115,8 +115,6 @@ def main():
         for proc in iperf_servers:
             print(f"✨ {proc}")
             print('\t' + '\t'.join(proc.output[-5:]))
-        print(handle_thread.is_alive())
-        print(iperf_servers)
 
     return 0
 
