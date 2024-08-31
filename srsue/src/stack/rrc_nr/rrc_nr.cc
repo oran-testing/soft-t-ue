@@ -662,7 +662,7 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
 
   std::string msg_name = msg.msg.c1().type().to_string();
 
-  if (args.signal_storm_injection && (args.target_signal_attack == msg_name || args.target_message == "")){
+  if (args.target_signal_attack == msg_name){
     rlc->write_sdu(lcid, std::move(signal_flood_ccch(lcid, std::move(pdu), msg_name)));
     return;
   }
@@ -726,7 +726,7 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
 
   std::string msg_name = msg.msg.c1().type().to_string();
 
-  if (args.signal_storm_injection && (args.target_signal_attack == msg_name || args.target_message == "")){
+  if (args.target_signal_attack == msg_name){
     pdcp->write_sdu(lcid, std::move(signal_flood_ccch(lcid, std::move(pdu), msg_name)));
     return;
   }
