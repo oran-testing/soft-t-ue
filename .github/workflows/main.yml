@@ -1,4 +1,4 @@
-name: Run Script and Commands
+name: Run T-UE with srsRAN gNB and Open5GS
 
 on:
   push:
@@ -15,12 +15,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x' # Specify your Python version if needed
+          python-version: '3.x'
 
       - name: Run install scripts
         run: |
-          sudo ./scripts/install-open5gs.sh && sudo ./scripts/install-gnb.sh && sudo ./install-ue.sh
+          sudo ./scripts/install-open5gs.sh && sudo ./scripts/install-gnb.sh && sudo ./scripts/install-ue.sh
 
       - name: Run commands
         run: |
-          poetry run ./gnb-controller/gnb_controller/gnb.py
+          sudo ./scripts/headless-test.sh
