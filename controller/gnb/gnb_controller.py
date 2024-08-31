@@ -5,6 +5,7 @@ import time
 import os
 import pathlib
 import argparse
+import socket
 
 import tailer
 
@@ -15,6 +16,7 @@ sys.path.insert(0, parent_dir)
 
 from core_interface import CoreNetwork
 from gnb_interface import Gnb
+from common.iperf_interface import Iperf
 
 
 class gnb_controller:
@@ -66,7 +68,21 @@ def parse():
         type=pathlib.Path,
         default=repo_root / "configs" / "zmq" / "gnb_zmq.yaml",
         help="Path of the gNB config file")
+    parser.add_argument('--ip', type=str, help='IP address to listen for commands', default="127.0.0.1")
+    parser.add_argument('--port', type=int, help='Port to listen for commands', default="5000")
     return parser.parse_args()
+
+def create_iperf_handles(server_socket, add_callback):
+    while True:
+        client_socket, _ = server_socket.accept()
+        command = client_socket.recv(1024).decode('utf-8').strip()
+        client_socket.close()
+
+        iperf_process = Iperf()
+        if int(command):
+            iperf_process.start(["-s", "-i", "1", "-p", command], process_type="server")
+            add_callback(iperf_process)
+
 
 def main():
     args = parse()
@@ -76,6 +92,16 @@ def main():
     time.sleep(0.1)
     controller = gnb_controller()
     controller.start(str(args.gnb_config))
+
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind((args.ip, args.port))
+    server_socket.listen(1)
+
+    iperf_servers = []
+
+    handle_thread = threading.Thread(target=create_iperf_handles, args=(server_socket, lambda x: iperf_servers.append(x)), daemon=True)
+    handle_thread.start()
+
     while controller.gnb_handle.isRunning and controller.core_handle.isRunning:
         time.sleep(0.5)
         print(f"\n\n{time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())}\n")
@@ -85,12 +111,13 @@ def main():
         print(f"\t{core_end}\n\n")
         # GNB Logs
         print(f"✨ {controller.gnb_handle}")
-        gnb_end = '\n\t'.join(controller.gnb_handle.output.split('\n')[-5:])
-        print(f"\t{gnb_end}\n\n")
         #  Iperf Server Logs
-        print(f"✨ {controller.gnb_handle.iperf_server}")
-        iperf_end = '\n\t'.join(controller.gnb_handle.iperf_server.output[-5:])
-        print(f"\t{iperf_end}\n\n")
+        for proc in iperf_servers:
+            print(f"✨ {proc}")
+            print('\t' + '\t'.join(proc.output[-5:]))
+        print(handle_thread.is_alive())
+        print(iperf_servers)
+
     return 0
 
 if __name__ == "__main__":
