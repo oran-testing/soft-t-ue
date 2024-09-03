@@ -1546,6 +1546,7 @@ bool rrc_nr::apply_ul_common_cfg(const asn1::rrc_nr::ul_cfg_common_s& ul_cfg_com
       if (ul_cfg_common.init_ul_bwp.rach_cfg_common.type() == setup_release_c<rach_cfg_common_s>::types_opts::setup) {
         rach_cfg_nr_t rach_cfg_nr = {};
         make_mac_rach_cfg(ul_cfg_common.init_ul_bwp.rach_cfg_common.setup(), &rach_cfg_nr);
+        rach_cfg_nr.rach_flood_count = args.rach_flood_count;
         mac->set_config(rach_cfg_nr);
 
         // Make the RACH configuration for PHY
