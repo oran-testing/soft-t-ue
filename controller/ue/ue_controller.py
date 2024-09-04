@@ -235,6 +235,7 @@ class ResultsPage(Screen):
             self.create_graph("ping", ue_ref)
 
 
+    # TODO: Fix this graphing function to be more efficient
     def create_graph(self, graph_type, ue_ref):
         canvas_widget = Image()
         canvas_label = Label(text=f'Iperf of {str(ue_ref["handle"])}')
