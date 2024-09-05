@@ -6,5 +6,6 @@ controller/include
 controller/pyvenv.cfg
 controller/share
 
-ue-controller/ue_controller/__pycache__
-ue-controller/ue_controller/__pycache__/*
+controller/ue/__pycache__
+controller/common/__pycache__
+controller/gnb/__pycache__
