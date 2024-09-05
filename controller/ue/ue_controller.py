@@ -35,6 +35,7 @@ from ue_interface import Ue
 class ProcessesPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.ue_index = 1
         layout = BoxLayout(orientation='vertical')
         self.process_container = BoxLayout(orientation='vertical', padding=0, height=500)
         self.process_scroll_wrapper = ScrollView()
@@ -117,9 +118,13 @@ class ProcessesPage(Screen):
 
     def add_ue(self, instance):
         self.popup.dismiss()
-        new_ue = Ue()
+        new_ue = Ue(self.ue_index)
         global attack_args
-        new_ue.start([self.config_file] + attack_args, self.ue_index)
+        if self.ue_type == "tester":
+            print(attack_args)
+            new_ue.start([self.config_file] + attack_args)
+        else:
+            new_ue.start([self.config_file])
         global ue_list
         ue_list.append({
             'id':str(uuid.uuid4()),
@@ -148,6 +153,7 @@ class ProcessesPage(Screen):
 
         self.config_file = ""
         self.ue_type = "clean"
+        self.ue_index += 1
 
 
     def collect_logs(self, label_ref, iperf_label_ref, output_ref, log_ref, iperf_ref):
@@ -166,7 +172,7 @@ class AttacksPage(Screen):
         layout = BoxLayout(orientation='vertical')
         attack_option = Spinner(
             text='Attack Type',
-            values=('None', 'SDU Fuzzing'),
+            values=('None', 'SDU Fuzzing', 'CQI Manipulation'),
             size_hint=(None, None),
             size=(400, 44)
         )
@@ -201,6 +207,16 @@ class AttacksPage(Screen):
             bits_to_fuzz.bind(text=self.set_fuzzed_bits)
             self.attack_settings.add_widget(target_message)
             self.attack_settings.add_widget(bits_to_fuzz)
+        if text == "CQI Manipulation":
+            cqi_value = Spinner(
+                text='CQI Value',
+                values=[str(i * 100) for i in range(10)],
+                size_hint=(None, None),
+                size=(200, 44)
+            )
+            cqi_value.bind(text=self.set_cqi_value)
+            self.attack_settings.add_widget(cqi_value)
+
 
     def set_target_message(self, spinner, text):
         self.target_message = text
@@ -216,6 +232,13 @@ class AttacksPage(Screen):
         attack_args = ["--rrc.sdu_fuzzed_bits", str(self.num_fuzzed_bits)
                        , "--rrc.fuzz_target_message", self.target_message]
         self.title.text = f"--rrc.sdu_fuzzed_bits {self.num_fuzzed_bits} --rrc.fuzz_target_message {self.target_message}"
+
+    def set_cqi_value(self, spinner, text):
+        global attack_args
+        attack_args = ["--phy.cqi_max", text, "--phy.cqi_fixed", text]
+        self.title.text = f"--phy.cqi_max {text} --phy.cqi_fixed {text}"
+
+
 
 
 class ResultsPage(Screen):
