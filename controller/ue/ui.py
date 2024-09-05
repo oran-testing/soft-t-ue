@@ -1,8 +1,6 @@
 import time
-import uuid
 import threading
 import os
-import sys
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
@@ -14,30 +12,16 @@ from kivy.uix.spinner import Spinner
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.clock import Clock
-from kivy.uix.image import Image
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-import matplotlib.pyplot as plt
-import numpy as np
-import io
-from kivy.graphics.texture import Texture
-import PIL.Image
-
-from kivy.uix.gridlayout import GridLayout
 from kivy.animation import Animation
 from kivy.uix.image import Image, AsyncImage
 from kivy.uix.relativelayout import RelativeLayout
+
+from ue_interface import Ue
 from kivy.uix.image import Image
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 
-
-
-# add the common directory to the import path
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, parent_dir)
-
-from ue_interface import Ue
 
 class LandingPage(Screen):
 
@@ -75,6 +59,7 @@ class LandingPage(Screen):
     def switch_to_processes(self, *args):
         self.manager.current = 'processes'
         
+
 class ProcessesPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -89,7 +74,6 @@ class ProcessesPage(Screen):
 
         self.config_file = ""
         self.ue_type = "clean"
-        self.ue_index = 1
 
 
         self.add_widget(layout)
@@ -162,30 +146,24 @@ class ProcessesPage(Screen):
         self.popup.dismiss()
         new_ue = Ue()
         global attack_args
-        new_ue.start([self.config_file] + attack_args, self.ue_index)
+        new_ue.start([self.config_file] + attack_args)
         global ue_list
         ue_list.append({
-            'id':str(uuid.uuid4()),
             'type': self.ue_type,
             'config': self.config_file,
             'handle': new_ue
         })
-        self.ue_index += 1
 
-        log_view = ScrollView(size_hint=(1, 2))
-        iperf_view = ScrollView(size_hint=(1, 2))
+        log_view = ScrollView(size_hint=(1, 0.9))
 
         new_ue_label = Label(text=f"starting UE ({self.ue_type})...", width=200)
-        new_iperf_label = Label(text=f"starting iperf for UE ({self.ue_type})...", width=200)
-        
-        Clock.schedule_interval(lambda dt: self.collect_logs(new_ue_label, new_iperf_label,new_ue, log_view, iperf_view), 1)
+        #threading.Thread(target=self.collect_logs, args=(new_ue_label, new_ue, log_view), daemon=True).start()
+        Clock.schedule_interval(lambda dt: self.collect_logs(new_ue_label, new_ue, log_view), 1)
         content_label = Label(text=f"sudo srsue {self.config_file} ({self.ue_type})")
 
         self.process_container.add_widget(content_label)
         log_view.add_widget(new_ue_label)
-        iperf_view.add_widget(new_iperf_label)
         self.process_container.add_widget(log_view)
-        self.process_container.add_widget(iperf_view)
 
 
         self._update_scroll_height()
@@ -194,11 +172,9 @@ class ProcessesPage(Screen):
         self.ue_type = "clean"
 
 
-    def collect_logs(self, label_ref, iperf_label_ref, output_ref, log_ref, iperf_ref):
+    def collect_logs(self, label_ref, output_ref, log_ref):
         label_ref.text = output_ref.output
-        iperf_label_ref.text = str(output_ref.iperf_client.output)
         log_ref.scroll_y = 0
-        iperf_ref.scroll_y = 0
 
     def _update_scroll_height(self):
         self.process_scroll_wrapper.scroll_y = 0
@@ -227,6 +203,12 @@ class AttacksPage(Screen):
 
     def set_attack_type(self, spinner, text):
         self.title.text = f'Attack Type: {text}'
+        
+        select_button = Button(text="Select", size_hint_y=None, height=50)
+        cancel_button = Button(text="Cancel", size_hint_y=None, height=50)
+        button_layout.add_widget(select_button)
+        button_layout.add_widget(cancel_button)
+
         self.attack_type = text
         if text == "SDU Fuzzing":
             target_message = Spinner(
@@ -265,84 +247,14 @@ class AttacksPage(Screen):
 class ResultsPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.layout = GridLayout(cols=3, padding=10, spacing=10)
-        self.add_widget(self.layout)
-        self.rendered_ue_list = []
-
-    def init_results(self):
-        global ue_list
-        for ue_ref in ue_list:
-            if ue_ref['id'] in self.rendered_ue_list:
-                continue
-            self.rendered_ue_list.append(ue_ref["id"])
-            self.create_graph("iperf", ue_ref)
-            self.create_graph("ping", ue_ref)
-
-
-    def create_graph(self, graph_type, ue_ref):
-
-        graph_container = BoxLayout(orientation='vertical')
-        canvas_widget = Image(size_hint=(1, 1), keep_ratio=True)
-        canvas_label = Label(text=f'Iperf of {str(ue_ref["handle"])}')
-
-        graph_container.add_widget(canvas_widget)
-        graph_container.add_widget(canvas_label)
-
-
-        self.layout.add_widget(graph_container)
-       
-        fig, ax = plt.subplots()
-        fig.patch.set_facecolor('black')
-        ax.set_facecolor('black')
-        ax.tick_params(axis='both', colors='white')
-        ax.xaxis.label.set_color('white')
-        ax.yaxis.label.set_color('white')
-        ax.spines['bottom'].set_color('white')
-        ax.spines['left'].set_color('white')
-
-        ax.set_xlim(0, 30)
-        ax.set_ylim(0, 10)
-        line, = ax.plot([], [], lw=2)
-        xdata, ydata = list(range(30)), list(np.zeros(30))
-        if graph_type == "iperf":
-            iperf_ref = ue_ref["handle"].iperf_client.output
-            Clock.schedule_interval(lambda dt: self.update_graph(iperf_ref, xdata, ydata, ax, fig, canvas_widget), 1)
-        else:
-            ping_ref = ue_ref["handle"].ping_client.output
-            Clock.schedule_interval(lambda dt: self.update_graph(ping_ref, xdata, ydata, ax, fig, canvas_widget), 1)
-
-
-    def update_graph(self, iperf_ref, xdata, ydata, ax, fig, canvas_widget):
-        new_x = xdata[-1] + 1 if xdata else 0
-        new_y = 0
-        if len(iperf_ref) > 0:
-            new_y = iperf_ref[-1]
-        xdata.append(new_x)
-        ydata.append(new_y)
-
-        # Update the plot
-        ax.clear()
-        ax.plot(xdata, ydata, lw=2)
-        ax.set_xlim(max(0, new_x - 30), new_x + 1)
-
-        fig.canvas.draw()
-        buf = io.BytesIO()
-        fig.savefig(buf, format='png', bbox_inches='tight', pad_inches=0)
-        buf.seek(0)
-        canvas_widget.texture = self.texture_from_image(buf)
-
-    def texture_from_image(self, buf):
-        from kivy.graphics.texture import Texture
-        image = PIL.Image.open(buf)
-        image = image.convert('RGB')
-        image = image.transpose(PIL.Image.FLIP_TOP_BOTTOM)
-        texture = Texture.create(size=image.size, colorfmt='rgb')
-        texture.blit_buffer(image.tobytes(), colorfmt='rgb', bufferfmt='ubyte')
-        return texture
-
+        layout = BoxLayout(orientation='vertical')
+        label = Label(text='This is Page Two')
+        layout.add_widget(label)
+        self.add_widget(layout)
 
 class MainApp(App):
     def build(self):
+        global animation_completed
         self.screen_manager = ScreenManager()
 
         self.landing = LandingPage(name='landing')
@@ -355,12 +267,27 @@ class MainApp(App):
         self.screen_manager.add_widget(self.attacks)
         self.screen_manager.add_widget(self.results)
 
+        animationStatus = LandingPage()
+        print("Animation Completed :",animationStatus.animation_completed)
+        
         # Define the button colors
         self.default_color = [1, 1, 1, 1]  # White
         self.highlighted_color = [0, 1, 0, 1]  # Green
 
         # Create a layout for the buttons on top
         self.button_layout = BoxLayout(size_hint_y=None, height=50)
+        
+        self.button_layout.opacity = 0 
+        
+        if animationStatus.animation_completed == 1:
+                self.button_layout.opacity = 1
+
+                
+
+        else:
+            self.button_layout.opacity = 0  
+        
+        
 
         self.button_process_page = Button(text='Processes', on_press=self.switch_to_processes, background_color=self.highlighted_color)
         self.button_attacks_page = Button(text='Attacks', on_press=self.switch_to_attacks, background_color=self.default_color)
@@ -374,13 +301,6 @@ class MainApp(App):
         main_layout.add_widget(self.button_layout)
         main_layout.add_widget(self.screen_manager)
 
-        self.button_layout.opacity = 0 
-        animationStatus = LandingPage()
-
-        if animationStatus.animation_completed == 1:
-                self.button_layout.opacity = 1
-        else:
-            self.button_layout.opacity = 0  
         Clock.schedule_once(self.load_navigation, 1)
 
         return main_layout
@@ -388,6 +308,7 @@ class MainApp(App):
     def load_navigation(self, *args):
         animate = Animation(opacity=1, duration = 5)
         animate.start(self.button_layout)
+
 
     def switch_to_processes(self, instance):
         self.screen_manager.current = 'processes'
@@ -398,7 +319,6 @@ class MainApp(App):
         self.update_button_colors(self.button_attacks_page)
 
     def switch_to_results(self, instance):
-        self.screen_manager.get_screen('results').init_results()
         self.screen_manager.current = 'results'
         self.update_button_colors(self.button_results_page)
 
