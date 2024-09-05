@@ -21,6 +21,8 @@ import numpy as np
 import io
 from kivy.graphics.texture import Texture
 import PIL.Image
+from kivy_garden.graph import Graph, MeshLinePlot
+
 
 from kivy.uix.gridlayout import GridLayout
 from kivy.animation import Animation
@@ -49,7 +51,7 @@ class LandingPage(Screen):
         self.background = Image(source='Webimage.png', allow_stretch=True, keep_ratio=False)
         layout.add_widget(self.background)
         self.welcome_label = Label(
-            text="Welcome to the NTIA Software Testing Platform!\nAn SDR security testing UE based on srsRAN's UE.",
+            text="NTIA Soft T UE",
             font_size='30sp',
             halign='center',
             valign='middle'
@@ -62,10 +64,10 @@ class LandingPage(Screen):
         self.add_widget(layout)
 
     def on_enter(self):
-        Clock.schedule_once(self.animate_transition, 2)
+        Clock.schedule_once(self.animate_transition, 1)
 
     def animate_transition(self, *args):
-        anim = Animation(opacity=0, duration=0.5)
+        anim = Animation(opacity=0, duration=1)
         anim.start(self.welcome_label)
         anim.start(self.background) 
 
@@ -74,7 +76,7 @@ class LandingPage(Screen):
 
     def switch_to_processes(self, *args):
         self.manager.current = 'processes'
-        
+
 class ProcessesPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -88,7 +90,7 @@ class ProcessesPage(Screen):
         self.process_scroll.add_widget(self.process_container)
         layout.add_widget(self.process_scroll)
 
-        add_ue_button = Button(text='Add UE', on_press=self.open_add_ue_popup, background_color=[0,1,0,1], size_hint_y=None)
+        add_ue_button = Button(text='New UE', on_press=self.open_add_ue_popup, background_color=[0,1,0,1], size_hint_y=None)
         layout.add_widget(add_ue_button)
 
         self.config_file = ""
@@ -174,7 +176,8 @@ class ProcessesPage(Screen):
             'id':str(uuid.uuid4()),
             'type': self.ue_type,
             'config': self.config_file,
-            'handle': new_ue
+            'handle': new_ue,
+            'index': self.ue_index
         })
         self.ue_index += 1
 
@@ -273,7 +276,7 @@ class AttacksPage(Screen):
 class ResultsPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.layout = GridLayout(cols=3, padding=10, spacing=10)
+        self.layout = GridLayout(cols=1, padding=[10,40,10,10], spacing=10,)
         self.add_widget(self.layout)
         self.rendered_ue_list = []
 
@@ -283,71 +286,59 @@ class ResultsPage(Screen):
             if ue_ref['id'] in self.rendered_ue_list:
                 continue
             self.rendered_ue_list.append(ue_ref["id"])
-            self.create_graph("iperf", ue_ref)
-            self.create_graph("ping", ue_ref)
+            ue_results_block = BoxLayout()
+            ue_results_block.add_widget(self.create_graph("iperf", ue_ref))
+            ue_results_block.add_widget(self.create_graph("ping", ue_ref))
+            self.layout.add_widget(ue_results_block)
 
 
     def create_graph(self, graph_type, ue_ref):
+        plot = MeshLinePlot(color=[1,1,1,1])
+        plot.line_width = 4
+        graph = Graph(
+            xlabel='time (s)',
+            ylabel='Bandwidth (MBits/sec)',
+            x_ticks_minor=1,
+            x_ticks_major=5,
+            y_ticks_major=1,
+            y_grid_label=True,
+            x_grid_label=True,
+            padding=5,
+            xlog=False,
+            ylog=False,
+            x_grid=True,
+            y_grid=True,
+            ymin=0,
+            ymax=70,
+            xmin=0,
+            xmax=30
+        )
+        if graph_type == "ping":
+            graph.ylabel = "Latency (ms)"
+            graph.ymax = 200
 
-        graph_container = BoxLayout(orientation='vertical')
-        canvas_widget = Image(size_hint=(1, 1), keep_ratio=True)
-        canvas_label = Label(text=f'Iperf of {str(ue_ref["handle"])}')
-
-        graph_container.add_widget(canvas_widget)
-        graph_container.add_widget(canvas_label)
-
-
-        self.layout.add_widget(graph_container)
-       
-        fig, ax = plt.subplots()
-        fig.patch.set_facecolor('black')
-        ax.set_facecolor('black')
-        ax.tick_params(axis='both', colors='white')
-        ax.xaxis.label.set_color('white')
-        ax.yaxis.label.set_color('white')
-        ax.spines['bottom'].set_color('white')
-        ax.spines['left'].set_color('white')
-
-        ax.set_xlim(0, 30)
-        ax.set_ylim(0, 10)
-        line, = ax.plot([], [], lw=2)
-        xdata, ydata = list(range(30)), list(np.zeros(30))
-        if graph_type == "iperf":
-            iperf_ref = ue_ref["handle"].iperf_client.output
-            Clock.schedule_interval(lambda dt: self.update_graph(iperf_ref, xdata, ydata, ax, fig, canvas_widget), 1)
+        graph.add_plot(plot)
+        xdata = list(range(30))
+        ydata = [0] * 30
+        if graph_type == "ping":
+            Clock.schedule_interval(lambda dt: self.update_points(plot, ue_ref["handle"].ping_client.output, xdata, ydata), 1)
         else:
-            ping_ref = ue_ref["handle"].ping_client.output
-            Clock.schedule_interval(lambda dt: self.update_graph(ping_ref, xdata, ydata, ax, fig, canvas_widget), 1)
+            Clock.schedule_interval(lambda dt: self.update_points(plot, ue_ref["handle"].iperf_client.output, xdata, ydata), 1)
+
+        return graph
 
 
-    def update_graph(self, iperf_ref, xdata, ydata, ax, fig, canvas_widget):
-        new_x = xdata[-1] + 1 if xdata else 0
-        new_y = 0
-        if len(iperf_ref) > 0:
-            new_y = iperf_ref[-1]
-        xdata.append(new_x)
-        ydata.append(new_y)
-
-        # Update the plot
-        ax.clear()
-        ax.plot(xdata, ydata, lw=2)
-        ax.set_xlim(max(0, new_x - 30), new_x + 1)
-
-        fig.canvas.draw()
-        buf = io.BytesIO()
-        fig.savefig(buf, format='png', bbox_inches='tight', pad_inches=0)
-        buf.seek(0)
-        canvas_widget.texture = self.texture_from_image(buf)
-
-    def texture_from_image(self, buf):
-        from kivy.graphics.texture import Texture
-        image = PIL.Image.open(buf)
-        image = image.convert('RGB')
-        image = image.transpose(PIL.Image.FLIP_TOP_BOTTOM)
-        texture = Texture.create(size=image.size, colorfmt='rgb')
-        texture.blit_buffer(image.tobytes(), colorfmt='rgb', bufferfmt='ubyte')
-        return texture
-
+    def update_points(self, plot, data_ref, xdata, ydata):
+        if len(data_ref) > 0:
+            new_y = data_ref[-1]
+            ydata.append(new_y)
+            if len(ydata) > len(xdata):
+                ydata.pop(0)
+        
+        while len(xdata) > len(ydata):
+            xdata.pop(0)
+        
+        plot.points = list(zip(xdata, ydata))        
 
 class MainApp(App):
     def build(self):
@@ -389,12 +380,12 @@ class MainApp(App):
                 self.button_layout.opacity = 1
         else:
             self.button_layout.opacity = 0  
-        Clock.schedule_once(self.load_navigation, 1)
+        Clock.schedule_once(self.load_navigation, 0.25)
 
         return main_layout
 
     def load_navigation(self, *args):
-        animate = Animation(opacity=1, duration = 5)
+        animate = Animation(opacity=1, duration=2)
         animate.start(self.button_layout)
 
     def switch_to_processes(self, instance):

@@ -41,7 +41,7 @@ class Ping:
                 if line:
                     latency = latency_pattern.findall(line)
                     if latency:
-                        self.output.append(float(latency[0]))
+                        self.output.append(float(latency[0]) * 1000)
 
             else:
                 self.output.append(0.0)
