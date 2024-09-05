@@ -65,7 +65,7 @@ class LandingPage(Screen):
         Clock.schedule_once(self.animate_transition, 2)
 
     def animate_transition(self, *args):
-        anim = Animation(opacity=0, duration=1)
+        anim = Animation(opacity=0, duration=0.5)
         anim.start(self.welcome_label)
         anim.start(self.background) 
 
@@ -79,10 +79,14 @@ class ProcessesPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation='vertical')
-        self.process_container = BoxLayout(orientation='vertical', padding=0, height=500)
-        self.process_scroll_wrapper = ScrollView()
-        self.process_scroll_wrapper.add_widget(self.process_container)
-        layout.add_widget(self.process_scroll_wrapper)
+        self.process_container = BoxLayout(
+            orientation="vertical", 
+            size_hint_y=None,
+        )
+        self.process_container.bind(minimum_height=self.process_container.setter('height'))
+        self.process_scroll = ScrollView()
+        self.process_scroll.add_widget(self.process_container)
+        layout.add_widget(self.process_scroll)
 
         add_ue_button = Button(text='Add UE', on_press=self.open_add_ue_popup, background_color=[0,1,0,1], size_hint_y=None)
         layout.add_widget(add_ue_button)
@@ -104,7 +108,7 @@ class ProcessesPage(Screen):
         add_button = Button(text="Add", size_hint_y=None, height=50)
 
         ue_type_spinner = Spinner(
-            text='Select an option',
+            text='clean',
             values=('clean', 'tester'),
             size_hint=(None, None),
             size=(200, 44)
@@ -154,7 +158,6 @@ class ProcessesPage(Screen):
         popup.dismiss()
 
     def set_ue_type(self, spinner, text):
-        # Update the label with the selected option
         self.ue_type_label.text = f'UE type: {text}'
         self.ue_type = text
 
@@ -162,7 +165,10 @@ class ProcessesPage(Screen):
         self.popup.dismiss()
         new_ue = Ue()
         global attack_args
-        new_ue.start([self.config_file] + attack_args, self.ue_index)
+        if self.ue_type == "clean":
+            new_ue.start([self.config_file], self.ue_index)
+        else:
+            new_ue.start([self.config_file] + attack_args, self.ue_index)
         global ue_list
         ue_list.append({
             'id':str(uuid.uuid4()),
@@ -172,36 +178,38 @@ class ProcessesPage(Screen):
         })
         self.ue_index += 1
 
-        log_view = ScrollView(size_hint=(1, 2))
-        iperf_view = ScrollView(size_hint=(1, 2))
+        log_view = BoxLayout(
+            orientation="vertical",
+            size_hint_y=None,
+            height=500
+        )
+        new_ue_text = Label(
+            text=f"starting UE ({self.ue_type})...", 
+            size_hint_y=None,
+            font_size="15sp",
+            padding=[10,20,10,20]
+        )
 
-        new_ue_label = Label(text=f"starting UE ({self.ue_type})...", width=200)
-        new_iperf_label = Label(text=f"starting iperf for UE ({self.ue_type})...", width=200)
-        
-        Clock.schedule_interval(lambda dt: self.collect_logs(new_ue_label, new_iperf_label,new_ue, log_view, iperf_view), 1)
-        content_label = Label(text=f"sudo srsue {self.config_file} ({self.ue_type})")
+        Clock.schedule_interval(lambda dt: self.collect_logs(new_ue_text, new_ue, log_view), 1)
+        content_label = Label(
+            text=f"sudo srsue {self.config_file} {attack_args}",
+            font_size="20sp",
+            padding=[10,20,10,20],
+        )
+        if self.ue_type == "clean":
+            content_label.text = f"sudo srsue {self.config_file}"
 
-        self.process_container.add_widget(content_label)
-        log_view.add_widget(new_ue_label)
-        iperf_view.add_widget(new_iperf_label)
+        log_view.add_widget(content_label)
+        log_view.add_widget(new_ue_text)
         self.process_container.add_widget(log_view)
-        self.process_container.add_widget(iperf_view)
-
-
-        self._update_scroll_height()
 
         self.config_file = ""
         self.ue_type = "clean"
 
-
-    def collect_logs(self, label_ref, iperf_label_ref, output_ref, log_ref, iperf_ref):
-        label_ref.text = output_ref.output
-        iperf_label_ref.text = str(output_ref.iperf_client.output)
+    def collect_logs(self, label_ref, ue_ref, log_ref):
+        label_ref.text = ue_ref.output
         log_ref.scroll_y = 0
-        iperf_ref.scroll_y = 0
 
-    def _update_scroll_height(self):
-        self.process_scroll_wrapper.scroll_y = 0
 
 
 class AttacksPage(Screen):
