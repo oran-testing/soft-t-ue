@@ -11,17 +11,29 @@ class CoreNetwork:
         self.initialized = False
         self.name = "Open5GS Core Network"
 
-    def start(self):
-        command = [
-            "sudo",
-            "docker",
-            "compose",
-            "-f",
-            "/opt/srsRAN_Project/docker/docker-compose.yml",
-            "up",
-            "--build",
-            "5gc",
-        ]
+    def start(self, rebuild):
+        command = list()
+        if rebuild:
+            command = [
+                "sudo",
+                "docker",
+                "compose",
+                "-f",
+                "/opt/srsRAN_Project/docker/docker-compose.yml",
+                "up",
+                "--build",
+                "5gc",
+            ]
+        else:
+            command = [
+                "sudo",
+                "docker",
+                "compose",
+                "-f",
+                "/opt/srsRAN_Project/docker/docker-compose.yml",
+                "up",
+                "5gc",
+            ]
         self.process = start_subprocess(command)
         self.isRunning = True
 

@@ -16,6 +16,10 @@ jobs:
         run: |
           sudo ./scripts/install-open5gs.sh && sudo ./scripts/install-gnb.sh && sudo ./scripts/install-ue.sh
 
+      - name: Clean UE
+        run: |
+          sudo ./scripts/headless-test.sh
+
       - name: CQI Manipulation
         run: |
           sudo ./scripts/headless-test.sh --phy.cqi_max 100 --phy.cqi_fixed 100
