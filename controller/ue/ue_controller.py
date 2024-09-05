@@ -15,6 +15,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.clock import Clock
 from kivy.uix.image import Image
+from kivy.uix.rst import RstDocument
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import matplotlib.pyplot as plt
 import numpy as np
@@ -222,28 +223,41 @@ class ProcessesPage(Screen):
 class AttacksPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        layout = BoxLayout(orientation='vertical')
+        self.layout = BoxLayout(orientation='vertical')
         attack_option = Spinner(
             text='Attack Type',
-            values=('None', 'SDU Fuzzing', 'CQI Manipulation'),
+            values=(
+                'sdu_fuzzing',
+                'cqi_manipulation',
+                'rrc_signal_flooding',
+                'rach_jamming',
+                'rach_replay',
+                'preamble_collision',
+                'rach_signal_flooding',
+                'imsi_capture',
+            ),
             size_hint=(None, None),
             size=(400, 44)
         )
         attack_option.bind(text=self.set_attack_type)
-        layout.add_widget(attack_option)
-        self.title = Label(text="Attack Type: None")
+        self.layout.add_widget(attack_option)
         self.attack_type = "None"
         self.attack_settings = BoxLayout(orientation='vertical')
-        layout.add_widget(self.title)
-        layout.add_widget(self.attack_settings)
-        self.add_widget(layout)
+        self.layout.add_widget(self.attack_settings)
+        self.add_widget(self.layout)
         self.num_fuzzed_bits = 1
         self.target_message = "All"
 
     def set_attack_type(self, spinner, text):
-        self.title.text = f'Attack Type: {text}'
+        self.layout.add_widget(
+            RstDocument(
+                source=f"../../docs/attacks/{text}.rst",
+                background_color=[0.1,0.1,0.1,1],
+            )
+        )
         self.attack_type = text
-        if text == "SDU Fuzzing":
+
+        if text == "sdu_fuzzing":
             target_message = Spinner(
                 text='Target Message',
                 values=('All', 'rrcSetupRequest','rrcRegistrationRequest'),
@@ -357,11 +371,11 @@ class ResultsPage(Screen):
             ydata.append(new_y)
             if len(ydata) > len(xdata):
                 ydata.pop(0)
-        
+
         while len(xdata) > len(ydata):
             xdata.pop(0)
-        
-        plot.points = list(zip(xdata, ydata))        
+
+        plot.points = list(zip(xdata, ydata))
 
 class MainApp(App):
     def build(self):
