@@ -289,18 +289,20 @@ class ResultsPage(Screen):
             ue_results_block = BoxLayout()
             ue_results_block.add_widget(self.create_graph("iperf", ue_ref))
             ue_results_block.add_widget(self.create_graph("ping", ue_ref))
+            self.layout.add_widget(Label(text=f"UE{ue_ref['index']}", size_hint_y=None, height=20, font_size="30sp"))
             self.layout.add_widget(ue_results_block)
 
 
     def create_graph(self, graph_type, ue_ref):
-        plot = MeshLinePlot(color=[1,1,1,1])
-        plot.line_width = 4
+        plot = MeshLinePlot(color=[0,1,0,1])
+        plot.line_width = 6
         graph = Graph(
             xlabel='time (s)',
             ylabel='Bandwidth (MBits/sec)',
             x_ticks_minor=1,
             x_ticks_major=5,
-            y_ticks_major=1,
+            y_ticks_major=5,
+            y_ticks_minor=1,
             y_grid_label=True,
             x_grid_label=True,
             padding=5,
@@ -311,15 +313,15 @@ class ResultsPage(Screen):
             ymin=0,
             ymax=70,
             xmin=0,
-            xmax=30
+            xmax=100
         )
         if graph_type == "ping":
             graph.ylabel = "Latency (ms)"
-            graph.ymax = 200
+            graph.ymax = 150
 
         graph.add_plot(plot)
-        xdata = list(range(30))
-        ydata = [0] * 30
+        xdata = list(range(100))
+        ydata = [0] * 100
         if graph_type == "ping":
             Clock.schedule_interval(lambda dt: self.update_points(plot, ue_ref["handle"].ping_client.output, xdata, ydata), 1)
         else:
