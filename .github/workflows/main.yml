@@ -1,0 +1,26 @@
+name: Run T-UE with srsRAN gNB and Open5GS
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Run install scripts
+        run: |
+          sudo ./scripts/install-open5gs.sh && sudo ./scripts/install-gnb.sh && sudo ./scripts/install-ue.sh
+
+      - name: Run commands
+        run: |
+          sudo ./scripts/headless-test.sh

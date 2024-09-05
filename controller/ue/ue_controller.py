@@ -47,6 +47,7 @@ class ProcessesPage(Screen):
 
         self.config_file = ""
         self.ue_type = "clean"
+        self.ue_index = 1
 
 
         self.add_widget(layout)
@@ -131,6 +132,7 @@ class ProcessesPage(Screen):
             'config': self.config_file,
             'handle': new_ue
         })
+        self.ue_index += 1
 
         log_view = ScrollView(size_hint=(1, 2))
         iperf_view = ScrollView(size_hint=(1, 2))
