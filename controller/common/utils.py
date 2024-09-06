@@ -1,4 +1,5 @@
 import subprocess
+import socket
 
 
 def start_subprocess(command):
@@ -53,5 +54,14 @@ def shift_bytes_left(byte_obj, shift_amount):
     shifted_bytes = binary_to_bytes(shifted_binary_str)
 
     return shifted_bytes
+
+def send_command(ip, port, command):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.connect((ip, port))
+                sock.sendall(command.encode('utf-8'))
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
 
 

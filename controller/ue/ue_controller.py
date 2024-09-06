@@ -3,6 +3,7 @@ import uuid
 import threading
 import os
 import sys
+import signal
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
@@ -26,6 +27,11 @@ from kivy_garden.graph import Graph, MeshLinePlot
 import socket
 
 
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, parent_dir)
+
+
+from common.utils import send_command
 from kivy.uix.gridlayout import GridLayout
 from kivy.animation import Animation
 from kivy.uix.image import Image, AsyncImage
@@ -36,6 +42,13 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 
 
+def exit_handler(signum, frame):
+    send_command("127.0.0.1", 5000, "stop:gnb")
+    sys.exit(0)
+
+def setup_signal_handlers():
+    signal.signal(signal.SIGINT, exit_handler)  # Handle Ctrl+C
+    signal.signal(signal.SIGTERM, exit_handler)  # Handle termination signal
 
 # add the common directory to the import path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -447,14 +460,9 @@ class MainApp(App):
         active_button.background_color = self.highlighted_color
     
 def main():
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.connect((ip, port))
-            sock.sendall(command.encode('utf-8'))
-    except Exception as e:
-        print(f"Error sending restart command: {e}")
-
+    setup_signal_handlers()
     os.system("sudo kill -9 $(ps aux | awk '/srsue/{print $2}')")
+    send_command("127.0.0.1", 5000, "start:gnb")
     global ue_list
     ue_list = list()
     global attack_args

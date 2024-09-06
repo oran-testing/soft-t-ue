@@ -21,34 +21,49 @@ from common.iperf_interface import Iperf
 
 
 class gnb_controller:
-    def start(self, gnb_config_str, rebuild):
-        # connect to ue controller
 
-        # recieve configuration
-
-        # start gnb and core
+    def __init__(self):
         self.core_handle = CoreNetwork()
-        self.core_handle.start(rebuild)
-        self.spinner_loading(self.core_handle)
-
         self.gnb_handle = Gnb()
-        self.gnb_handle.start([gnb_config_str])
-        print(f"GNB: {self.gnb_handle}")
 
-        # sending metrics
-        self.gnb_logs_process = threading.Thread(
-            target=self.get_gnb_logs).start()
-        # stop gnb, core, metrics, etc
-        # run a variation of main without calling ue_controller
-
-    def get_gnb_logs(self):
-        for line in tailer.follow(open("/tmp/gnb.log")):
-            # TODO: Fix this poor handling of the output.
-            print(line)
-
-    def spinner_loading(self, handle, verbose=True):
-        while not handle.initialized:
+    def start_core(self, rebuild):
+        if self.core_handle.isRunning:
+            self.core_handle.stop()
+        self.core_handle.start(rebuild)
+        while not self.core_handle.initialized:
             time.sleep(0.1)
+
+    def stop_core(self):
+        self.core_handle.stop()
+
+    def start_gnb(self, gnb_config):
+        if self.gnb_handle.isRunning:
+            self.gnb_handle.stop()
+        self.gnb_handle.start([gnb_config])
+
+    def stop_gnb(self):
+        self.gnb_handle.stop()
+
+
+    def listen_for_command(self, server_socket, add_callback, gnb_config):
+        while True:
+            client_socket, _ = server_socket.accept()
+            command = client_socket.recv(1024).decode('utf-8').strip()
+            client_socket.close()
+
+            iperf_process = Iperf()
+            if "iperf:" in command:
+                iperf_process.start(["-s", "-i", "1", "-p", command.replace("iperf:", '')], process_type="server")
+                add_callback(iperf_process)
+            elif command == "start:gnb":
+                self.start_gnb(gnb_config)
+            elif command == "stop:gnb":
+                self.start_gnb(gnb_config)
+            elif command == "start:core":
+                self.start_gnb(gnb_config)
+            elif command == "stop:core":
+                self.start_gnb(gnb_config)
+
 
 def parse():
     current_script_path = pathlib.Path(__file__).resolve()
@@ -66,27 +81,15 @@ def parse():
     parser.add_argument('--rebuild_core', type=bool, help='Should the core be built before running?', default=True)
     return parser.parse_args()
 
-def create_iperf_handles(server_socket, add_callback):
-    while True:
-        client_socket, _ = server_socket.accept()
-        command = client_socket.recv(1024).decode('utf-8').strip()
-        client_socket.close()
-
-        iperf_process = Iperf()
-        if int(command):
-            iperf_process.start(["-s", "-i", "1", "-p", command], process_type="server")
-            add_callback(iperf_process)
-
 
 def main():
-    #logging.basicConfig(filename='/var/log/mydaemon.log', level=logging.INFO)
     args = parse()
     print(args)
     os.system("kill -9 $(ps aux | awk '!/gnb_controller\.py/ && /gnb/{print $2}')")
     os.system("kill -9 $(ps aux | awk '/open5gs/{print $2}')")
     time.sleep(0.1)
     controller = gnb_controller()
-    controller.start(str(args.gnb_config), args.rebuild_core)
+    controller.start_core(args.rebuild_core)
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((args.ip, args.port))
@@ -94,11 +97,9 @@ def main():
 
     iperf_servers = []
 
-    handle_thread = threading.Thread(target=create_iperf_handles, args=(server_socket, lambda x: iperf_servers.append(x)), daemon=True)
-    handle_thread.start()
-
     while True:
         time.sleep(1)
+        controller.listen_for_command(server_socket, lambda x: iperf_servers.append(x), str(args.gnb_config))
     return 0
 
 if __name__ == "__main__":

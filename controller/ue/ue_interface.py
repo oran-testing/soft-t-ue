@@ -9,7 +9,7 @@ import socket
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 
-from common.utils import start_subprocess, kill_subprocess
+from common.utils import start_subprocess, kill_subprocess, send_command
 from common.iperf_interface import Iperf
 from common.ping_interface import Ping
 
@@ -23,16 +23,6 @@ class Ue:
         self.ping_client = Ping()
         self.output = ""
 
-    def send_command(self, ip, port, command):
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                sock.connect((ip, port))
-                sock.sendall(command.encode('utf-8'))
-        except Exception as e:
-            print(f"An error occurred: {e}")
-
-
-
     def start(self, args):
         command = ["sudo", "srsue"] + args
         self.process = start_subprocess(command)
@@ -42,7 +32,7 @@ class Ue:
     
     def start_metrics(self):
         print(f"Starting UE {self.ue_index} metrics")
-        self.send_command("127.0.0.1", 5000, str(5000 + self.ue_index))
+        send_command("127.0.0.1", 5000, "iperf:" + str(5000 + self.ue_index))
         os.system(f"sudo ip netns add ue{self.ue_index}")
         os.system("sudo ip ro add 10.45.0.0/16 via 10.53.1.2")
         os.system(f"sudo ip netns exec ue{self.ue_index} ip ro add default via 10.45.1.1 dev tun_srsue")
@@ -70,15 +60,3 @@ class Ue:
 
     def __repr__(self):
         return f"srsRAN UE{self.ue_index} object, running: {self.isRunning}"
-
-if __name__ == "__main__":
-    handle = Ue(1)
-    handle.start(["/home/ntia/soft-t-ue/configs/zmq/ue_zmq.conf"], 1)
-    time.sleep(20)
-    while True:
-        sys.stdout.write(handle.output)
-        sys.stdout.flush()
-        sys.stdout.write(handle.iperf_client.output)
-        sys.stdout.flush()
-        time.sleep(0.5)
-
