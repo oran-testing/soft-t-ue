@@ -97,7 +97,6 @@ class ProcessesPage(Screen):
 
         self.config_file = ""
         self.ue_type = "clean"
-        self.ue_index = 1
 
 
         self.add_widget(layout)
@@ -183,7 +182,6 @@ class ProcessesPage(Screen):
             'handle': new_ue,
             'index': self.ue_index
         })
-        self.ue_index += 1
 
         log_view = BoxLayout(
             orientation="vertical",
