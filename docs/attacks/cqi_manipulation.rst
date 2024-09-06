@@ -1,96 +1,47 @@
-=========================
-Title of Your Document
-=========================
+Bandwidth Hogging Attack Using Manipulated CQI Values
+=====================================================
 
-Introduction
-============
+Implementation (UE Side):
+--------------------------
+- **Override CQI**: Implement code to consistently send high CQI values.
 
-Welcome to your document! This is a placeholder file to help you get started with reStructuredText.
+- **Monitoring Impact**:
+   - **Measure Throughput**: Track throughput and bandwidth allocated to the UE.
+   - **Assess Network Impact**: Evaluate the effects on other users and overall network performance.
 
-Contents
-=========
+Mitigation Components in srsRAN gNB under Test:
+------------------------------------------------
+1. **Proportional Fair Scheduling (PFS)**:
+    - **Balance Allocation**: Distributes resources considering both channel quality and historical throughput.
+    - **Limit Impact**: Adjusts allocation based on actual performance to mitigate exaggerated CQI effects.
 
-1. Section 1
-2. Section 2
-3. Section 3
+2. **CQI Reporting and Filtering**:
+    - **Thresholds**: Applies thresholds to filter out unrealistic CQI values.
+    - **Configuration**: Configurable to detect and handle abnormal CQI reports.
 
-Section 1
-=========
+3. **Quality of Service (QoS) Management**:
+    - **Prioritization**: Enforces QoS policies to ensure service needs are met, mitigating bandwidth hogging.
+    - **Resource Allocation**: Allocates resources based on QoS requirements.
 
-This is the content for Section 1. You can provide details about this section here.
+4. **Resource Allocation Limits**:
+    - **Maximum Limits**: Configures resource limits to prevent excessive bandwidth use by any single UE.
+    - **Rate Limiting**: Implements rate limiting to ensure fair resource distribution.
 
-Section 2
-=========
+Metrics to Assess the Attack:
+------------------------------
+1. **Bandwidth Utilization**:
+    - **Throughput Measurement**: Quantify throughput allocated to the modified UE.
+    - **Bandwidth Consumption**: Track the percentage of total network bandwidth used by the UE.
 
-This is the content for Section 2. Provide your information or topics relevant to this section here.
+2. **Network Performance**:
+    - **Impact on Other Users**: Monitor changes in service quality (e.g., throughput, latency) for other UEs.
+    - **Error Rates**: Observe increases in error rates or retransmissions due to congestion.
 
-Section 3
-=========
+3. **Network Load**:
+    - **Resource Allocation Metrics**: Measure resource usage by the attacking UE compared to others.
+    - **System Performance**: Assess the impact on network CPU and memory usage due to increased load.
 
-This is the content for Section 3. Include any additional details or information here.
-
-Figures
-=======
-
-.. figure:: path/to/your/image.png
-   :alt: Description of the image
-
-   Caption for the figure.
-
-Tables
-======
-
-+-----------+-----------+
-| Header 1  | Header 2  |
-+===========+===========+
-| Row 1, Col 1 | Row 1, Col 2 |
-+-----------+-----------+
-| Row 2, Col 1 | Row 2, Col 2 |
-+-----------+-----------+
-
-Code Blocks
-===========
-
-Here is a code block example:
-
-.. code-block:: python
-
-   def hello_world():
-       print("Hello, world!")
-
-Links
-=====
-
-- `Link Text <http://example.com>`_
-
-Footnotes
-=========
-
-Here is a footnote reference [1]_.
-
-.. [1] This is the footnote content.
-
-Index
-=====
-
-.. index::
-   single: Example; Index
-
-References
-==========
-
-You can list references or bibliography items here.
-
-Glossary
-========
-
-Term
-----
-
-Definition of the term.
-
-Conclusion
-==========
-
-This concludes your placeholder document. Replace this text with your actual content.
+Notes
+-----
+- **Development Branch**: `cqi_attack_development <https://github.com/oran-testing/soft-t-ue/tree/cqi_attack_development>`_
 
