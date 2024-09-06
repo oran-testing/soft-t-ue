@@ -237,7 +237,7 @@ class AttacksPage(Screen):
         super().__init__(**kwargs)
         self.layout = BoxLayout(orientation='vertical')
         attack_option = Spinner(
-            text='Attack Type',
+            text='imsi_capture',
             values=(
                 'sdu_fuzzing',
                 'cqi_manipulation',
@@ -249,25 +249,24 @@ class AttacksPage(Screen):
                 'imsi_capture',
             ),
             size_hint=(None, None),
-            size=(400, 44)
+            size=(400, 30)
         )
         attack_option.bind(text=self.set_attack_type)
         self.layout.add_widget(attack_option)
         self.attack_type = "None"
-        self.attack_settings = BoxLayout(orientation='vertical')
-        self.layout.add_widget(self.attack_settings)
         self.add_widget(self.layout)
         self.num_fuzzed_bits = 1
         self.target_message = "All"
+        self.previous_doc = RstDocument(source=f"../../docs/attacks/imsi_capture.rst",)
+        self.layout.add_widget(self.previous_doc)
+        self.previous_spinners = []
 
     def set_attack_type(self, spinner, text):
-        self.layout.add_widget(
-            RstDocument(
-                source=f"../../docs/attacks/{text}.rst",
-                background_color=[0.1,0.1,0.1,1],
-            )
-        )
         self.attack_type = text
+
+        for spinner in self.previous_spinners:
+            self.layout.remove_widget(spinner)
+        self.previous_spinners = []
 
         if text == "sdu_fuzzing":
             target_message = Spinner(
@@ -284,8 +283,10 @@ class AttacksPage(Screen):
                 size=(200, 44)
             )
             bits_to_fuzz.bind(text=self.set_fuzzed_bits)
-            self.attack_settings.add_widget(target_message)
-            self.attack_settings.add_widget(bits_to_fuzz)
+            self.layout.add_widget(target_message)
+            self.layout.add_widget(bits_to_fuzz)
+            self.previous_spinners.append(target_message)
+            self.previous_spinners.append(bits_to_fuzz)
         if text == "CQI Manipulation":
             cqi_value = Spinner(
                 text='CQI Value',
@@ -294,7 +295,14 @@ class AttacksPage(Screen):
                 size=(200, 44)
             )
             cqi_value.bind(text=self.set_cqi_value)
-            self.attack_settings.add_widget(cqi_value)
+            self.layout.add_widget(cqi_value)
+            self.previous_spinners.append(cqi_value)
+
+        new_doc = RstDocument(source=f"../../docs/attacks/{text}.rst",)
+        self.layout.add_widget(new_doc)
+        if self.previous_doc:
+            self.layout.remove_widget(self.previous_doc)
+        self.previous_doc = new_doc
 
 
     def set_target_message(self, spinner, text):
