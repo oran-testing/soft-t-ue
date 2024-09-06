@@ -20,14 +20,14 @@ from common.iperf_interface import Iperf
 
 
 class gnb_controller:
-    def start(self, gnb_config_str):
+    def start(self, gnb_config_str, rebuild):
         # connect to ue controller
 
         # recieve configuration
 
         # start gnb and core
         self.core_handle = CoreNetwork()
-        self.core_handle.start()
+        self.core_handle.start(rebuild)
         self.spinner_loading(self.core_handle)
 
         print("\n\nCore Started Successfully!")
@@ -70,6 +70,7 @@ def parse():
         help="Path of the gNB config file")
     parser.add_argument('--ip', type=str, help='IP address to listen for commands', default="127.0.0.1")
     parser.add_argument('--port', type=int, help='Port to listen for commands', default="5000")
+    parser.add_argument('--rebuild_core', type=bool, help='Should the core be built before running?', default=True)
     return parser.parse_args()
 
 def create_iperf_handles(server_socket, add_callback):
@@ -91,7 +92,7 @@ def main():
     os.system("sudo kill -9 $(ps aux | awk '/open5gs/{print $2}')")
     time.sleep(0.1)
     controller = gnb_controller()
-    controller.start(str(args.gnb_config))
+    controller.start(str(args.gnb_config), args.rebuild_core)
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((args.ip, args.port))
