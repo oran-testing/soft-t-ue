@@ -23,6 +23,7 @@ import io
 from kivy.graphics.texture import Texture
 import PIL.Image
 from kivy_garden.graph import Graph, MeshLinePlot
+import socket
 
 
 from kivy.uix.gridlayout import GridLayout
@@ -170,13 +171,13 @@ class ProcessesPage(Screen):
         global attack_args
 
         if self.ue_type == "clean":
-            new_ue.start([self.config_file], self.ue_index)
+            new_ue.start([self.config_file])
         else:
-            new_ue.start([self.config_file] + attack_args, self.ue_index)
+            new_ue.start([self.config_file] + attack_args)
             
         global ue_list
         ue_list.append({
-            'id':str(uuid.uuid4()),
+            'id': str(uuid.uuid4()),
             'type': self.ue_type,
             'config': self.config_file,
             'handle': new_ue,
@@ -446,6 +447,13 @@ class MainApp(App):
         active_button.background_color = self.highlighted_color
     
 def main():
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.connect((ip, port))
+            sock.sendall(command.encode('utf-8'))
+    except Exception as e:
+        print(f"Error sending restart command: {e}")
+
     os.system("sudo kill -9 $(ps aux | awk '/srsue/{print $2}')")
     global ue_list
     ue_list = list()

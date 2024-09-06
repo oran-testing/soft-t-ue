@@ -13,7 +13,7 @@ class Gnb:
         self.name = "srsRAN gNB"
 
     def start(self, args):
-        command = ["sudo", "gnb", "-c"] + args
+        command = ["gnb", "-c"] + args
         self.process = start_subprocess(command)
         self.isRunning = True
 

@@ -15,7 +15,6 @@ class CoreNetwork:
         command = list()
         if rebuild:
             command = [
-                "sudo",
                 "docker",
                 "compose",
                 "-f",
@@ -26,7 +25,6 @@ class CoreNetwork:
             ]
         else:
             command = [
-                "sudo",
                 "docker",
                 "compose",
                 "-f",

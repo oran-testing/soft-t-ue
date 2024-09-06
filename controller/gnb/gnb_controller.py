@@ -6,6 +6,7 @@ import os
 import pathlib
 import argparse
 import socket
+import logging
 
 import tailer
 
@@ -30,11 +31,9 @@ class gnb_controller:
         self.core_handle.start(rebuild)
         self.spinner_loading(self.core_handle)
 
-        print("\n\nCore Started Successfully!")
-        print("Starting gNB...")
-
         self.gnb_handle = Gnb()
         self.gnb_handle.start([gnb_config_str])
+        print(f"GNB: {self.gnb_handle}")
 
         # sending metrics
         self.gnb_logs_process = threading.Thread(
@@ -48,13 +47,7 @@ class gnb_controller:
             print(line)
 
     def spinner_loading(self, handle, verbose=True):
-        spinner = itertools.cycle(["|", "/", "-", "\\"])
         while not handle.initialized:
-            if verbose:
-                sys.stdout.write(handle.output + "\n\n" + 50 * "=" + "\n")
-            sys.stdout.write(f"{handle.name} " + next(spinner))
-            sys.stdout.flush()
-            sys.stdout.write("\b")
             time.sleep(0.1)
 
 def parse():
@@ -86,10 +79,11 @@ def create_iperf_handles(server_socket, add_callback):
 
 
 def main():
+    #logging.basicConfig(filename='/var/log/mydaemon.log', level=logging.INFO)
     args = parse()
     print(args)
-    os.system("sudo kill -9 $(ps aux | awk '!/gnb_controller\.py/ && /gnb/{print $2}')")
-    os.system("sudo kill -9 $(ps aux | awk '/open5gs/{print $2}')")
+    os.system("kill -9 $(ps aux | awk '!/gnb_controller\.py/ && /gnb/{print $2}')")
+    os.system("kill -9 $(ps aux | awk '/open5gs/{print $2}')")
     time.sleep(0.1)
     controller = gnb_controller()
     controller.start(str(args.gnb_config), args.rebuild_core)
@@ -103,20 +97,8 @@ def main():
     handle_thread = threading.Thread(target=create_iperf_handles, args=(server_socket, lambda x: iperf_servers.append(x)), daemon=True)
     handle_thread.start()
 
-    while controller.gnb_handle.isRunning and controller.core_handle.isRunning:
-        time.sleep(0.5)
-        print(f"\n\n{time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())}\n")
-        # Core Network Logs
-        print(f"✨ {controller.core_handle}")
-        core_end = '\n\t'.join(controller.core_handle.output.split('\n')[-5:])
-        print(f"\t{core_end}\n\n")
-        # GNB Logs
-        print(f"✨ {controller.gnb_handle}")
-        #  Iperf Server Logs
-        for proc in iperf_servers:
-            print(f"✨ {proc}")
-            print('\t' + '\t'.join(proc.output[-5:]))
-
+    while True:
+        time.sleep(1)
     return 0
 
 if __name__ == "__main__":
