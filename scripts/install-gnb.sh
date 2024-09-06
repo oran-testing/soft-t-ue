@@ -10,6 +10,23 @@ PS4='[DEBUG] '
 INSTALL_DIR=$(pwd)
 set -x
 
+SCRIPT_PATH=$(realpath "$0")
+SCRIPT_DIR=$(dirname $SCRIPT_PATH)
+
+cat <<EOF >/etc/systemd/system/gnb-controller.service
+[Unit]
+Description=gNB and Open5GS controller
+
+[Service]
+ExecStart=/usr/bin/python3 $SCRIPT_DIR/../controller/gnb/gnb_controller.py --gnb_config $SCRIPT_DIR/../configs/zmq/gnb_zmq.yaml
+Restart=always
+User=root
+Group=nogroup
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 # Install build tools
 apt-get update && apt-get upgrade -y
 apt-get install -y cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev
