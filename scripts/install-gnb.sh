@@ -10,6 +10,9 @@ PS4='[DEBUG] '
 INSTALL_DIR=$(pwd)
 set -x
 
+GNB_CONTROLLER_IP=$1
+GNB_CONTROLLER_PORT=$2
+
 SCRIPT_PATH=$(realpath "$0")
 SCRIPT_DIR=$(dirname $SCRIPT_PATH)
 
@@ -18,7 +21,7 @@ cat <<EOF >/etc/systemd/system/gnb-controller.service
 Description=gNB and Open5GS controller
 
 [Service]
-ExecStart=/usr/bin/python3 $SCRIPT_DIR/../controller/gnb/gnb_controller.py
+ExecStart=/usr/bin/python3 $SCRIPT_DIR/../controller/gnb/gnb_controller.py --ip $GNB_CONTROLLER_IP --port $GNB_CONTROLLER_PORT
 Restart=always
 User=root
 Group=nogroup
