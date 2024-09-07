@@ -18,6 +18,7 @@ class Ue:
     def __init__(self, ue_index):
         self.ue_index = ue_index
         self.isRunning = False
+        self.isConnected = False
         self.process = None
         self.iperf_client = Iperf()
         self.ping_client = Ping()
@@ -27,6 +28,7 @@ class Ue:
         command = ["sudo", "srsue"] + args
         self.process = start_subprocess(command)
         self.isRunning = True
+        self.stop_thread = threading.Event()
         self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
         self.log_thread.start()
     
@@ -41,18 +43,20 @@ class Ue:
 
 
     def stop(self):
+        self.stop_thread.set()
         kill_subprocess(self.process)
         self.iperf_client.stop()
         self.isRunning = False
 
     def collect_logs(self):
-        while self.isRunning:
+        while self.isRunning and not self.stop_thread.is_set():
             if self.process:
                 line = self.process.stdout.readline()
                 if line:
                     self.output += line
                     if "PDU" in line:
                         self.start_metrics()
+                        self.isConnected = True
             else:
                 self.output += "Process Terminated"
                 self.isRunning = False

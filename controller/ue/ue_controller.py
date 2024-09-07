@@ -200,8 +200,14 @@ class ProcessesPage(Screen):
         self.ue_type = "clean"
         self.ue_index += 1
 
-    def collect_logs(self, label_ref, ue_ref, log_ref):
+    def collect_logs(self, label_ref, ue_ref, log_ref, title_ref):
         label_ref.text = ue_ref.output
+        if not ue_ref.isRunning:
+            title_ref.color = [1,0,0,1]
+        elif not ue_ref.isConnected:
+            title_ref.color = [1,1,0,1]
+        else:
+            title_ref.color = [0,1,0,1]
         log_ref.scroll_y = 0
 
     def add_ue_log(self, ue_type, config, arguments, handle):
@@ -217,15 +223,16 @@ class ProcessesPage(Screen):
             padding=[10,20,10,20]
         )
 
-        Clock.schedule_interval(lambda dt: self.collect_logs(new_ue_text, handle, log_view), 1)
         content_label = Label(
             text=f"sudo srsue {config}",
             font_size="20sp",
             padding=[10,20,10,20],
         )
+
         if self.ue_type == "tester":
             content_label.text = f"sudo srsue {config} {arguments}"
 
+        Clock.schedule_interval(lambda dt: self.collect_logs(new_ue_text, handle, log_view, content_label), 1)
         log_view.add_widget(content_label)
         log_view.add_widget(new_ue_text)
         self.process_container.add_widget(log_view)
@@ -470,7 +477,11 @@ class MainApp(App):
 
     def on_stop(self):
         print("App is stopping...")
-        send_command("127.0.0.1", 5000, "gnb:stop")
+        global cli_args
+        send_command(cli_args.ip, cli_args.port, "gnb:stop")
+        global ue_list
+        for ue in ue_list:
+            ue["handle"].stop()
 
 def parse():
     script_dir = pathlib.Path(__file__).resolve().parent
@@ -493,7 +504,11 @@ def parse():
 
 
 def main():
+    os.system("sudo kill -9 $(ps aux | awk '/iperf/ && !/awk/ {print $2}')") # kill iperf processes
+    os.system("sudo kill -9 $(ps aux | awk '/srsue/ && !/awk/ {print $2}')") # kill srsRAN UE processes
+    global cli_args
     args = parse()
+    cli_args = args
     send_command(args.ip, args.port, f"gnb:start:{args.gnb_config}")
 
     global ue_list
@@ -506,6 +521,8 @@ def main():
         options = yaml.safe_load(file)
     global ue_index
     ue_index = 1
+
+    time.sleep(0.5) # wait for namespace initialization
     for ue in options.get("ues", []):
         if not os.path.exists(ue["config_file"]):
             print(f"Error: File not found {ue[config_file]}")
@@ -523,6 +540,7 @@ def main():
             'index': ue_index
         })
         ue_index += 1
+
 
     MainApp().run()
     return 0

@@ -1,3 +1,6 @@
+namespaces:
+  - name: "ue1"
+
 ues:
   - type: "clean"
     config_file: "../../configs/zmq/ue_zmq.conf"
