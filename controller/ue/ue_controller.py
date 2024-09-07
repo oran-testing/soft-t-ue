@@ -44,17 +44,6 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 
-
-def exit_handler(signum, frame):
-    send_command("127.0.0.1", 5000, "stop:gnb")
-    sys.exit(0)
-
-def setup_signal_handlers():
-    os.system("sudo kill -9 $(ps aux | awk '/srsue/{print $2}')")
-    signal.signal(signal.SIGINT, exit_handler)  # Handle Ctrl+C
-    signal.signal(signal.SIGTERM, exit_handler)  # Handle termination signal
-
-# add the common directory to the import path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 
@@ -409,6 +398,7 @@ class ResultsPage(Screen):
         plot.points = list(zip(xdata, ydata))
 
 class MainApp(App):
+
     def build(self):
         self.screen_manager = ScreenManager()
 
@@ -478,6 +468,10 @@ class MainApp(App):
         # Highlight the active button
         active_button.background_color = self.highlighted_color
 
+    def on_stop(self):
+        print("App is stopping...")
+        send_command("127.0.0.1", 5000, "gnb:stop")
+
 def parse():
     script_dir = pathlib.Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(
@@ -487,6 +481,11 @@ def parse():
         type=pathlib.Path,
         default=script_dir / "config.yaml",
         help="Path of the controller config file")
+    parser.add_argument(
+        "--gnb_config",
+        type=pathlib.Path,
+        default=script_dir.parent.parent / "configs" / "zmq" / "gnb_zmq.yaml",
+        help="Path of the controller config file")
     parser.add_argument('--ip', type=str, help='IP address of the gNB', default="127.0.0.1")
     parser.add_argument('--port', type=int, help='Port of the gNB', default="5000")
     return parser.parse_args()
@@ -494,10 +493,8 @@ def parse():
 
 
 def main():
-    setup_signal_handlers()
-
     args = parse()
-    send_command(args.ip, args.port, "start:gnb")
+    send_command(args.ip, args.port, f"gnb:start:{args.gnb_config}")
 
     global ue_list
     ue_list = list()

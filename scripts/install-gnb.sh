@@ -18,7 +18,7 @@ cat <<EOF >/etc/systemd/system/gnb-controller.service
 Description=gNB and Open5GS controller
 
 [Service]
-ExecStart=/usr/bin/python3 $SCRIPT_DIR/../controller/gnb/gnb_controller.py --gnb_config $SCRIPT_DIR/../configs/zmq/gnb_zmq.yaml
+ExecStart=/usr/bin/python3 $SCRIPT_DIR/../controller/gnb/gnb_controller.py
 Restart=always
 User=root
 Group=nogroup

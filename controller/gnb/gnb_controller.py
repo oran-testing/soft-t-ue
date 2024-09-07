@@ -45,24 +45,28 @@ class gnb_controller:
         self.gnb_handle.stop()
 
 
-    def listen_for_command(self, server_socket, add_callback, gnb_config):
+    def listen_for_command(self, server_socket, add_callback):
         while True:
             client_socket, _ = server_socket.accept()
             command = client_socket.recv(1024).decode('utf-8').strip()
             client_socket.close()
 
+            directives = command.split(":")
+
             iperf_process = Iperf()
-            if "iperf:" in command:
-                iperf_process.start(["-s", "-i", "1", "-p", command.replace("iperf:", '')], process_type="server")
+            if directives[0] == "iperf":
+                iperf_process.start(["-s", "-i", "1", "-p", directives[1]], process_type="server")
                 add_callback(iperf_process)
-            elif command == "start:gnb":
-                self.start_gnb(gnb_config)
-            elif command == "stop:gnb":
-                self.start_gnb(gnb_config)
-            elif command == "start:core":
-                self.start_gnb(gnb_config)
-            elif command == "stop:core":
-                self.start_gnb(gnb_config)
+            elif directives[0] == "gnb":
+                if directives[1] == "start":
+                    self.start_gnb(directives[2])
+                else:
+                    self.stop_gnb()
+            elif directives[0] == "core":
+                if directives[1] == "start":
+                    self.start_core(True)
+                else:
+                    self.stop_core()
 
 
 def parse():
@@ -71,11 +75,6 @@ def parse():
     code_root = repo_root.parent
     parser = argparse.ArgumentParser(
         description="Run an srsRAN gNB and Open5GS, then send metrics to the ue_controller")
-    parser.add_argument(
-        "--gnb_config",
-        type=pathlib.Path,
-        default=repo_root / "configs" / "zmq" / "gnb_zmq.yaml",
-        help="Path of the gNB config file")
     parser.add_argument('--ip', type=str, help='IP address to listen for commands', default="127.0.0.1")
     parser.add_argument('--port', type=int, help='Port to listen for commands', default="5000")
     parser.add_argument('--rebuild_core', type=bool, help='Should the core be built before running?', default=True)
@@ -99,7 +98,7 @@ def main():
 
     while True:
         time.sleep(1)
-        controller.listen_for_command(server_socket, lambda x: iperf_servers.append(x), str(args.gnb_config))
+        controller.listen_for_command(server_socket, lambda x: iperf_servers.append(x))
     return 0
 
 if __name__ == "__main__":
