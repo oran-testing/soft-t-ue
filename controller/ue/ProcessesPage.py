@@ -10,7 +10,7 @@ from kivy.clock import Clock
 
 import uuid
 
-from ue_interface import Ue
+from Ue import Ue
 from SharedState import SharedState
 
 class ProcessesPage(Screen):

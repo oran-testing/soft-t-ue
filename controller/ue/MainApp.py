@@ -5,6 +5,9 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.animation import Animation
 
+
+from common.utils import send_command
+
 from LandingPage import LandingPage
 from ProcessesPage import ProcessesPage
 from AttacksPage import AttacksPage

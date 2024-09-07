@@ -1,52 +1,16 @@
 import time
 import uuid
-import threading
 import os
 import sys
-import signal
 import yaml
 import argparse
 import pathlib
-from kivy.app import App
-from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.uix.label import Label
-from kivy.uix.popup import Popup
-from kivy.uix.filechooser import FileChooserListView
-from kivy.uix.spinner import Spinner
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.scrollview import ScrollView
-from kivy.clock import Clock
-from kivy.uix.image import Image
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-import matplotlib.pyplot as plt
-import numpy as np
-import io
-from kivy.graphics.texture import Texture
-import PIL.Image
-from kivy_garden.graph import Graph, MeshLinePlot
-import socket
-
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
-
 
 from common.utils import send_command
-from kivy.uix.gridlayout import GridLayout
-from kivy.animation import Animation
-from kivy.uix.image import Image, AsyncImage
-from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.image import Image
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
-from kivy.uix.screenmanager import Screen
-
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, parent_dir)
-
-from ue_interface import Ue
+from Ue import Ue
 from MainApp import MainApp
 from SharedState import SharedState
 

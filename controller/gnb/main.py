@@ -15,9 +15,9 @@ import tailer
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 
-from core_interface import CoreNetwork
-from gnb_interface import Gnb
-from common.iperf_interface import Iperf
+from CoreNetwork import CoreNetwork
+from Gnb import Gnb
+from common.Iperf import Iperf
 
 
 class gnb_controller:

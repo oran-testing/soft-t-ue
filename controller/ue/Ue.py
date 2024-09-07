@@ -10,8 +10,8 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 
 from common.utils import start_subprocess, kill_subprocess, send_command
-from common.iperf_interface import Iperf
-from common.ping_interface import Ping
+from common.Iperf import Iperf
+from common.Ping import Ping
 
 
 class Ue:
