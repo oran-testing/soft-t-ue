@@ -4,6 +4,9 @@ import threading
 import os
 import sys
 import signal
+import yaml
+import argparse
+import pathlib
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
@@ -47,6 +50,7 @@ def exit_handler(signum, frame):
     sys.exit(0)
 
 def setup_signal_handlers():
+    os.system("sudo kill -9 $(ps aux | awk '/srsue/{print $2}')")
     signal.signal(signal.SIGINT, exit_handler)  # Handle Ctrl+C
     signal.signal(signal.SIGTERM, exit_handler)  # Handle termination signal
 
@@ -95,7 +99,8 @@ class LandingPage(Screen):
 class ProcessesPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.ue_index = 1
+        global ue_index
+        self.ue_index = ue_index
         layout = BoxLayout(orientation='vertical')
         self.process_container = BoxLayout(
             orientation="vertical", 
@@ -112,6 +117,9 @@ class ProcessesPage(Screen):
         self.config_file = ""
         self.ue_type = "clean"
 
+        global ue_list
+        for ue in ue_list:
+            self.add_ue_log(ue["type"], ue["config"], [], ue["handle"])
 
         self.add_widget(layout)
 
@@ -197,30 +205,7 @@ class ProcessesPage(Screen):
             'index': self.ue_index
         })
 
-        log_view = BoxLayout(
-            orientation="vertical",
-            size_hint_y=None,
-            height=500
-        )
-        new_ue_text = Label(
-            text=f"starting UE ({self.ue_type})...", 
-            size_hint_y=None,
-            font_size="15sp",
-            padding=[10,20,10,20]
-        )
-
-        Clock.schedule_interval(lambda dt: self.collect_logs(new_ue_text, new_ue, log_view), 1)
-        content_label = Label(
-            text=f"sudo srsue {self.config_file} {attack_args}",
-            font_size="20sp",
-            padding=[10,20,10,20],
-        )
-        if self.ue_type == "clean":
-            content_label.text = f"sudo srsue {self.config_file}"
-
-        log_view.add_widget(content_label)
-        log_view.add_widget(new_ue_text)
-        self.process_container.add_widget(log_view)
+        self.add_ue_log(self.ue_type, self.config_file, attack_args, new_ue)
 
         self.config_file = ""
         self.ue_type = "clean"
@@ -229,6 +214,32 @@ class ProcessesPage(Screen):
     def collect_logs(self, label_ref, ue_ref, log_ref):
         label_ref.text = ue_ref.output
         log_ref.scroll_y = 0
+
+    def add_ue_log(self, ue_type, config, arguments, handle):
+        log_view = BoxLayout(
+            orientation="vertical",
+            size_hint_y=None,
+            height=500
+        )
+        new_ue_text = Label(
+            text=f"starting UE ({ue_type})...", 
+            size_hint_y=None,
+            font_size="15sp",
+            padding=[10,20,10,20]
+        )
+
+        Clock.schedule_interval(lambda dt: self.collect_logs(new_ue_text, handle, log_view), 1)
+        content_label = Label(
+            text=f"sudo srsue {config}",
+            font_size="20sp",
+            padding=[10,20,10,20],
+        )
+        if self.ue_type == "tester":
+            content_label.text = f"sudo srsue {config} {arguments}"
+
+        log_view.add_widget(content_label)
+        log_view.add_widget(new_ue_text)
+        self.process_container.add_widget(log_view)
 
 
 
@@ -466,16 +477,59 @@ class MainApp(App):
 
         # Highlight the active button
         active_button.background_color = self.highlighted_color
-    
+
+def parse():
+    script_dir = pathlib.Path(__file__).resolve().parent
+    parser = argparse.ArgumentParser(
+        description="Run an srsRAN gNB and Open5GS, then send metrics to the ue_controller")
+    parser.add_argument(
+        "--config",
+        type=pathlib.Path,
+        default=script_dir / "config.yaml",
+        help="Path of the controller config file")
+    parser.add_argument('--ip', type=str, help='IP address of the gNB', default="127.0.0.1")
+    parser.add_argument('--port', type=int, help='Port of the gNB', default="5000")
+    return parser.parse_args()
+
+
+
 def main():
     setup_signal_handlers()
-    os.system("sudo kill -9 $(ps aux | awk '/srsue/{print $2}')")
-    send_command("127.0.0.1", 5000, "start:gnb")
+
+    args = parse()
+    send_command(args.ip, args.port, "start:gnb")
+
     global ue_list
     ue_list = list()
     global attack_args
     attack_args = list()
+
+    options = None
+    with open(str(args.config), 'r') as file:
+        options = yaml.safe_load(file)
+    global ue_index
+    ue_index = 1
+    for ue in options.get("ues", []):
+        if not os.path.exists(ue["config_file"]):
+            print(f"Error: File not found {ue[config_file]}")
+            return 1
+        new_ue = Ue(ue_index)
+        if ue['type'] == "tester":
+            new_ue.start([ue["config_file"]] + ue["args"].split(" "))
+        else:
+            new_ue.start([ue["config_file"]])
+        ue_list.append({
+            'id': str(uuid.uuid4()),
+            'type': ue['type'],
+            'config': ue['config_file'],
+            'handle': new_ue,
+            'index': ue_index
+        })
+        ue_index += 1
+
     MainApp().run()
+    return 0
 
 if __name__ == '__main__':
-    main()
+    rc = main()
+    sys.exit(rc)

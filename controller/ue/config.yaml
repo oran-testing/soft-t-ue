@@ -1,0 +1,3 @@
+ues:
+  - type: "clean"
+    config_file: "../../configs/zmq/ue_zmq.conf"
