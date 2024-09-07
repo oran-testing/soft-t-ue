@@ -46,7 +46,6 @@ class ProcessesPage(Screen):
 
         self.config_file = ""
         self.ue_type = "clean"
-        self.ue_index = 1
 
 
         self.add_widget(layout)
@@ -119,7 +118,7 @@ class ProcessesPage(Screen):
         self.popup.dismiss()
         new_ue = Ue()
         global attack_args
-        new_ue.start([self.config_file] + attack_args, self.ue_index)
+        new_ue.start([self.config_file] + attack_args)
         global ue_list
         ue_list.append({
             'id':str(uuid.uuid4()),
@@ -127,7 +126,6 @@ class ProcessesPage(Screen):
             'config': self.config_file,
             'handle': new_ue
         })
-        self.ue_index += 1
 
         log_view = ScrollView(size_hint=(1, 2))
         iperf_view = ScrollView(size_hint=(1, 2))
@@ -166,7 +164,7 @@ class AttacksPage(Screen):
         layout = BoxLayout(orientation='vertical')
         attack_option = Spinner(
             text='Attack Type',
-            values=('None', 'SDU Fuzzing'),
+            values=('None', 'SDU Fuzzing', 'RRC Flooding'),
             size_hint=(None, None),
             size=(400, 44)
         )
@@ -202,6 +200,18 @@ class AttacksPage(Screen):
             self.attack_settings.add_widget(target_message)
             self.attack_settings.add_widget(bits_to_fuzz)
 
+        elif text == "RRC Flooding":
+            flood_count = Spinner(
+                text='Message Count',
+                values=[str(i*100) for i in range(10)],
+                size_hint=(None, None),
+                size=(400, 44)
+            )
+            flood_count.bind(text=self.set_rrc_flooding)
+            self.attack_settings.add_widget(flood_count)
+
+
+
     def set_target_message(self, spinner, text):
         self.target_message = text
         if text != "All":
@@ -216,6 +226,13 @@ class AttacksPage(Screen):
         attack_args = ["--rrc.sdu_fuzzed_bits", str(self.num_fuzzed_bits)
                        , "--rrc.fuzz_target_message", self.target_message]
         self.title.text = f"--rrc.sdu_fuzzed_bits {self.num_fuzzed_bits} --rrc.fuzz_target_message {self.target_message}"
+
+
+    def set_rrc_flooding(self, spinner, text):
+        global attack_args
+        attack_args = ["--rrc.flooding_count", text]
+        self.title.text = f"--rrc.flooding_count {text}"
+
 
 
 class ResultsPage(Screen):

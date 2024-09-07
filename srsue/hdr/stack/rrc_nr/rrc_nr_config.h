@@ -43,6 +43,7 @@ struct rrc_nr_args_t {
   uint32_t                    sdu_fuzzed_bits;
   std::string                 target_message;
   uint32_t                    rach_flood_count;
+  std::string                 target_signal_attack;
 };
 
 } // namespace srsue

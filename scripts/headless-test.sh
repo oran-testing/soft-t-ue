@@ -8,7 +8,7 @@ SESSION_1_COMMAND="gnb -c $SCRIPT_DIR/../configs/zmq/gnb_zmq.yaml"
 SESSION_1_LOG="/tmp/tester_gnb.log"
 
 SESSION_2_NAME="ue"
-SESSION_2_COMMAND="srsue $SCRIPT_DIR/../configs/zmq/ue_zmq.conf"
+SESSION_2_COMMAND="srsue $SCRIPT_DIR/../configs/zmq/ue_zmq.conf $@"
 SESSION_2_LOG="/tmp/soft_t_ue.log"
 
 kill_existing_screen() {

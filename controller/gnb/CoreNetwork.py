@@ -1,44 +1,60 @@
 import threading
-import time
 
-from common.utils import start_subprocess, kill_subprocess
-from common.iperf_interface import Iperf
+from common.utils import kill_subprocess, start_subprocess
 
 
-class Gnb:
+class CoreNetwork:
     def __init__(self):
         self.isRunning = False
         self.process = None
         self.output = ""
         self.initialized = False
-        self.name = "srsRAN gNB"
-        self.iperf_server = Iperf()
+        self.name = "Open5GS Core Network"
 
-    def start(self, args):
-        command = ["sudo", "gnb", "-c"] + args
+    def start(self, rebuild):
+        command = list()
+        if rebuild:
+            command = [
+                "docker",
+                "compose",
+                "-f",
+                "/opt/srsRAN_Project/docker/docker-compose.yml",
+                "up",
+                "--build",
+                "5gc",
+            ]
+        else:
+            command = [
+                "docker",
+                "compose",
+                "-f",
+                "/opt/srsRAN_Project/docker/docker-compose.yml",
+                "up",
+                "5gc",
+            ]
         self.process = start_subprocess(command)
-        self.iperf_server.start(['-s', '-i', '1'])
         self.isRunning = True
 
         self.log_thread = threading.Thread(target=self.collect_logs,
                                            daemon=True)
         self.log_thread.start()
-        time.sleep(5)
-        self.initialized = True
 
     def stop(self):
         kill_subprocess(self.process)
         self.isRunning = False
 
     def collect_logs(self):
+        completed_text = "NF registered"
         while self.isRunning:
             if self.process:
                 line = self.process.stdout.readline()
                 if line:
                     self.output += line
+                    if completed_text in self.output:
+                        self.initialized = True
+
             else:
                 self.output += "Process Terminated"
-                self.isRunning = False
                 break
 
     def __repr__(self):
