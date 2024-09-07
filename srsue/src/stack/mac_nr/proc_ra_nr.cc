@@ -25,6 +25,8 @@
 #include "srsue/hdr/stack/mac_nr/mac_nr.h"
 #include <iostream>
 
+#include <iostream>
+
 namespace srsue {
 
 const char* state_str_nr[] = {"RA:    IDLE:   ",
@@ -188,9 +190,13 @@ void proc_ra_nr::ra_preamble_transmission()
   prach_occasion = 0;
   // instruct the physical layer to transmit the Random Access Preamble using the selected PRACH occasion, corresponding
   // RA-RNTI (if available), PREAMBLE_INDEX, and PREAMBLE_RECEIVED_TARGET_POWER.
-  //
-  // RRC FLOODING HERE
-  phy->send_prach(prach_occasion, preamble_index, preamble_received_target_power);
+
+  if(rach_cfg.rach_flood_count > 0){
+    for(uint32_t i = 0; i < rach_cfg.rach_flood_count; i++){
+      std::cout << "Sending extra RACH reamble" << std::endl;
+      phy->send_prach(prach_occasion, preamble_index, preamble_received_target_power);
+    }
+  }
 
   phy->send_prach(prach_occasion, preamble_index, preamble_received_target_power);
   prach_send_timer.set(PRACH_SEND_CALLBACK_TIMEOUT, [this](uint32_t tid) { timer_expired(tid); });
