@@ -13,7 +13,7 @@ class LandingPage(Screen):
         super().__init__(**kwargs)
 
         layout = RelativeLayout()
-        self.background = Image(source='Webimage.png', allow_stretch=True, keep_ratio=False)
+        self.background = Image(source='../../docs/images/Webimage.png', allow_stretch=True, keep_ratio=True)
         layout.add_widget(self.background)
         self.welcome_label = Label(
             text="NTIA Soft T UE",

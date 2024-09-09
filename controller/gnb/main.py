@@ -84,7 +84,7 @@ def parse():
 def main():
     args = parse()
     print(args)
-    os.system("kill -9 $(ps aux | awk '!/gnb_controller\.py/ && /gnb/{print $2}')")
+    os.system("kill -9 $(ps aux | awk '!/main\.py/ && /gnb/{print $2}')")
     os.system("kill -9 $(ps aux | awk '/open5gs/{print $2}')")
     time.sleep(0.1)
     controller = gnb_controller()
