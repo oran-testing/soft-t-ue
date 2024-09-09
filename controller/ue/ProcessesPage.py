@@ -118,7 +118,7 @@ class ProcessesPage(Screen):
             'index': self.ue_index
         })
 
-        self.add_ue_log(self.ue_type, self.config_file, attack_args, new_ue)
+        self.add_ue_log(self.ue_type, self.config_file, SharedState.attack_args, new_ue)
 
         self.config_file = ""
         self.ue_type = "clean"
