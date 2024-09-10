@@ -64,7 +64,7 @@ def main():
             new_ue.start([ue["config_file"]] + ue["args"].split(" "))
         else:
             new_ue.start([ue["config_file"]])
-        SharedState.ue_list.append({
+        SharedState.process_list.append({
             'id': str(uuid.uuid4()),
             'type': ue['type'],
             'config': ue['config_file'],

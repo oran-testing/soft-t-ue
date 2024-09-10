@@ -11,6 +11,7 @@ import pathlib
 import argparse
 import threading
 from gnuradio import analog
+from gnuradio.filter import firdes
 
 
 class Channel:
@@ -29,7 +30,8 @@ class Channel:
                  duration=60,
                  samp_rate=32e6,
                  sdr_bandwidth=10e7,
-                 output_path="output.bin"):
+                 output_path="output.bin",
+                 n_channels=2):
 
         self.jam_type = jam_type
         self.method =  method
@@ -45,6 +47,7 @@ class Channel:
         self.samp_rate =  samp_rate
         self.sdr_bandwidth =  sdr_bandwidth
         self.output_path = output_path
+        self.n_channels = n_channels
 
         if config_file:
             with open(config_file, 'r') as file:
@@ -72,7 +75,22 @@ class Channel:
         self.if_gain = 0
         self.rf_gain = 0
         self.set_gains()
-        self.threads = []
+        self.thread = None
+        self.log_thread = None
+        self.isRunning = False
+        self.isConnected = False
+        self.output = ""
+
+        frequency_map = [
+            [(2412e6, 2484e6)], # Band 1 2.4 GHz
+            [(5180e6, 5240e6),(5260e6,5320e6),(5500e6,5720e6),(5745e6, 5825e6)] # Band 2 5 GHz
+        ]
+        if self.band == 1:
+            self.ch_dist *= 10e5
+        else:
+            self.ch_dist = 20e6
+        self.initial_freq, self.last_frequency = frequency_map[self.band - 1][self.allocation - 1]
+        self.n_channels = (self.last_frequency - self.initial_freq) // self.ch_dist
 
     def sense(self):
 
@@ -93,12 +111,12 @@ class Channel:
         # Inbetween blocks
         low_pass_filter = gnuradio.filter.fir_filter_ccf(
             1,
-            gnuradio.firdes.low_pass(
+            firdes.low_pass(
                 1,
                 self.samp_rate,
                 75e3,
                 25e3,
-                gnuradio.firdes.WIN_HAMMING,
+                firdes.WIN_HAMMING,
                 6.76))
         complex_to_mag_squared = gnuradio.blocks.complex_to_mag_squared(1)
 
@@ -148,7 +166,7 @@ class Channel:
         osmosdr_sink.set_antenna('', 0)
         osmosdr_sink.set_bandwidth(self.sdr_bandwidth, 0)
 
-        if waveform == "sin_f":
+        if self.waveform == "sin_f":
             tb.connect(source, freq_mod, osmosdr_sink)
         else:
             tb.connect(source, osmosdr_sink)
@@ -159,11 +177,11 @@ class Channel:
         tb.wait()
 
 
-    def set_frequency(self, channel, ch_dist):
+    def set_frequency(self, channel):
         if channel == 1:
-            self.freq = init_freq
+            self.freq = self.initial_freq
         else:
-            self.freq = init_freq + (channel - 1) * ch_dist
+            self.freq = self.initial_freq + (channel - 1) * self.ch_dist
 
 
 
@@ -185,18 +203,6 @@ class Channel:
 
     def jam_fixed(self):
 
-        frequency_map = [
-            [(2412e6, 2484e6)], # Band 1 2.4 GHz
-            [(5180e6, 5240e6),(5260e6,5320e6),(5500e6,5720e6),(5745e6, 5825e6)] # Band 2 5 GHz
-        ]
-        if self.band == 1:
-            self.ch_dist *= 10e5
-        else:
-            self.ch_dist = 20e6
-        initial_freq, last_frequency = frequency_map[self.band - 1][self.allocation - 1]
-        n_channels = (last_frequency - initial_freq) // self.ch_dist
-
-
         self.freq *= 10e5
         if self.method == "sensing" and self.sense(self.freq, self.t_sensing) < self.threshold:
             return 1
@@ -213,29 +219,54 @@ class Channel:
 
         channel = 1  # Initial Channel @ 2.412GHz
         start_time = time.time()
-        while time.time() - start_time < duration:
-            if self.method == "sensing" and self.sense(self.freq, t_sensing) > threshold:
+        while time.time() - start_time < self.duration:
+            if self.method == "sensing" and self.sense(self.freq, self.t_sensing) > self.threshold:
                 continue
-            set_frequency(channel, ch_dist)
+            self.set_frequency(channel)
             self.jam()
             # Go to next channel
-            channel = 1 if channel > n_channels else channel + 1
+            channel = 1 if channel > self.n_channels else channel + 1
 
     def jam_random(self):
-
         start_time = time.time()
-        while time.time() - start_time < duration:
-            if self.method == "sensing" and self.sense(self.freq, t_sensing) > threshold:
+        while time.time() - start_time < self.duration:
+            if self.method == "sensing" and self.sense(self.freq, self.t_sensing) > self.threshold:
                 continue
-            channel = random.randint(1, n_channels + 1)
-            set_frequency(channel, ch_dist)
+            channel = random.randint(1, self.n_channels + 1)
+            self.set_frequency(channel)
             self.jam()
 
     def run_threaded(self, func, *args, **kwargs):
-        #thread = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
-        #thread.start()
-        #self.threads.append(thread)
-        func()
+        self.thread = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
+        self.isRunning = True
+        self.stop_thread = threading.Event()
+
+        # Start the main task thread
+        self.thread.start()
+
+        # Start the logging thread
+        self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
+        self.log_thread.start()
+
+    def collect_logs(self):
+        while self.isRunning and not self.stop_thread.is_set():
+            if self.thread and self.thread.is_alive():
+                line = "test"
+                if line:
+                    self.output += line
+                    if "OOO" in line:
+                        self.isConnected = True
+            else:
+                self.output += "Thread Terminated"
+                self.isRunning = False
+                break
+
+    def stop(self):
+        self.stop_thread.set()
+        self.isRunning = False
+        self.isConnected = False
+
+
 
 
 def parse():

@@ -87,7 +87,7 @@ class MainApp(App):
     def on_stop(self):
         print("App is stopping...")
         send_command(SharedState.cli_args.ip, SharedState.cli_args.port, "gnb:stop")
-        for ue in SharedState.ue_list:
-            ue["handle"].stop()
+        for process in SharedState.process_list:
+            process["handle"].stop()
 
 
