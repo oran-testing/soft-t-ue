@@ -35,7 +35,6 @@ def parse():
 
 
 def main():
-    os.system("sudo echo 'sudo password'") # Get sudo access for later
     args = parse()
     SharedState.cli_args = args
     send_command(args.ip, args.port, f"gnb:start:{args.gnb_config}")
@@ -46,9 +45,12 @@ def main():
         options = yaml.safe_load(file)
     SharedState.ue_index = 1
 
-    for ue in options.get("ues", []):
+    for namespace in options.get("namespaces", []):
+        os.system(f"sudo ip netns add {namespace['name']}")
+
+    for ue in options.get("processes", []):
         if not os.path.exists(ue["config_file"]):
-            print(f"Error: File not found {ue[config_file]}")
+            print(f"Error: File not found {ue['config_file']}")
             return 1
         new_ue = Ue(SharedState.ue_index)
         if ue['type'] == "tester":

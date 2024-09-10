@@ -99,6 +99,7 @@ def main():
     while True:
         time.sleep(1)
         controller.listen_for_command(server_socket, lambda x: iperf_servers.append(x))
+    controller.stop_core()
     return 0
 
 if __name__ == "__main__":
