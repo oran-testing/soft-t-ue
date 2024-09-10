@@ -1,4 +1,5 @@
 import yaml
+import threading
 import gnuradio
 import statistics
 import osmosdr
@@ -8,36 +9,68 @@ import random
 import time
 import pathlib
 import argparse
+import threading
+from gnuradio import analog
+
 
 class Jammer:
 
-    def __init__(self, config_file):
-        with open(config_file, 'r') as file:
-            options = yaml.safe_load(file)
+    def __init__(self, config_file="",
+                 jammer=1,
+                 jam_type="fixed",
+                 method="direct",
+                 waveform="sin_c",
+                 power=10,
+                 band=1,
+                 freq=2412e6,
+                 ch_dist=20e6,
+                 allocation=1,
+                 t_jamming=5,
+                 t_sensing=0.05,
+                 duration=60,
+                 samp_rate=32e6,
+                 sdr_bandwidth=10e7):
 
-        # Assign values with defaults
-        self.jammer = options.get("jammer", 1)  # Default: 1 (fixed jammer)
-        self.method = options.get("jamming", "direct")  # direct | sensing
-        self.waveform = options.get("waveform", "sin_c")  # sin_c | sin_f | gaussian
-        self.power = options.get("power", 10)  # Default: 10 units of power (arbitrary)
-        self.band = options.get("band", 1)  # Default: 1 (2.4 GHz)
-        self.freq = options.get("freq", 2412e6)  # Default: 2412 MHz (2.4 GHz Wi-Fi)
-        self.ch_dist = options.get("ch_dist", 20e6)  # Default: 20 MHz channel distance (Wi-Fi)
-        self.allocation = options.get("allocation", 1)  # Default: 1 (first allocation)
-        self.t_jamming = options.get("t_jamming", 5)  # Default: 5 seconds of jamming time
-        self.t_sensing = options.get("t_jamming", 0.05)  # Default: 0.05 seconds of sensing time
-        self.duration = options.get("duration", 60)  # Default: 60 seconds of operation
-        self.samp_rate = options.get("samp_rate", 32e6)  # Default: 60 seconds of operation
-        self.sdr_bandwidth = options.get("sdr_bandwidth", 10e7)  # Default: dafualt to Hackrf Bandwidth
+        self.jam_type = jam_type
+        self.method =  method
+        self.waveform =  waveform
+        self.power =  power
+        self.band =  band
+        self.freq =  freq
+        self.ch_dist =  ch_dist
+        self.allocation =  allocation
+        self.t_jamming =  t_jamming
+        self.t_sensing =  t_sensing
+        self.duration =  duration
+        self.samp_rate =  samp_rate
+        self.sdr_bandwidth =  sdr_bandwidth
+
+        if config_file:
+            with open(config_file, 'r') as file:
+                options = yaml.safe_load(file)
+
+            # Assign values with defaults
+            self.jam_type = options.get("jam_type", self.jam_type)  # Default: fixed | sequential | random
+            self.method = options.get("jamming", self.method)  # direct | sensing
+            self.waveform = options.get("waveform", self.waveform)  # sin_c | sin_f | gaussian
+            self.power = options.get("power", self.power)  # Default: 10 units of power (arbitrary)
+            self.band = options.get("band", self.band)  # Default: 1 (2.4 GHz)
+            self.freq = options.get("freq", self.freq)  # Default: 2412 MHz (2.4 GHz Wi-Fi)
+            self.ch_dist = options.get("ch_dist", self.ch_dist)  # Default: 20 MHz channel distance (Wi-Fi)
+            self.allocation = options.get("allocation", self.allocation)  # Default: 1 (first allocation)
+            self.t_jamming = options.get("t_jamming", self.t_jamming)  # Default: 5 seconds of jamming time
+            self.t_sensing = options.get("t_sensing", self.t_sensing)  # Default: 0.05 seconds of sensing time
+            self.duration = options.get("duration", self.duration)  # Default: 60 seconds of operation
+            self.samp_rate = options.get("samp_rate", self.samp_rate)  # Default: 60 seconds of operation
+            self.sdr_bandwidth = options.get("sdr_bandwidth", self.sdr_bandwidth)  # Default: dafualt to Hackrf Bandwidth
+
 
         if self.t_jamming > self.duration:
             self.t_jamming = self.duration
-
-
         self.if_gain = 0
         self.rf_gain = 0
-
         self.set_gains()
+        self.threads = []
 
     def sense(self):
 
@@ -89,7 +122,6 @@ class Jammer:
 
         self.samp_rate = 20e6  # Sample Rate
         self.sdr_bandwidth = 40e6  # Hackrf SDR Bandwidth
-        set_gains()  # Hackrf SDR antenna gain
 
         tb = gnuradio.gr.top_block()
 
@@ -155,7 +187,7 @@ class Jammer:
             [(2412e6, 2484e6)], # Band 1 2.4 GHz
             [(5180e6, 5240e6),(5260e6,5320e6),(5500e6,5720e6),(5745e6, 5825e6)] # Band 2 5 GHz
         ]
-        if band == 1:
+        if self.band == 1:
             self.ch_dist *= 10e5
         else:
             self.ch_dist = 20e6
@@ -164,10 +196,10 @@ class Jammer:
 
 
         self.freq *= 10e5
-        if self.method == "sensing" and sense(self.freq, self.t_sensing) < self.threshold:
+        if self.method == "sensing" and self.sense(self.freq, self.t_sensing) < self.threshold:
             return 1
 
-        jam(freq, waveform, power, t_jamming)
+        self.jam()
 
         return 0
 
@@ -180,10 +212,10 @@ class Jammer:
         channel = 1  # Initial Channel @ 2.412GHz
         start_time = time.time()
         while time.time() - start_time < duration:
-            if self.method == "sensing" and sense(self.freq, t_sensing) > threshold:
+            if self.method == "sensing" and self.sense(self.freq, t_sensing) > threshold:
                 continue
             set_frequency(channel, ch_dist)
-            jam(self.freq, waveform, power, t_jamming)
+            self.jam()
             # Go to next channel
             channel = 1 if channel > n_channels else channel + 1
 
@@ -191,11 +223,17 @@ class Jammer:
 
         start_time = time.time()
         while time.time() - start_time < duration:
-            if self.method == "sensing" and sense(self.freq, t_sensing) > threshold:
+            if self.method == "sensing" and self.sense(self.freq, t_sensing) > threshold:
                 continue
             channel = random.randint(1, n_channels + 1)
             set_frequency(channel, ch_dist)
-            jam(self.freq, waveform, power, t_jamming)
+            self.jam()
+
+    def run_threaded(self, func, *args, **kwargs):
+        #thread = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
+        #thread.start()
+        #self.threads.append(thread)
+        func()
 
 
 def parse():
@@ -211,6 +249,8 @@ def parse():
 
 def main():
     args = parse()
+    jammer_t = Jammer()
+    jammer_t.run_threaded(getattr(jammer_t, "jam_" + jammer_t.jam_type))
 
     return 0
 
