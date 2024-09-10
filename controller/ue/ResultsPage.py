@@ -16,7 +16,7 @@ class ResultsPage(Screen):
         self.rendered_ue_list = []
 
     def init_results(self):
-        for ue_ref in SharedState.ue_list:
+        for ue_ref in SharedState.process_list:
             if ue_ref['id'] in self.rendered_ue_list:
                 continue
             self.rendered_ue_list.append(ue_ref["id"])
