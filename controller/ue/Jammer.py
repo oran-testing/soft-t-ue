@@ -25,13 +25,17 @@ class Jammer:
         self.ch_dist = options.get("ch_dist", 20e6)  # Default: 20 MHz channel distance (Wi-Fi)
         self.allocation = options.get("allocation", 1)  # Default: 1 (first allocation)
         self.t_jamming = options.get("t_jamming", 5)  # Default: 5 seconds of jamming time
+        self.t_sensing = options.get("t_jamming", 0.05)  # Default: 0.05 seconds of sensing time
         self.duration = options.get("duration", 60)  # Default: 60 seconds of operation
+        self.samp_rate = options.get("samp_rate", 32e6)  # Default: 60 seconds of operation
+        self.sdr_bandwidth = options.get("sdr_bandwidth", 10e7)  # Default: dafualt to Hackrf Bandwidth
+
+        if self.t_jamming > self.duration:
+            self.t_jamming = self.duration
 
 
         self.if_gain = 0
         self.rf_gain = 0
-        self.samp_rate = 32e6  # Delay before hopping to the next channel in sec
-        self.sdr_bandwidth = 10e7  # Hackrf SDR Bandwidth
 
         self.set_gains()
 
@@ -81,10 +85,10 @@ class Jammer:
         return 0.5 * statistics.mean(np.memmap("output.bin", mode="r", dtype=np.float32))
 
 
-    def jam(self, freq, waveform, duration=1):
+    def jam(self):
 
-        samp_rate = 20e6  # Sample Rate
-        sdr_bandwidth = 40e6  # Hackrf SDR Bandwidth
+        self.samp_rate = 20e6  # Sample Rate
+        self.sdr_bandwidth = 40e6  # Hackrf SDR Bandwidth
         set_gains()  # Hackrf SDR antenna gain
 
         tb = gnuradio.gr.top_block()
@@ -101,14 +105,14 @@ class Jammer:
         freq_mod = analog.frequency_modulator_fc(1)
         osmosdr_sink = osmosdr.sink(args="numchan=1")
         osmosdr_sink.set_time_unknown_pps(osmosdr.time_spec_t())
-        osmosdr_sink.set_sample_rate(samp_rate)
-        osmosdr_sink.set_center_freq(freq, 0)
+        osmosdr_sink.set_sample_rate(self.samp_rate)
+        osmosdr_sink.set_center_freq(self.freq, 0)
         osmosdr_sink.set_freq_corr(0, 0)
-        osmosdr_sink.set_gain(RF_gain, 0)
-        osmosdr_sink.set_if_gain(IF_gain, 0)
+        osmosdr_sink.set_gain(self.rf_gain, 0)
+        osmosdr_sink.set_if_gain(self.if_gain, 0)
         osmosdr_sink.set_bb_gain(20, 0)
         osmosdr_sink.set_antenna('', 0)
-        osmosdr_sink.set_bandwidth(sdr_bandwidth, 0)
+        osmosdr_sink.set_bandwidth(self.sdr_bandwidth, 0)
 
         if waveform == "sin_f":
             tb.connect(source, freq_mod, osmosdr_sink)
@@ -116,7 +120,7 @@ class Jammer:
             tb.connect(source, osmosdr_sink)
 
         tb.start()
-        time.sleep(duration)
+        time.sleep(self.duration)
         tb.stop()
         tb.wait()
 
@@ -131,38 +135,36 @@ class Jammer:
 
     def set_gains(self):
         if -40 <= self.power <= 5:
-            self.RF_gain = 0
+            self.rf_gain = 0
             if self.power < -5:
-                self.IF_gain = self.power + 40
+                self.if_gain = self.power + 40
             elif -5 <= self.power <= 2:
-                self.IF_gain = self.power + 41
+                self.if_gain = self.power + 41
             elif 2 < self.power <= 5:
-                self.IF_gain = self.power + 42
+                self.if_gain = self.power + 42
         elif self.power > 5:
-            self.RF_gain = 14
-            self.IF_gain = self.power + 34
+            self.rf_gain = 14
+            self.rf_gain = self.power + 34
         else:
             raise ValueError("invalid Jammer Transmit power")
 
 
-    def jam_fixed(self, band=1, ch_dist=1, allocation=1):
+    def jam_fixed(self):
 
         frequency_map = [
             [(2412e6, 2484e6)], # Band 1 2.4 GHz
             [(5180e6, 5240e6),(5260e6,5320e6),(5500e6,5720e6),(5745e6, 5825e6)] # Band 2 5 GHz
         ]
         if band == 1:
-            ch_dist *= 10e5
+            self.ch_dist *= 10e5
         else:
-            ch_dist = 20e6
-        initial_freq, last_frequency = frequency_map[band - 1][allocation - 1]
-        n_channels = (lst_freq - init_freq) // ch_dist
+            self.ch_dist = 20e6
+        initial_freq, last_frequency = frequency_map[self.band - 1][self.allocation - 1]
+        n_channels = (last_frequency - initial_freq) // self.ch_dist
 
-        if t_jamming > duration:
-            t_jamming = duration
 
         self.freq *= 10e5
-        if self.method == "sensing" and sense(freq, t_sensing) < threshold:
+        if self.method == "sensing" and sense(self.freq, self.t_sensing) < self.threshold:
             return 1
 
         jam(freq, waveform, power, t_jamming)
