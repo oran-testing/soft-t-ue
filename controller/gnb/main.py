@@ -59,6 +59,7 @@ class gnb_controller:
                 add_callback(iperf_process)
             elif directives[0] == "gnb":
                 if directives[1] == "start":
+                    print(directives[2])
                     self.start_gnb(directives[2])
                 else:
                     self.stop_gnb()

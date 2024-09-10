@@ -50,7 +50,8 @@ class Ue:
 
     def collect_logs(self):
         while self.isRunning and not self.stop_thread.is_set():
-            if self.process:
+            if self.process and self.process.poll() is None:
+
                 line = self.process.stdout.readline()
                 if line:
                     self.output += line

@@ -21,7 +21,7 @@ def parse():
     parser.add_argument(
         "--config",
         type=pathlib.Path,
-        default=script_dir / "config.yaml",
+        default=script_dir.parent.parent / "configs" / "basic_ue_zmq.yaml",
         help="Path of the controller config file")
     parser.add_argument(
         "--gnb_config",
@@ -35,18 +35,25 @@ def parse():
 
 
 def main():
+    os.system("sudo kill -9 $(ps aux | awk '/srsue/ && ! /main/ && !/awk/{print $2}')")
     args = parse()
     SharedState.cli_args = args
-    send_command(args.ip, args.port, f"gnb:start:{args.gnb_config}")
 
 
     options = None
     with open(str(args.config), 'r') as file:
         options = yaml.safe_load(file)
+
+    if options.get("gnb", False):
+        send_command(args.ip, args.port, f"gnb:start:{options.get('gnb')['config']}")
+    else:
+        send_command(args.ip, args.port, f"gnb:start:{args.gnb_config}")
     SharedState.ue_index = 1
 
     for namespace in options.get("namespaces", []):
         os.system(f"sudo ip netns add {namespace['name']}")
+
+    time.sleep(0.5)
 
     for ue in options.get("processes", []):
         if not os.path.exists(ue["config_file"]):

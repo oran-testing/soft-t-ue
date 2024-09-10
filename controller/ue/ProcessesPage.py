@@ -151,6 +151,7 @@ class ProcessesPage(Screen):
             text=f"sudo srsue {config}",
             font_size="20sp",
             padding=[10,20,10,20],
+            color=[1,1,0,1]
         )
 
         if self.ue_type == "tester":
