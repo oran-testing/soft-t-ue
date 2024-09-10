@@ -1,13 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-#
-# SPDX-License-Identifier: GPL-3.0
-
-###################################################################################
-# Importing Libraries
-###################################################################################
-
+import sys
 import time
 import yaml
 from gnuradio import gr
@@ -24,188 +15,148 @@ import sys
 import numpy as np
 from random import randint
 import time
+import pathlib
+import argparse
 
+class Jammer:
 
-###################################################################################
-# Sensing Channel Activity Function
-###################################################################################
+    def __init__(self):
+        self.IF_gain = 0
+        self.RF_gain = 0
+        self.freq = 0
 
-def sense(freq, delay):
-    # print("Sense has received the call")
-    ###############################################################################
-    # Variables
-    ###############################################################################
+    def sense(freq, duration):
 
-    samp_rate = 32e6  # Delay before hopping to the next channel in sec
-    sdr_bandwidth = 10e7  # Hackrf SDR Bandwidth
+        samp_rate = 32e6  # Delay before hopping to the next channel in sec
+        sdr_bandwidth = 10e7  # Hackrf SDR Bandwidth
 
-    tb = gr.top_block()
+        tb = gr.top_block()
 
-    ###############################################################################
-    # Blocks
-    ###############################################################################
+        osmosdr_source = osmosdr.source(args="numchan=1")
 
-    # Source block
-    osmosdr_source = osmosdr.source(
-        args="numchan=" + str(1) + " " + ""
-    )
-    osmosdr_source.set_time_unknown_pps(osmosdr.time_spec_t())
-    osmosdr_source.set_sample_rate(samp_rate)
-    osmosdr_source.set_center_freq(freq, 0)
-    osmosdr_source.set_freq_corr(0, 0)
-    osmosdr_source.set_gain(0, 0)
-    osmosdr_source.set_if_gain(16, 0)
-    osmosdr_source.set_bb_gain(16, 0)
-    osmosdr_source.set_antenna('', 0)
-    osmosdr_source.set_bandwidth(sdr_bandwidth, 0)
+        osmosdr_source.set_time_unknown_pps(osmosdr.time_spec_t())
+        osmosdr_source.set_sample_rate(samp_rate)
+        osmosdr_source.set_center_freq(freq, 0)
+        osmosdr_source.set_freq_corr(0, 0)
+        osmosdr_source.set_gain(0, 0)
+        osmosdr_source.set_if_gain(16, 0)
+        osmosdr_source.set_bb_gain(16, 0)
+        osmosdr_source.set_antenna('', 0)
+        osmosdr_source.set_bandwidth(sdr_bandwidth, 0)
 
-    # Inbetween blocks
-    low_pass_filter = filter.fir_filter_ccf(
-        1,
-        firdes.low_pass(
+        # Inbetween blocks
+        low_pass_filter = filter.fir_filter_ccf(
             1,
-            samp_rate,
-            75e3,
-            25e3,
-            firdes.WIN_HAMMING,
-            6.76))
-    complex_to_mag_squared = blocks.complex_to_mag_squared(1)
+            firdes.low_pass(
+                1,
+                samp_rate,
+                75e3,
+                25e3,
+                firdes.WIN_HAMMING,
+                6.76))
+        complex_to_mag_squared = blocks.complex_to_mag_squared(1)
 
-    # Sink block
-    file_sink = blocks.file_sink(gr.sizeof_float * 1, 'output.bin', False)
-    file_sink.set_unbuffered(True)
+        # Sink block
+        file_sink = blocks.file_sink(gr.sizeof_float * 1, 'output.bin', False)
+        file_sink.set_unbuffered(True)
 
-    ##############################################################################
-    # Connecting Blocks
-    ##############################################################################
+        tb.connect(osmosdr_source, low_pass_filter)
+        tb.connect(low_pass_filter, complex_to_mag_squared)
+        tb.connect(complex_to_mag_squared, file_sink)
 
-    tb.connect(osmosdr_source, low_pass_filter)
-    tb.connect(low_pass_filter, complex_to_mag_squared)
-    tb.connect(complex_to_mag_squared, file_sink)
-
-    tb.start()
-    time.sleep(delay)
-    tb.stop()
-    tb.wait()
+        tb.start()
+        time.sleep(duration)
+        tb.stop()
+        tb.wait()
 
 
-###################################################################################
-# Jamming Channel Function
-###################################################################################
+    def jam(self, freq, waveform, power, duration=1):
 
-def jam(freq, waveform, power, delay=1):
-    ###############################################################################
-    # Variables
-    ###############################################################################
-    print(f"\nThe frequency currently jammed is: {freq / (10e5)}MHz")
-    samp_rate = 20e6  # Sample Rate
-    sdr_bandwidth = 40e6  # Hackrf SDR Bandwidth
-    RF_gain, IF_gain = set_gains(power)  # Hackrf SDR antenna gain
+        print(f"\nThe frequency currently jammed is: {freq / (10e5)}MHz")
+        samp_rate = 20e6  # Sample Rate
+        sdr_bandwidth = 40e6  # Hackrf SDR Bandwidth
+        RF_gain, IF_gain = set_gains(power)  # Hackrf SDR antenna gain
 
-    tb = gr.top_block()
+        tb = gr.top_block()
 
-    ##############################################################################
-    # waveform selection
-    ##############################################################################
+        if waveform == 1:
+            source = analog.sig_source_c(samp_rate, analog.GR_SIN_WAVE, 1000, 1, 0, 0)
+        elif waveform == 2:
+            source = analog.sig_source_f(samp_rate, analog.GR_SIN_WAVE, 1000, 1, 0, 0)
+        elif waveform == 3:
+            source = analog.noise_source_c(analog.GR_GAUSSIAN, 1, 0)
+        else:
+            print("invalid selection")
 
-    if waveform == 1:
-        source = analog.sig_source_c(samp_rate, analog.GR_SIN_WAVE, 1000, 1, 0, 0)
-    elif waveform == 2:
-        source = analog.sig_source_f(samp_rate, analog.GR_SIN_WAVE, 1000, 1, 0, 0)
-    elif waveform == 3:
-        source = analog.noise_source_c(analog.GR_GAUSSIAN, 1, 0)
-    else:
-        print("invalid selection")
+        freq_mod = analog.frequency_modulator_fc(1)
+        osmosdr_sink = osmosdr.sink(args="numchan=1")
+        osmosdr_sink.set_time_unknown_pps(osmosdr.time_spec_t())
+        osmosdr_sink.set_sample_rate(samp_rate)
+        osmosdr_sink.set_center_freq(freq, 0)
+        osmosdr_sink.set_freq_corr(0, 0)
+        osmosdr_sink.set_gain(RF_gain, 0)
+        osmosdr_sink.set_if_gain(IF_gain, 0)
+        osmosdr_sink.set_bb_gain(20, 0)
+        osmosdr_sink.set_antenna('', 0)
+        osmosdr_sink.set_bandwidth(sdr_bandwidth, 0)
 
-    #############################################################################
-    # Hackrf Trasmitter options
-    #############################################################################
+        if waveform == 2:
+            tb.connect(source, freq_mod, osmosdr_sink)
+        else:
+            tb.connect(source, osmosdr_sink)
 
-    freq_mod = analog.frequency_modulator_fc(1)
-    osmosdr_sink = osmosdr.sink(
-        args="numchan=" + str(1) + " " + ""
-    )
-    osmosdr_sink.set_time_unknown_pps(osmosdr.time_spec_t())
-    osmosdr_sink.set_sample_rate(samp_rate)
-    osmosdr_sink.set_center_freq(freq, 0)
-    osmosdr_sink.set_freq_corr(0, 0)
-    osmosdr_sink.set_gain(RF_gain, 0)
-    osmosdr_sink.set_if_gain(IF_gain, 0)
-    osmosdr_sink.set_bb_gain(20, 0)
-    osmosdr_sink.set_antenna('', 0)
-    osmosdr_sink.set_bandwidth(sdr_bandwidth, 0)
-
-    ##############################################################################
-    # Connecting Blocks
-    ##############################################################################
-
-    if waveform == 2:
-        tb.connect(source, freq_mod, osmosdr_sink)
-    else:
-        tb.connect(source, osmosdr_sink)
-
-    tb.start()
-    time.sleep(delay)
-    tb.stop()
-    tb.wait()
+        tb.start()
+        time.sleep(duration)
+        tb.stop()
+        tb.wait()
 
 
-##################################################################################
-# Set Frequency
-##################################################################################
-
-def set_frequency(channel, ch_dist):
-    if channel == 1:
-        freq = init_freq
-    else:
-        freq = init_freq + (channel - 1) * ch_dist
-
-    return freq
+    def set_frequency(self, channel, ch_dist):
+        if channel == 1:
+            self.freq = init_freq
+        else:
+            self.freq = init_freq + (channel - 1) * ch_dist
 
 
-##################################################################################
-# Set RF Gains
-##################################################################################
 
-def set_gains(power):
-    if -40 <= power <= 5:
-        RF_gain = 0
-        if power < -5:
-            IF_gain = power + 40
-        elif -5 <= power <= 2:
-            IF_gain = power + 41
-        elif 2 < power <= 5:
-            IF_gain = power + 42
-    elif power > 5:
-        RF_gain = 14
-        IF_gain = power + 34
-    else:
-        print("invalid Jammer Transmit power")
-
-    return RF_gain, IF_gain
+    def set_gains(self, power):
+        if -40 <= power <= 5:
+            self.RF_gain = 0
+            if power < -5:
+                self.IF_gain = power + 40
+            elif -5 <= power <= 2:
+                self.IF_gain = power + 41
+            elif 2 < power <= 5:
+                self.IF_gain = power + 42
+        elif power > 5:
+            self.RF_gain = 14
+            self.IF_gain = power + 34
+        else:
+            raise ValueError("invalid Jammer Transmit power")
 
 
-##################################################################################
-# Detect Activity Function
-##################################################################################
 
-def detect():
-    with open("output.bin", mode='rb') as file:
-        fileContent = file.read()
-        samples = np.memmap("output.bin", mode="r", dtype=np.float32)
-
-    p = 0.5 * mean(samples)
-    return p
+    def rx_from_mean(self):
+        return 0.5 * mean(np.memmap("output.bin", mode="r", dtype=np.float32))
 
 
-##################################################################################
-# Main Function
-##################################################################################
+def parse():
+    script_dir = pathlib.Path(__file__).resolve().parent
+    parser = argparse.ArgumentParser(
+        description="Run a Jammer or a channel Detector")
+    parser.add_argument(
+        "--config",
+        type=pathlib.Path,
+        default=script_dir / "jammer.yaml",
+        help="Config file path")
+    return parser.parse_args()
 
-if __name__ == "__main__":
-    # Global options
-    config_file = open("config_v1.yaml")
-    options = yaml.load(config_file, Loader=yaml.FullLoader)
+def main():
+    args = parse()
+
+    with open(str(args.config), 'r') as file:
+        options = yaml.safe_load(file)
+
     jammer = options.get("jammer")
     jamming = options.get("jamming")
     waveform = options.get("waveform")
@@ -239,8 +190,10 @@ if __name__ == "__main__":
                 lst_freq = 5825e6
             else:
                 print('Invalid selection')
+                return 1
         else:
             print('Invalid selection')
+            return 1
         n_channels = (lst_freq - init_freq) // ch_dist
         if t_jamming > duration:
             t_jamming = duration
@@ -267,6 +220,7 @@ if __name__ == "__main__":
 
         else:
             print("Invalid jamming option selection")
+            return 1
 
     elif jammer == 2:
         channel = 1  # Initial Channel @ 2.412GHz
@@ -285,6 +239,7 @@ if __name__ == "__main__":
                     jam(freq, waveform, power, t_jamming)
             else:
                 print("Invalid jamming option selection")
+                return 1
             # Go to next channel
             channel = 1 if channel > n_channels else channel + 1
             # Checking elapsed time
@@ -309,6 +264,7 @@ if __name__ == "__main__":
                     jam(freq, waveform, power, t_jamming)
             else:
                 print("Invalid jamming option selection")
+                return 1
                 # Checking elapsed time
             jamming_time_per_run = time.time() - start_time
             if jamming_time_per_run >= duration:
@@ -316,3 +272,10 @@ if __name__ == "__main__":
 
     else:
         print("invalid jammer selection")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+   rc = main()
+   sys.exit(rc)
