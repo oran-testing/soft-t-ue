@@ -25,7 +25,7 @@ This test helps us understand the network's vulnerability to preamble collisions
 
 Mitigation (gNB):
 ------------------
-- Once a UE sends the preamble attach, then invalidate that preamble so long as the UE is connected
+- Once a UE sends the preamble attach, invalidate that preamble as long as the UE remains connected.
 
 Attack Metrics:
 ----------------
