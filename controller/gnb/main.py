@@ -7,8 +7,8 @@ import pathlib
 import argparse
 import socket
 import logging
+import json
 
-import tailer
 
 
 # add the common directory to the import path
@@ -48,25 +48,26 @@ class gnb_controller:
     def listen_for_command(self, server_socket, add_callback):
         while True:
             client_socket, _ = server_socket.accept()
-            command = client_socket.recv(1024).decode('utf-8').strip()
+            recv_data = client_socket.recv(1024).decode('utf-8').strip()
             client_socket.close()
 
-            directives = command.split(":")
+            command = json.loads(recv_data)
 
-            iperf_process = Iperf()
-            if directives[0] == "iperf":
-                iperf_process.start(["-s", "-i", "1", "-p", directives[1]], process_type="server")
+            print(command)
+
+            if command["target"] == "iperf":
+                iperf_process = Iperf()
+                iperf_process.start(["-s", "-i", "1", "-p", command["port"]], process_type="server")
                 add_callback(iperf_process)
-            elif directives[0] == "gnb":
-                if directives[1] == "start":
-                    print(directives[2])
-                    self.start_gnb(directives[2])
-                else:
+            elif command["target"] == "gnb":
+                if command["action"] == "start":
+                    self.start_gnb(command["config"])
+                elif command["action"] == "stop":
                     self.stop_gnb()
-            elif directives[0] == "core":
-                if directives[1] == "start":
+            elif command["target"] == "core":
+                if command["action"] == "start":
                     self.start_core(True)
-                else:
+                elif command["action"] == "stop":
                     self.stop_core()
 
 

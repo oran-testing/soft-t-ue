@@ -15,6 +15,7 @@ class Iperf:
         self.process_type = ""
 
     def start(self, args, process_type="server", ue_index=1):
+        command = []
         if process_type == "server":
             command = ["stdbuf","-oL","-eL","iperf3"] + args
         elif process_type == "client":

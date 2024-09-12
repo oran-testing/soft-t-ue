@@ -34,7 +34,7 @@ class Ue:
     
     def start_metrics(self):
         print(f"Starting UE {self.ue_index} metrics")
-        send_command("127.0.0.1", 5000, "iperf:" + str(5000 + self.ue_index))
+        send_command("127.0.0.1", 5000, {"target": "iperf", "port": str(5000 + self.ue_index)})
         os.system(f"sudo ip netns add ue{self.ue_index}")
         os.system("sudo ip ro add 10.45.0.0/16 via 10.53.1.2")
         os.system(f"sudo ip netns exec ue{self.ue_index} ip ro add default via 10.45.1.1 dev tun_srsue")

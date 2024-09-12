@@ -45,9 +45,17 @@ def main():
         options = yaml.safe_load(file)
 
     if options.get("gnb", False):
-        send_command(args.ip, args.port, f"gnb:start:{options.get('gnb')['config']}")
+        send_command(args.ip, args.port,
+                     {"target": "gnb",
+                      "action": "start",
+                      "config": options.get('gnb')['config']}
+                     )
     else:
-        send_command(args.ip, args.port, f"gnb:start:{args.gnb_config}")
+        send_command(args.ip, args.port,
+                     {"target": "gnb",
+                      "action": "start",
+                      "config": str(args.gnb_config)}
+                     )
     SharedState.ue_index = 1
 
     for namespace in options.get("namespaces", []):
