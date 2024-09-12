@@ -1,8 +1,9 @@
-from common.utils import start_subprocess, kill_subprocess
-import threading
+import re
 import select
 import sys
-import re
+import threading
+
+from common.utils import kill_subprocess, start_subprocess
 
 
 class Iperf:

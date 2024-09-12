@@ -1,18 +1,17 @@
+from AttacksPage import AttacksPage
+from kivy.animation import Animation
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
-from kivy.animation import Animation
-
+from kivy.uix.screenmanager import ScreenManager
+from LandingPage import LandingPage
+from ProcessesPage import ProcessesPage
+from ResultsPage import ResultsPage
+from SharedState import SharedState
 
 from common.utils import send_command
 
-from LandingPage import LandingPage
-from ProcessesPage import ProcessesPage
-from AttacksPage import AttacksPage
-from ResultsPage import ResultsPage
-from SharedState import SharedState
 
 class MainApp(App):
     def build(self):

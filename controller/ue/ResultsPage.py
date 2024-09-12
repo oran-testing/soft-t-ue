@@ -1,10 +1,9 @@
-from kivy.uix.screenmanager import Screen
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
 from kivy.clock import Clock
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
+from kivy.uix.screenmanager import Screen
 from kivy_garden.graph import Graph, MeshLinePlot
-
 from SharedState import SharedState
 
 

@@ -1,9 +1,9 @@
-from kivy.uix.screenmanager import Screen
-from kivy.uix.relativelayout import RelativeLayout
+from kivy.animation import Animation
+from kivy.clock import Clock
 from kivy.uix.image import Image
 from kivy.uix.label import Label
-from kivy.clock import Clock
-from kivy.animation import Animation
+from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.screenmanager import Screen
 
 
 class LandingPage(Screen):

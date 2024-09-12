@@ -1,6 +1,6 @@
-import subprocess
-import socket
 import json
+import socket
+import subprocess
 
 
 def start_subprocess(command):

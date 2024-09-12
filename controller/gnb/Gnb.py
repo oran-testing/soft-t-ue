@@ -1,7 +1,7 @@
 import threading
 import time
 
-from common.utils import start_subprocess, kill_subprocess
+from common.utils import kill_subprocess, start_subprocess
 
 
 class Gnb:

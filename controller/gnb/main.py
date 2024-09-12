@@ -1,15 +1,13 @@
+import argparse
 import itertools
+import json
+import logging
+import os
+import pathlib
+import socket
 import sys
 import threading
 import time
-import os
-import pathlib
-import argparse
-import socket
-import logging
-import json
-
-
 
 # add the common directory to the import path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -17,6 +15,7 @@ sys.path.insert(0, parent_dir)
 
 from CoreNetwork import CoreNetwork
 from Gnb import Gnb
+
 from common.Iperf import Iperf
 
 

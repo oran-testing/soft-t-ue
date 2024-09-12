@@ -1,18 +1,21 @@
+import argparse
+import os
+import pathlib
+import sys
 import time
 import uuid
-import os
-import sys
+
 import yaml
-import argparse
-import pathlib
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 
-from common.utils import send_command
-from Ue import Ue
 from MainApp import MainApp
 from SharedState import SharedState
+from Ue import Ue
+
+from common.utils import send_command
+
 
 def parse():
     script_dir = pathlib.Path(__file__).resolve().parent
