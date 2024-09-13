@@ -4,11 +4,13 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Soft-Tester UE documentation &mdash; Soft-Tester UE 1.0 documentation</title>
+  <title>NTIA Software Tester &mdash; Soft-Tester UE 1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=f00fe344" />
 
   
+    <link rel="shortcut icon" href="_static/favicon.png"/>
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -16,10 +18,11 @@
         <script src="_static/documentation_options.js?v=f2a433a1"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/custom.js?v=687900dd"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Bandwidth Hogging Attack Using Manipulated CQI Values" href="cqi_manipulation.html" /> 
+    <link rel="next" title="CQI Manipulation attack" href="attacks/cqi_manipulation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -32,6 +35,7 @@
           
           <a href="#" class="icon icon-home">
             Soft-Tester UE
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -41,11 +45,57 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Attacks implemented</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="cqi_manipulation.html">Bandwidth Hogging Attack Using Manipulated CQI Values</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gnb_impersonation_attack.html">gNB Impersonation Attack</a></li>
-<li class="toctree-l1"><a class="reference internal" href="imsi_capture.html">International Mobile Subscriber Identity Catching Attack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/cqi_manipulation.html">CQI Manipulation attack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="attacks/cqi_manipulation.html#implementation-ue-side">Implementation (UE Side)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/cqi_manipulation.html#mitigation-components-in-srsran-gnb-under-test">Mitigation Components in srsRAN gNB under Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/cqi_manipulation.html#metrics-to-assess-the-attack">Metrics to Assess the Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/cqi_manipulation.html#notes">Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/gnb_impersonation_attack.html">gNB Impersonation Attack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="attacks/gnb_impersonation_attack.html#implementation-gnb">Implementation (gNB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/gnb_impersonation_attack.html#mitigation-ue-and-gnb">Mitigation (UE and gNB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/gnb_impersonation_attack.html#attack-metrics">Attack Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/imsi_capture.html">IMSI Catching Attack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="attacks/imsi_capture.html#implementation-gnb">Implementation (gNB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/imsi_capture.html#mitigation">Mitigation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/imsi_capture.html#attack-metrics">Attack Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/preamble_collision.html">Preamble Collision attack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="attacks/preamble_collision.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/preamble_collision.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/preamble_collision.html#mitigation-gnb">Mitigation (gNB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/preamble_collision.html#attack-metrics">Attack Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/rach_jamming.html">RACH Jamming Attack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="attacks/rach_jamming.html#implementation-ue">Implementation (UE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/rach_jamming.html#attack-metrics">Attack Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/rach_replay.html">RACH Replay Attack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="attacks/rach_replay.html#implementation-ue">Implementation (UE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/rach_replay.html#mitigation-ue-and-gnb">Mitigation (UE and gNB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/rach_replay.html#attack-metrics">Attack Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/rach_signal_flooding.html">RACH Signal Flooding attack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="attacks/rach_signal_flooding.html#implementation-t-ue">Implementation (T-UE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/rach_signal_flooding.html#mitigation-gnb">Mitigation (gNB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/rach_signal_flooding.html#attack-metrics">Attack Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/rohc_poisoning_attack.html">RoHC Poisoning Attack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="attacks/rohc_poisoning_attack.html#implementation-ue">Implementation (UE)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/rohc_poisoning_attack.html#mitigation-ue-and-gnb">Mitigation (UE and gNB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/rohc_poisoning_attack.html#attack-metrics">Attack Metrics</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -62,9 +112,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Soft-Tester UE documentation</li>
+      <li class="breadcrumb-item active">NTIA Software Tester</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -72,53 +121,77 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="soft-tester-ue-documentation">
-<h1>Soft-Tester UE documentation<a class="headerlink" href="#soft-tester-ue-documentation" title="Link to this heading">¶</a></h1>
-<p>Add your content using <code class="docutils literal notranslate"><span class="pre">reStructuredText</span></code> syntax. See the
-<a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html">reStructuredText</a>
-documentation for details.</p>
+  <section id="ntia-software-tester">
+<h1>NTIA Software Tester<a class="headerlink" href="#ntia-software-tester" title="Link to this heading">¶</a></h1>
+<p>An SDR security testing UE based on srsRAN’s UE.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>The tester consists of a client PC running the test GUI and a server PC running
+the base station. (In some cases, a single PC can run both the client and the
+server.) The client GUI launches a series of applications to run a test. It
+communicates with the server to indirectly launch server-side applications with
+appropriate configurations.</p>
+<p>Legend:</p>
+<ul class="simple">
+<li><p>A solid line indicates a process/subprocess relationship. If bidirectional,
+the subprocess provides data back to the process via pipes.</p></li>
+<li><p>A dotted line indicates data movement between two processes.</p></li>
+</ul>
+<img alt="_images/soft-t-ue.png" src="_images/soft-t-ue.png" />
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
+<p>To install the UE, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./scripts/install-ue.sh
+</pre></div>
+</div>
+<p>To install the gNB, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./scripts/install-open5gs.sh
+./scripts/install-gnb.sh
+</pre></div>
+</div>
+<p>To install dependencies for the UE controller, use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>ue-controller
+poetry<span class="w"> </span>install
+</pre></div>
+</div>
+</section>
+<section id="running">
+<h2>Running<a class="headerlink" href="#running" title="Link to this heading">¶</a></h2>
+<p>To run the controller, use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>ue-controller
+poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>ue_controller/ui.py
+</pre></div>
+</div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Attacks implemented</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="cqi_manipulation.html">Bandwidth Hogging Attack Using Manipulated CQI Values</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="cqi_manipulation.html#implementation-ue-side">Implementation (UE Side):</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cqi_manipulation.html#mitigation-components-in-srsran-gnb-under-test">Mitigation Components in srsRAN gNB under Test:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cqi_manipulation.html#metrics-to-assess-the-attack">Metrics to Assess the Attack:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cqi_manipulation.html#notes">Notes</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="gnb_impersonation_attack.html">gNB Impersonation Attack</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="gnb_impersonation_attack.html#implementation-gnb">Implementation (gNB):</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gnb_impersonation_attack.html#mitigation-ue-and-gnb">Mitigation (UE and gNB):</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gnb_impersonation_attack.html#attack-metrics">Attack Metrics:</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="imsi_capture.html">International Mobile Subscriber Identity Catching Attack</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="imsi_capture.html#implementation-gnb">Implementation (gNB):</a></li>
-<li class="toctree-l2"><a class="reference internal" href="imsi_capture.html#mitigation">Mitigation:</a></li>
-<li class="toctree-l2"><a class="reference internal" href="imsi_capture.html#attack-metrics">Attack Metrics:</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/cqi_manipulation.html">CQI Manipulation attack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/gnb_impersonation_attack.html">gNB Impersonation Attack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/imsi_capture.html">IMSI Catching Attack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/preamble_collision.html">Preamble Collision attack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/rach_jamming.html">RACH Jamming Attack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/rach_replay.html">RACH Replay Attack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/rach_signal_flooding.html">RACH Signal Flooding attack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="attacks/rohc_poisoning_attack.html">RoHC Poisoning Attack</a></li>
 </ul>
 </div>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="cqi_manipulation.html" class="btn btn-neutral float-right" title="Bandwidth Hogging Attack Using Manipulated CQI Values" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="attacks/cqi_manipulation.html" class="btn btn-neutral float-right" title="CQI Manipulation attack" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Joshua J. Moore.</p>
+    <p>&#169; Copyright 2024, RAN TESTER UE.</p>
   </div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>
@@ -128,7 +201,7 @@ documentation for details.</p>
   </div>
   <script>
       jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
+          SphinxRtdTheme.Navigation.enable(false);
       });
   </script> 
 

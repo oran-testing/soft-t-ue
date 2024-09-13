@@ -1,0 +1,56 @@
+body, h1, h2, h3, h4, h5, h6, legend{
+  font-family: "Ubuntu", sans-serif;
+}
+
+.rst-content .toctree-wrapper>p.caption {
+  font-family: "Ubuntu", sans-serif;
+}
+
+.rst-content code.literal, .rst-content tt.literal {
+    color: #00B2E3;
+}
+
+.rst-content div.highlight {
+    background-color: azure;
+}
+
+.rst-content span.hll {
+    background-color: #00B2E3;
+}
+
+.wy-nav-side {
+    background: #1A283D;
+}
+
+.wy-menu-vertical li span.toctree-expand {
+    color: #283c4d;
+}
+
+.wy-nav-content {
+    max-width: none;
+}
+
+footer {
+    margin-top: auto;
+}
+
+
+
+/* Style for the "Scroll to Top" button */
+.scroll-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 1000;
+    display: none; /* Hidden by default */
+}
+
+.scroll-to-top:hover {
+    background: #555;
+}

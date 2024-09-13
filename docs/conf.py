@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Soft-Tester UE'
-copyright = '2024, Joshua J. Moore'
+copyright = '2024, RAN TESTER UE'
 author = 'Joshua J. Moore'
 release = '1.0'
 
@@ -32,8 +32,14 @@ html_theme_options = {
     "show_sourcelink": False,
     "collapse_navigation" : False,
     "sticky_navigation": False,
+    'flyout': False,
 }
-
 html_show_sphinx = False
 html_show_sourcelink = False
 html_favicon = 'images/favicon.png'
+html_logo = 'images/logo.png'
+html_static_path = ['_static']
+html_css_files = [
+    'custom.css',
+]
+

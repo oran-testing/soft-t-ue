@@ -1,7 +1,7 @@
 gNB Impersonation Attack
 ==========================================================
 
-Implementation (gNB):
+Implementation (gNB)
 ---------------------
 
 - Broadcast preambles over a wide spectrum.
@@ -9,12 +9,12 @@ Implementation (gNB):
 - Establish a connection with the UE.
 - Store all UP and CP messages.
 
-Mitigation (UE and gNB):
+Mitigation (UE and gNB)
 ---------------------------
 - Implement unique identifiers for both gNB and UE.
 
-Attack Metrics:
-----------------
+Attack Metrics
+---------------
 - Collection of sensitive UE data.
 - IMSI capture.
 - Disruption of normal connections.
