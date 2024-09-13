@@ -1,4 +1,4 @@
-RACH Jamming Attack
+Random Access Channel Jamming / DoS Attack
 ==========================================================
 
 Implementation (UE):

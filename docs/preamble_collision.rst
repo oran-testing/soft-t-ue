@@ -1,4 +1,4 @@
-Preamble Collision attack
+Random Access User Equipment Preamble Collision
 ==========================================================
 
 Introduction:
