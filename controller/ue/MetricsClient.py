@@ -7,10 +7,13 @@ import time
 import os
 from typing import Any, Dict, Optional, Tuple
 from dotenv import load_dotenv
+from datetime import datetime
+import threading
 
 
 from influxdb_client import InfluxDBClient, QueryApi
 from influxdb_client.client.write_api import SYNCHRONOUS
+
 
 
 class MetricsClient:
@@ -28,22 +31,35 @@ class MetricsClient:
             }
         ).query_api()
 
+        self.ue_data = {}
+
     def read_data(self):
+        self.ue_data = {}
         query = f'''
         from(bucket: "{self.bucket}")
             |> range(start: -1h)
         '''
         tables = self.query_api.query(query=query, org=self.org)
-        print(tables)
         for table in tables:
+            table_value = table.records[0].values.get("_field", '')
+            start_time = table.records[0].values.get("_start", '')
+
             for record in table.records:
-                print(f"Time: {record.get_time()}, Value: {record.get_value()}")
-        return tables
+                rnti = record.values.get('rnti', '')
+                if not rnti:
+                    continue
+                elif rnti not in self.ue_data.keys():
+                    self.ue_data[rnti] = {}
+
+                if table_value not in self.ue_data[rnti].keys():
+                    self.ue_data[rnti][table_value] = []
+                self.ue_data[rnti][table_value].append(((start_time - record.values.get('_time', None)).total_seconds(),record.values.get('_value', 0)))
+
+        return self.ue_data
 
 
 
 if __name__ == "__main__":
     test = MetricsClient()
-    while True:
-        time.sleep(1)
-        test = test.read_data()
+    for key, value in test.read_data().items():
+        print(value["bsr"])

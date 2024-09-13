@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import datetime
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
@@ -26,6 +27,7 @@ class Ping:
         self.process = start_subprocess(command)
         self.isRunning = True
         self.name = "Ping -- Running"
+        self.start_time = datetime.now()
 
         self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
         self.log_thread.start()
@@ -44,7 +46,10 @@ class Ping:
                 if line:
                     latency = latency_pattern.findall(line)
                     if latency:
-                        self.output.append(float(latency[0]) * 1000)
+                        self.output.append(
+                            ((datetime.now() - self.start_time).total_seconds(),
+                            float(latency[0]) * 1000)
+                        )
 
             else:
                 self.output.append(0.0)
