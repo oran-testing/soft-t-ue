@@ -27,3 +27,13 @@ extensions = [
 
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_theme_options = {
+    "display_version": False,
+    "show_sourcelink": False,
+    "collapse_navigation" : False,
+    "sticky_navigation": False,
+}
+
+html_show_sphinx = False
+html_show_sourcelink = False
+html_favicon = 'images/favicon.png'
