@@ -49,45 +49,82 @@ class ResultsPage(Screen):
     def create_graph(self, graph_type, ue_ref):
         plot = MeshLinePlot(color=[0,1,0,1])
         plot.line_width = 6
-        graph = Graph(
-            xlabel='time (s)',
-            ylabel='Bandwidth (MBits/sec)',
-            x_ticks_minor=1,
-            x_ticks_major=5,
-            y_ticks_major=5,
-            y_ticks_minor=1,
-            y_grid_label=True,
-            x_grid_label=True,
-            padding=5,
-            xlog=False,
-            ylog=False,
-            x_grid=True,
-            y_grid=True,
-            ymin=0,
-            ymax=70,
-            xmin=0,
-            xmax=100,
-            size_hint_y=None,
-            height=500
-        )
+        graph = None
         if graph_type == "ping":
-            graph.ylabel = "Latency (ms)"
-            graph.ymax = 150
-        elif graph_type != "iperf":
-            graph.ylabel = graph_type
+            graph = Graph(
+                xlabel='time (s)',
+                ylabel='Bandwidth (MBits/sec)',
+                x_ticks_minor=1,
+                x_ticks_major=5,
+                y_ticks_major=5,
+                y_ticks_minor=1,
+                y_grid_label=True,
+                x_grid_label=True,
+                padding=5,
+                xlog=False,
+                ylog=False,
+                x_grid=True,
+                y_grid=True,
+                ymin=0,
+                xmin=0,
+                xmax=100,
+                size_hint_y=None,
+                height=500
+            )
+        elif graph_type == "iperf":
+            graph = Graph(
+                xlabel='time (s)',
+                ylabel='Bandwidth (MBits/sec)',
+                x_ticks_minor=1,
+                x_ticks_major=5,
+                y_ticks_major=5,
+                y_ticks_minor=1,
+                y_grid_label=True,
+                x_grid_label=True,
+                padding=5,
+                xlog=False,
+                ylog=False,
+                x_grid=True,
+                y_grid=True,
+                ymin=0,
+                xmin=0,
+                xmax=100,
+                size_hint_y=None,
+                height=500
+            )
+
+        else:
+            graph = Graph(
+                xlabel='time (s)',
+                ylabel='Bandwidth (MBits/sec)',
+                x_ticks_minor=1,
+                x_ticks_major=5,
+                y_ticks_major=5,
+                y_ticks_minor=1,
+                y_grid_label=True,
+                x_grid_label=True,
+                padding=5,
+                xlog=False,
+                ylog=False,
+                x_grid=True,
+                y_grid=True,
+                ymin=0,
+                xmin=0,
+                xmax=100,
+                size_hint_y=None,
+                height=500
+            )
+
 
         graph.add_plot(plot)
         if graph_type == "ping":
-            Clock.schedule_interval(lambda dt: self.update_points(plot, ue_ref["handle"].ping_client.output, graph), 1)
+            Clock.schedule_interval(lambda dt: self.update_points(plot, ue_ref["handle"].ping_client.output), 1)
         elif graph_type == "iperf":
-            Clock.schedule_interval(lambda dt: self.update_points(plot, ue_ref["handle"].iperf_client.output, graph), 1)
+            Clock.schedule_interval(lambda dt: self.update_points(plot, ue_ref["handle"].iperf_client.output), 1)
         else:
-            Clock.schedule_interval(lambda dt: self.update_points(plot, ue_ref, graph), 5)
+            Clock.schedule_interval(lambda dt: self.update_points(plot, ue_ref), 1)
 
         return graph
 
-    def update_points(self, plot, data_ref, graph):
-        #if len(data_ref) > 0:
-        #    max_val = max([y[1] for y in data_ref])
-        #    graph.ymax = max_val if max_val > 10 else 10
+    def update_points(self, plot, data_ref):
         plot.points = data_ref

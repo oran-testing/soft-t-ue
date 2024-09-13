@@ -42,7 +42,7 @@ class MetricsClient:
         tables = self.query_api.query(query=query, org=self.org)
         for table in tables:
             table_value = table.records[0].values.get("_field", '')
-            start_time = table.records[0].values.get("_start", '')
+            start_time = table.records[0].values.get("_time", '')
 
             for record in table.records:
                 rnti = record.values.get('rnti', '')
@@ -53,7 +53,7 @@ class MetricsClient:
 
                 if table_value not in self.ue_data[rnti].keys():
                     self.ue_data[rnti][table_value] = []
-                self.ue_data[rnti][table_value].append(((start_time - record.values.get('_time', None)).total_seconds(),record.values.get('_value', 0)))
+                self.ue_data[rnti][table_value].append(((record.values.get('_time', None) - start_time).total_seconds(),record.values.get('_value', 0)))
 
         return self.ue_data
 
