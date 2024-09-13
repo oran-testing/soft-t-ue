@@ -44,7 +44,7 @@ struct rrc_nr_args_t {
   std::string                 target_message;
   uint32_t                    rach_flood_count;
   std::string                 target_signal_attack;
-  std::string                 rlc_buffer_overflow_attack;
+  uint32_t                    rlc_buffer_overflow_attack;
 
 };
 
