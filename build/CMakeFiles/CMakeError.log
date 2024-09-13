@@ -1,0 +1,34 @@
+Performing C SOURCE FILE Test HAVE_AVX512 failed with the following output:
+Change Dir: /home/prab/soft-t-ue/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_6416d/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_6416d.dir/build.make CMakeFiles/cmTC_6416d.dir/build
+gmake[1]: Entering directory '/home/prab/soft-t-ue/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_6416d.dir/src.c.o
+/usr/bin/cc   -DHAVE_AVX512 -mavx512f -mavx512cd -mavx512bw -mavx512dq -DLV_HAVE_AVX512 -o CMakeFiles/cmTC_6416d.dir/src.c.o -c /home/prab/soft-t-ue/build/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_6416d
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6416d.dir/link.txt --verbose=1
+/usr/bin/cc  -DHAVE_AVX512 -mavx512f -mavx512cd -mavx512bw -mavx512dq -DLV_HAVE_AVX512 CMakeFiles/cmTC_6416d.dir/src.c.o -o cmTC_6416d 
+gmake[1]: Leaving directory '/home/prab/soft-t-ue/build/CMakeFiles/CMakeTmp'
+
+
+Return value: FAILED_TO_RUN
+Source file was:
+
+          #include <immintrin.h>
+          int main()
+          {
+            __m512i a, b, c;
+            const int src[16] = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8 , 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF};
+            int dst[16];
+            a =  _mm512_loadu_si512( (__m512i*)src );
+            b =  _mm512_loadu_si512( (__m512i*)src );
+            c = _mm512_add_epi32( a, b );
+            _mm512_storeu_si512( (__m512i*)dst, c );
+            int i = 0;
+            for( i = 0; i < 16; i++ ){
+              if( ( src[i] + src[i] ) != dst[i] ){
+                return -1;
+              }
+            }
+            return 0;
+          }

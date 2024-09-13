@@ -1,0 +1,7 @@
+# Directory labels
+ sched
+ nr
+# Source files and their labels
+/home/prab/soft-t-ue/srsgnb/src/stack/mac/test/sched_nr_common_test.cc
+/home/prab/soft-t-ue/srsgnb/src/stack/mac/test/sched_nr_ue_ded_test_suite.cc
+/home/prab/soft-t-ue/srsgnb/src/stack/mac/test/sched_nr_sim_ue.cc
