@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 RACH Replay Attack
+=======
+Random Access Channel Request Replay Attack
+>>>>>>> 4196d37552bb0dd4264f2b7a3594da230898f4f8
 ==========================================================
 
 Implementation (UE):

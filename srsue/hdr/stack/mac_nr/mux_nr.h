@@ -59,6 +59,11 @@ public:
   // Interface for BSR procedure
   void generate_bsr_mac_ce(const srsran::bsr_format_nr_t& format);
 
+  // Get the log of RLC PDU size and available remaining space in MAC Buffer
+  int get_RLC_PDU_len() ;
+  int get_MAC_rem_buffer_space_len();
+
+
 private:
   // internal helper methods
   srsran::unique_byte_buffer_t pdu_get_nolock(uint32_t max_pdu_len);
@@ -85,6 +90,10 @@ private:
 
   // Mutex for exclusive access
   std::mutex mutex;
+
+  mutable int RLC_pdu_len;
+  mutable int MAC_buff_rem_space;
+
 };
 
 } // namespace srsue

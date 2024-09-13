@@ -1,7 +1,16 @@
-# Overview
+# Soft T UE Installation Guide
 
 This project provides a GUI enabling users to run a series of white-box and
 black-box tests on the SRS RAN gNodeB.
+
+The best way to install everything the Soft T UE system is using our install scripts:
+```
+sudo ./scripts/install-ue.sh && sudo ./scripts/install-gnb.sh && sudo ./scripts/install-open5gs.sh
+```
+then test the installation by running:
+```
+sudo ./scripts/headless-test.sh
+```
 
 ## Setup
 

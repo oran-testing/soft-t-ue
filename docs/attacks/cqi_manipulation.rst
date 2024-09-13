@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 CQI Manipulation attack
+=======
+Bandwidth Hogging Attack Using Manipulated CQI Values
+>>>>>>> 4196d37552bb0dd4264f2b7a3594da230898f4f8
 =====================================================
 
 Implementation (UE Side):

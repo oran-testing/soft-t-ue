@@ -1,0 +1,7 @@
+namespaces:
+  - name: "ue1"
+
+ues:
+  - type: "tester"
+    config_file: "../../configs/zmq/ue_zmq.conf"
+    args: "--rrc.sdu_fuzzed_bits 1"

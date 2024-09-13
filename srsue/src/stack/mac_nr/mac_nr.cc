@@ -42,7 +42,7 @@ mac_nr::mac_nr(srsran::ext_task_sched_handle task_sched_) :
   ul_harq.at(PCELL_CC_IDX) = ul_harq_entity_nr_ptr(new ul_harq_entity_nr(PCELL_CC_IDX, this, &proc_ra, &mux));
 }
 
-mac_nr::~mac_nr()
+mac_nr::~mac_nr() 
 {
   stop();
 }

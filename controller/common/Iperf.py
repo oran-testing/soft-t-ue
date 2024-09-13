@@ -42,6 +42,7 @@ class Iperf:
             if self.process:
                 line = self.process.stdout.readline()
                 if line:
+                    print("DEBUG:", line)
                     if self.process_type == "server":
                         self.output.append(line)
                     else:

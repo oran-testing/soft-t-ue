@@ -102,6 +102,8 @@ srsran::unique_byte_buffer_t mux_nr::pdu_get_nolock(uint32_t max_pdu_len)
       // Read PDU from RLC (account for subPDU header)
       int pdu_len = rlc->read_pdu(lc.lcid, rd, remaining_len - subpdu_header_len);
 
+      RLC_pdu_len = pdu_len;
+
       if (pdu_len > remaining_len) {
         logger.error("Can't add SDU of %d B. Available space %d B", pdu_len, remaining_len);
         break;
@@ -128,6 +130,8 @@ srsran::unique_byte_buffer_t mux_nr::pdu_get_nolock(uint32_t max_pdu_len)
         }
 
         remaining_len -= (pdu_len + subpdu_header_len);
+
+        MAC_buff_rem_space = remaining_len;
         logger.debug("%d B remaining PDU", remaining_len);
       }
     }
@@ -163,6 +167,16 @@ srsran::unique_byte_buffer_t mux_nr::pdu_get_nolock(uint32_t max_pdu_len)
   }
 
   return phy_tx_pdu;
+}
+
+int mux_nr::get_RLC_PDU_len()
+{
+  return RLC_pdu_len;
+}
+
+int mux_nr::get_MAC_rem_buffer_space_len()
+{
+  return MAC_buff_rem_space;
 }
 
 void mux_nr::msg3_flush()
