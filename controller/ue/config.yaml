@@ -4,4 +4,4 @@ namespaces:
 ues:
   - type: "tester"
     config_file: "../../configs/zmq/ue_zmq.conf"
-    args: "--rrc.sdu_fuzzed_bits 1"
+    args: "--rrc.sdu_fuzzed_bits 0"

@@ -25,7 +25,7 @@
 
 namespace srsue {
 
-mux_nr::mux_nr(mac_interface_mux_nr& mac_, srslog::basic_logger& logger_) : mac(mac_), logger(logger_) {}
+mux_nr::mux_nr(mac_interface_mux_nr& mac_, srslog::basic_logger& logger_) : mac(mac_), logger(logger_) , RLC_pdu_len(0), MAC_buff_rem_space(0){}
 
 int32_t mux_nr::init(rlc_interface_mac* rlc_)
 {
@@ -171,11 +171,13 @@ srsran::unique_byte_buffer_t mux_nr::pdu_get_nolock(uint32_t max_pdu_len)
 
 int mux_nr::get_RLC_PDU_len()
 {
+  std::lock_guard<std::mutex> lock(mutex);
   return RLC_pdu_len;
 }
 
 int mux_nr::get_MAC_rem_buffer_space_len()
 {
+  std::lock_guard<std::mutex> lock(mutex);
   return MAC_buff_rem_space;
 }
 

