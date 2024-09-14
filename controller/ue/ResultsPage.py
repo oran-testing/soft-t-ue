@@ -5,9 +5,28 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy_garden.graph import Graph, MeshLinePlot
 from kivy.uix.scrollview import ScrollView
+from kivy.graphics import Line, Color
 from SharedState import SharedState
 import time
 import threading
+
+
+class LegendItem(GridLayout):
+    def __init__(self, **kwargs):
+        super(LegendItem, self).__init__(**kwargs)
+        self.size_hint_y = None
+        self.height = 40
+        self.cols = 3
+        self.padding = [40,0,40,0]
+
+        with self.canvas.before:
+            Color(1, 1, 1, 1)
+            self.rect = Line(width=1)
+
+        self.bind(size=self.update_border, pos=self.update_border)
+
+    def update_border(self, *args):
+        self.rect.rectangle = (self.x, self.y, self.width, self.height)
 
 
 class ResultsPage(Screen):
@@ -17,26 +36,6 @@ class ResultsPage(Screen):
         self.layout.bind(minimum_height=self.layout.setter('height'))
         self.scrollview = ScrollView()
         self.scrollview.add_widget(self.layout)
-
-        self.plot_map = {
-            "bsr":          {"color": [1, 0, 0, 1],      "description": "Buffer Status Report",            "likely_value": "0 to 100 (bytes)"},
-            "cqi":          {"color": [0, 1, 0, 1],      "description": "Channel Quality Indicator",       "likely_value": "1 to 15 (integer)"},
-            "dl_brate":     {"color": [0, 0, 1, 1],      "description": "Downlink Bitrate",                "likely_value": "0 to several Gbps"},
-            "dl_bs":        {"color": [1, 1, 0, 1],      "description": "Downlink Block Size",             "likely_value": "1000 to 15000 (bits)"},
-            "dl_mcs":       {"color": [1, 0, 1, 1],      "description": "Downlink Modulation and Coding",  "likely_value": "0 to 28 (integer)"},
-            "dl_nof_nok":   {"color": [0, 1, 1, 1],      "description": "Number of Downlink Failures",     "likely_value": "0 to 100 (integer)"},
-            "dl_nof_ok":    {"color": [0.5, 0, 0.5, 1],  "description": "Number of Successful Downlinks",  "likely_value": "0 to 1000 (integer)"},
-            "pci":          {"color": [0.8, 0.5, 0, 1],  "description": "Physical Cell ID",                "likely_value": "0 to 503 (integer)"},
-            "pusch_snr_db": {"color": [0.5, 0.5, 0.5, 1],"description": "PUSCH SNR (Signal to Noise Ratio)","likely_value": "-20 to 30 dB"},
-            "ri":           {"color": [0.6, 0.2, 0.8, 1],"description": "Rank Indicator",                  "likely_value": "1 to 2 (integer)"},
-            "ul_brate":     {"color": [0.2, 0.8, 0.2, 1],"description": "Uplink Bitrate",                  "likely_value": "0 to several Gbps"},
-            "ul_mcs":       {"color": [0.8, 0.2, 0.2, 1],"description": "Uplink Modulation and Coding",    "likely_value": "0 to 28 (integer)"},
-            "ul_nof_nok":   {"color": [0.2, 0.2, 0.8, 1],"description": "Number of Uplink Failures",       "likely_value": "0 to 100 (integer)"},
-            "ul_nof_ok":    {"color": [0.8, 0.8, 0.2, 1],"description": "Number of Successful Uplinks",    "likely_value": "0 to 1000 (integer)"},
-            "iperf":        {"color": [0.2, 0.6, 0.8, 1],"description": "iPerf Bandwidth Test Result",      "likely_value": "Mbps to Gbps"},
-            "ping":         {"color": [0.7, 0.4, 0.1, 1],"description": "Ping Latency",                    "likely_value": "0 to 100 ms (milliseconds)"}
-        }
-
         self.add_widget(self.scrollview)
         self.rendered_ue_list = []
 
@@ -70,17 +69,21 @@ class ResultsPage(Screen):
             )
             self.rendered_ue_list.append(ue_ref["id"])
             container = BoxLayout(orientation="vertical", size_hint_y=None, height=1000)
-            self.create_graph(graph, ue_ref["handle"].iperf_client.output, plot_color=self.plot_map["iperf"]["color"])
-            self.create_graph(graph, ue_ref["handle"].ping_client.output, plot_color=self.plot_map["ping"]["color"])
+            self.create_graph(graph, ue_ref["handle"].iperf_client.output, plot_color=SharedState.plot_map["iperf"]["color"])
+            self.create_graph(graph, ue_ref["handle"].ping_client.output, plot_color=SharedState.plot_map["ping"]["color"])
 
-            container.add_widget(Label(text=f"UE{ue_ref['id']}, rnti: {ue_ref['handle'].rnti}", size_hint_y=None, height=20, font_size="20sp"))
+            legend_grid = GridLayout(cols=2 , padding=[10,40,10,10], spacing=20)
+
+            container.add_widget(Label(text=f"UE{ue_ref['index']}, rnti: {ue_ref['handle'].rnti}, Iperf running: {ue_ref['handle'].iperf_client.isRunning}", size_hint_y=None, height=20, font_size="20sp"))
             container.add_widget(graph)
 
             SharedState.metrics_client.read_data()
-            for plot_type, plot_config in self.plot_map.items():
-                container.add_widget(
-                    Label(text=f"{plot_type} -> {plot_config['description']}", color=plot_config["color"])
-                )
+            for plot_type, plot_config in SharedState.plot_map.items():
+                label = LegendItem()
+                label.add_widget(Label(text=f"{plot_type}",color=plot_config["color"], font_size="20sp"))
+                label.add_widget(Label(text=f"{plot_config['description']}"))
+                label.add_widget(Label(text=f"{plot_config['unit']}"))
+                legend_grid.add_widget(label)
                 if plot_type == "iperf" or plot_type == "ping":
                     continue
                 self.create_graph(
@@ -89,9 +92,9 @@ class ResultsPage(Screen):
                     plot_color=plot_config["color"]
                 )
 
+            container.add_widget(legend_grid)
             self.layout.add_widget(container)
 
-       
 
 
     def create_graph(self,
