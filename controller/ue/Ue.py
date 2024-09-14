@@ -22,6 +22,7 @@ class Ue:
         self.iperf_client = Iperf()
         self.ping_client = Ping()
         self.output = ""
+        self.rnti = ""
 
     def start(self, args):
         command = ["sudo", "srsue"] + args
@@ -52,6 +53,9 @@ class Ue:
                 line = self.process.stdout.readline()
                 if line:
                     self.output += line
+                    if "rnti" in line:
+                        print(line.split("0x"))
+                        self.rnti = line.split("0x")[1][:4]
                     if "PDU" in line:
                         self.start_metrics()
                         self.isConnected = True

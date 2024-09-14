@@ -14,7 +14,7 @@ def start_subprocess(command):
 def kill_subprocess(process):
     process.terminate()  # Graceful termination
     try:
-        process.wait(timeout=1)
+        process.wait(timeout=2)
     except subprocess.TimeoutExpired:
         process.kill()  # Forceful termination
     process.communicate()

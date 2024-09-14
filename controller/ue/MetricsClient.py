@@ -43,16 +43,17 @@ class MetricsClient:
         query = f'''
         from(bucket: "{self.bucket}")
             |> range(start: -1h)
+            |> last()
         '''
         tables = []
         try:
             tables = self.query_api.query(query=query, org=self.org)
         except:
             return {}
+        self.current_time = 0
 
         for table in tables:
             table_value = table.records[0].values.get("_field", '')
-            start_time = table.records[0].values.get("_time", '')
 
             for record in table.records:
                 rnti = record.values.get('rnti', '')
@@ -63,10 +64,6 @@ class MetricsClient:
 
                 if table_value not in self.ue_data[rnti].keys():
                     self.ue_data[rnti][table_value] = {"ymax": 0, "values": []}
-                current_value = record.values.get('_value', 0)
-                if current_value > self.ue_data[rnti][table_value]["ymax"]:
-                    self.ue_data[rnti][table_value]["ymax"] = current_value
-                self.ue_data[rnti][table_value]["values"].append(((record.values.get('_time', None) - start_time).total_seconds(),current_value))
 
 
         self.data_thread = threading.Thread(target=self.update_data, daemon=True)
@@ -75,19 +72,20 @@ class MetricsClient:
 
 
     def update_data(self):
-        time.sleep(5)
         while True:
+            time.sleep(1)
+            self.current_time += 1
             query = f'''
             from(bucket: "{self.bucket}")
                 |> range(start: -1h)
+                |> last()
             '''
             tables = self.query_api.query(query=query, org=self.org)
 
             for table in tables:
-                table_value = table.records[-1].values.get("_field", '')
-                start_time = table.records[0].values.get("_time", '')
+                table_value = table.records[0].values.get("_field", '')
 
-                record = table.records[-1]
+                record = table.records[0]
                 rnti = record.values.get('rnti', '')
                 if not rnti:
                     continue
@@ -99,7 +97,7 @@ class MetricsClient:
                 current_value = record.values.get('_value', 0)
                 if current_value > self.ue_data[rnti][table_value]["ymax"]:
                     self.ue_data[rnti][table_value]["ymax"] = current_value
-                self.ue_data[rnti][table_value]["values"].append(((record.values.get('_time', None) - start_time).total_seconds(),current_value))
+                self.ue_data[rnti][table_value]["values"].append((self.current_time,current_value))
 
 
 if __name__ == "__main__":

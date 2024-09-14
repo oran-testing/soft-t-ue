@@ -70,7 +70,7 @@ class MainApp(App):
         self.update_button_colors(self.button_attacks_page)
 
     def switch_to_results(self, instance):
-        self.screen_manager.get_screen('results').init_results()
+        Clock.schedule_once(lambda dt: self.screen_manager.get_screen('results').init_results())
         self.screen_manager.current = 'results'
         self.update_button_colors(self.button_results_page)
 
