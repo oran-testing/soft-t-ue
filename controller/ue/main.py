@@ -38,7 +38,6 @@ def parse():
 
 
 def main():
-    os.system("sudo kill -9 $(ps aux | awk '/srsue/ && ! /main/ && !/awk/{print $2}')")
     args = parse()
     SharedState.cli_args = args
 
@@ -62,7 +61,7 @@ def main():
     SharedState.ue_index = 1
 
     for namespace in options.get("namespaces", []):
-        os.system(f"sudo ip netns add {namespace['name']}")
+        os.system(f"sudo ip netns add {namespace['name']} > /dev/null 2>&1")
 
     time.sleep(0.5)
 
@@ -85,6 +84,8 @@ def main():
         SharedState.ue_index += 1
 
 
+
+    print(f"Running as: {os.getlogin()}")
     MainApp().run()
     return 0
 

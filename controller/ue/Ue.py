@@ -30,13 +30,11 @@ class Ue:
         self.stop_thread = threading.Event()
         self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
         self.log_thread.start()
-    
+
     def start_metrics(self):
-        print(f"Starting UE {self.ue_index} metrics")
         send_command("127.0.0.1", 5000, {"target": "iperf", "port": str(5000 + self.ue_index)})
-        os.system(f"sudo ip netns add ue{self.ue_index}")
-        os.system("sudo ip ro add 10.45.0.0/16 via 10.53.1.2")
-        os.system(f"sudo ip netns exec ue{self.ue_index} ip ro add default via 10.45.1.1 dev tun_srsue")
+        os.system("sudo ip ro add 10.45.0.0/16 via 10.53.1.2 > /dev/null 2>&1")
+        os.system(f"sudo ip netns exec ue{self.ue_index} ip ro add default via 10.45.1.1 dev tun_srsue > /dev/null 2>&1")
         self.iperf_client.start(['-c', '10.53.1.1','-i', '1', '-t', '3000', '-u', '-b', '100M', '-R', '-p', str(5000 + self.ue_index)], process_type='client', ue_index=self.ue_index)
         self.ping_client.start(['10.53.1.1'])
 

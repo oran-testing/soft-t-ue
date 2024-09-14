@@ -23,23 +23,33 @@ class MetricsClient:
         self.bucket = os.environ.get("DOCKER_INFLUXDB_INIT_BUCKET")
         self.org = os.environ.get("DOCKER_INFLUXDB_INIT_ORG")
         self.token = os.environ.get("DOCKER_INFLUXDB_INIT_ADMIN_TOKEN")
-        self.query_api: QueryApi = InfluxDBClient(
-            **{
-                "url": "http://localhost:8086",
-                "org": self.org,
-                "token": self.token
-            }
-        ).query_api()
+        try:
+            self.query_api: QueryApi = InfluxDBClient(
+                **{
+                    "url": "http://localhost:8086",
+                    "org": self.org,
+                    "token": self.token
+                }
+            ).query_api()
+        except:
+            self.query_api = None
 
         self.ue_data = {}
 
     def read_data(self):
+        if not self.query_api:
+            return {}
         self.ue_data = {}
         query = f'''
         from(bucket: "{self.bucket}")
             |> range(start: -1h)
         '''
-        tables = self.query_api.query(query=query, org=self.org)
+        tables = []
+        try:
+            tables = self.query_api.query(query=query, org=self.org)
+        except:
+            return {}
+
         for table in tables:
             table_value = table.records[0].values.get("_field", '')
             start_time = table.records[0].values.get("_time", '')
@@ -52,11 +62,44 @@ class MetricsClient:
                     self.ue_data[rnti] = {}
 
                 if table_value not in self.ue_data[rnti].keys():
-                    self.ue_data[rnti][table_value] = []
-                self.ue_data[rnti][table_value].append(((record.values.get('_time', None) - start_time).total_seconds(),record.values.get('_value', 0)))
+                    self.ue_data[rnti][table_value] = {"ymax": 0, "values": []}
+                current_value = record.values.get('_value', 0)
+                if current_value > self.ue_data[rnti][table_value]["ymax"]:
+                    self.ue_data[rnti][table_value]["ymax"] = current_value
+                self.ue_data[rnti][table_value]["values"].append(((record.values.get('_time', None) - start_time).total_seconds(),current_value))
 
+
+        self.data_thread = threading.Thread(target=self.update_data, daemon=True)
+        self.data_thread.start()
         return self.ue_data
 
+
+    def update_data(self):
+        time.sleep(5)
+        while True:
+            query = f'''
+            from(bucket: "{self.bucket}")
+                |> range(start: -1h)
+            '''
+            tables = self.query_api.query(query=query, org=self.org)
+
+            for table in tables:
+                table_value = table.records[-1].values.get("_field", '')
+                start_time = table.records[0].values.get("_time", '')
+
+                record = table.records[-1]
+                rnti = record.values.get('rnti', '')
+                if not rnti:
+                    continue
+                elif rnti not in self.ue_data.keys():
+                    self.ue_data[rnti] = {}
+
+                if table_value not in self.ue_data[rnti].keys():
+                    self.ue_data[rnti][table_value] = {"ymax": 0, "values": []}
+                current_value = record.values.get('_value', 0)
+                if current_value > self.ue_data[rnti][table_value]["ymax"]:
+                    self.ue_data[rnti][table_value]["ymax"] = current_value
+                self.ue_data[rnti][table_value]["values"].append(((record.values.get('_time', None) - start_time).total_seconds(),current_value))
 
 
 if __name__ == "__main__":
