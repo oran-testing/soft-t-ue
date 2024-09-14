@@ -54,7 +54,6 @@ class Ue:
                 if line:
                     self.output += line
                     if "rnti" in line:
-                        print(line.split("0x"))
                         self.rnti = line.split("0x")[1][:4]
                     if "PDU" in line:
                         self.start_metrics()

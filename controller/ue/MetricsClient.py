@@ -18,11 +18,12 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 
 class MetricsClient:
 
-    def __init__(self):
+    def __init__(self, plot_map):
         load_dotenv("/opt/srsRAN_Project/docker/.env")
         self.bucket = os.environ.get("DOCKER_INFLUXDB_INIT_BUCKET")
         self.org = os.environ.get("DOCKER_INFLUXDB_INIT_ORG")
         self.token = os.environ.get("DOCKER_INFLUXDB_INIT_ADMIN_TOKEN")
+        self.plot_map = plot_map
         try:
             self.query_api: QueryApi = InfluxDBClient(
                 **{
@@ -95,6 +96,8 @@ class MetricsClient:
                 if table_value not in self.ue_data[rnti].keys():
                     self.ue_data[rnti][table_value] = {"ymax": 0, "values": []}
                 current_value = record.values.get('_value', 0)
+                if "Gb" in self.plot_map[table_value]['unit']:
+                    current_value /= 1_000_000
                 if current_value > self.ue_data[rnti][table_value]["ymax"]:
                     self.ue_data[rnti][table_value]["ymax"] = current_value
                 self.ue_data[rnti][table_value]["values"].append((self.current_time,current_value))
