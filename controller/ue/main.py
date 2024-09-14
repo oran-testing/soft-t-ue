@@ -1,14 +1,27 @@
 import argparse
 import os
+os.environ["KIVY_NO_ARGS"] = "1"
+from kivy.config import Config
+Config.set('kivy', 'log_enable', 1)
+Config.set('kivy', 'log_dir', '.')
+Config.set('kivy', 'log_level', 'error')
+Config.set('kivy', 'log_name', 'run.log')
+Config.set('kivy', 'fullscreen', 1)
+Config.write()
+
 import pathlib
 import sys
 import time
 import uuid
-
+import logging
 import yaml
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
+
+from kivy.logger import Logger
+
+
 
 from MainApp import MainApp
 from SharedState import SharedState
@@ -83,7 +96,6 @@ def main():
             'index': SharedState.ue_index
         })
         SharedState.ue_index += 1
-
 
 
     print(f"Running as: {os.getlogin()}")

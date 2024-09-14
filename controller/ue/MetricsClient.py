@@ -74,7 +74,6 @@ class MetricsClient:
 
     def update_data(self):
         while True:
-            time.sleep(1)
             self.current_time += 1
             query = f'''
             from(bucket: "{self.bucket}")
@@ -101,6 +100,8 @@ class MetricsClient:
                 if current_value > self.ue_data[rnti][table_value]["ymax"]:
                     self.ue_data[rnti][table_value]["ymax"] = current_value
                 self.ue_data[rnti][table_value]["values"].append((self.current_time,current_value))
+
+            time.sleep(1)
 
 
 if __name__ == "__main__":

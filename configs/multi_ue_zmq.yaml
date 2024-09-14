@@ -11,6 +11,5 @@ processes:
     config_file: "../../configs/zmq/multi/ue1_zmq.conf"
   - type: "clean"
     config_file: "../../configs/zmq/multi/ue2_zmq.conf"
-  - type: "tester"
+  - type: "clean"
     config_file: "../../configs/zmq/multi/ue3_zmq.conf"
-    args: "--rrc.sdu_fuzzed_bits 1"

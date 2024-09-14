@@ -43,7 +43,7 @@ class ResultsPage(Screen):
     def init_results(self):
 
         for ue_ref in SharedState.process_list:
-            if ue_ref['id'] in self.rendered_ue_list:
+            if ue_ref['id'] in self.rendered_ue_list or not ue_ref["handle"].isConnected:
                 continue
 
             graph = Graph(
@@ -87,6 +87,9 @@ class ResultsPage(Screen):
 
             SharedState.metrics_client.read_data()
             self.value_labels = {}
+            self.grafana_enabled = True
+            if ue_ref["handle"].rnti not in SharedState.metrics_client.ue_data.keys():
+                self.grafana_enabled = False
             for plot_type, plot_config in SharedState.plot_map.items():
                 label = LegendItem()
                 label.add_widget(Label(text=f"{plot_type}",color=plot_config["color"], font_size="20sp"))
@@ -98,13 +101,13 @@ class ResultsPage(Screen):
                 legend_grid.add_widget(label)
                 if plot_type == "iperf" or plot_type == "ping":
                     continue
-                self.create_graph(
-                    graph,
-                    SharedState.metrics_client.ue_data[ue_ref["handle"].rnti][plot_type]["values"],
-                    plot_color=plot_config["color"],
-                    plot_map_ref=plot_type
-                )
-
+                if self.grafana_enabled:
+                    self.create_graph(
+                        graph,
+                        SharedState.metrics_client.ue_data[ue_ref["handle"].rnti][plot_type]["values"],
+                        plot_color=plot_config["color"],
+                        plot_map_ref=plot_type
+                    )
             container.add_widget(legend_grid)
             self.layout.add_widget(container)
 
