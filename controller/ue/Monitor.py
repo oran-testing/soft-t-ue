@@ -27,16 +27,17 @@ class Monitor:
 
     def check_processes(self, regex_pattern, stop_event, process_name):
         while not stop_event.is_set():
-            self.monitor_list[process_name] = False
+            found_this_iteration = False
             for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
                 try:
                     cmdline = ' '.join(proc.info['cmdline']) if proc.info['cmdline'] else ''
                     if regex_pattern.search(cmdline):
-                        self.monitor_list[process_name] = True
+                        found_this_iteration = True
                 except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                     continue
 
-            time.sleep(5)
+            self.monitor_list[process_name] = found_this_iteration
+            time.sleep(0.5)
 
     def __repr__(self):
         return f"Process Monitor object, result: {self.monitor_list}"
