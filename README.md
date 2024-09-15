@@ -9,7 +9,6 @@ This project is a security testing tool based on srsRAN Project's User Equipment
 - [UE Documentation](https://github.com/oran-testing/soft-t-ue/blob/main/docs/UE.md)
 - [gNB Documentation](https://github.com/oran-testing/soft-t-ue/blob/main/docs/gNB.md)
 - [Attack Documentation](https://github.com/oran-testing/soft-t-ue/blob/main/docs/attacks) 
-- [How to develop an attack](https://github.com/oran-testing/soft-t-ue/blob/main/docs/attack_development.md)
 
 **NOTE: This system is designed to run on ubuntu and is tested on ubuntu 20.04**
 
