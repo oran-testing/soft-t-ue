@@ -25,6 +25,13 @@ sudo systemctl start gnb-controller.service
 
 The daemon will take around one minute to build and start all containers depending on the system
 
+Optionally the controller can be run without systemctl:
+```bash
+cd controller/gnb
+sudo python3 main.py
+```
+
+
 
 ## Message structure
 
