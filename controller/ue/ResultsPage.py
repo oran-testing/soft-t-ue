@@ -32,6 +32,8 @@ class LegendItem(GridLayout):
 class ResultsPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        SharedState.metrics_client.read_data()
         self.layout = GridLayout(cols=1, padding=[10,40,10,10], spacing=10,size_hint_y=None, height=1000)
         self.layout.bind(minimum_height=self.layout.setter('height'))
         self.scrollview = ScrollView()
@@ -41,7 +43,6 @@ class ResultsPage(Screen):
 
 
     def init_results(self):
-
         for ue_ref in SharedState.process_list:
             if ue_ref['id'] in self.rendered_ue_list or not ue_ref["handle"].isConnected:
                 continue
@@ -78,22 +79,43 @@ class ResultsPage(Screen):
 
             legend_grid = GridLayout(cols=2)
 
-            container.add_widget(Label(text=f"UE{ue_ref['index']}, rnti: {ue_ref['handle'].rnti}, Iperf running: {ue_ref['handle'].iperf_client.isRunning}", size_hint_y=None, height=20, font_size="20sp"))
+            container.add_widget(Label(
+                text=f"UE{ue_ref['index']}, rnti: {ue_ref['handle'].rnti}, Iperf running: {ue_ref['handle'].iperf_client.isRunning}",
+                size_hint_y=None,
+                height=20,
+                font_size="20sp",
+                font_name="./font/Ubuntu/Ubuntu-Bold.ttf"
+            ))
             container.add_widget(graph)
 
-            SharedState.metrics_client.read_data()
             self.value_labels = {}
             self.grafana_enabled = True
             if ue_ref["handle"].rnti not in SharedState.metrics_client.ue_data.keys():
                 self.grafana_enabled = False
             for plot_type, plot_config in SharedState.plot_map.items():
                 label = LegendItem()
-                label.add_widget(Label(text=f"{plot_type}",color=plot_config["color"], font_size="20sp"))
-                label.add_widget(Label(text=f"{plot_config['description']}", font_size="20sp"))
-                self.value_labels[plot_type] = Label(text=f"0", font_size="20sp")
+                label.add_widget(Label(
+                    text=f"{plot_type}",
+                    color=plot_config["color"],
+                    font_size="20sp",
+                    font_name="./font/Ubuntu/Ubuntu-Regular.ttf"
+                ))
+                label.add_widget(Label(
+                    text=f"{plot_config['description']}",
+                    font_size="20sp",
+                    font_name="./font/Ubuntu/Ubuntu-Regular.ttf"
+                ))
+                self.value_labels[plot_type] = Label(text=f"0",
+                                                     font_size="20sp",
+                                                     font_name="./font/Ubuntu_Mono/UbuntuMono-Regular.ttf"
+                                                     )
                 label.add_widget(self.value_labels[plot_type])
                 Clock.schedule_interval(lambda dt, p=plot_type: self.update_legend(p), 1)
-                label.add_widget(Label(text=f"{plot_config['unit']}", font_size="20sp"))
+                label.add_widget(Label(
+                    text=f"{plot_config['unit']}",
+                    font_size="20sp",
+                    font_name="./font/Ubuntu_Mono/UbuntuMono-Regular.ttf"
+                ))
                 legend_grid.add_widget(label)
                 if plot_type == "iperf" or plot_type == "ping":
                     continue

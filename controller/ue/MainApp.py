@@ -29,7 +29,7 @@ class MainApp(App):
 
         # Define the button colors
         self.default_color = [1, 1, 1, 1]  # White
-        self.highlighted_color = [0, 1, 0, 1]  # Green
+        self.highlighted_color = [0, 0.75, 0.25, 1]  # Green
 
         # Create a layout for the buttons on top
         self.button_layout = BoxLayout(size_hint_y=None, height=50)

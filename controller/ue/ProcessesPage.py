@@ -29,11 +29,11 @@ class ProcessesPage(Screen):
         self.monitor.monitor_process("metrics-server", r'/usr/local/bin/metrics-server')
         self.monitor.monitor_process("influxdb", r'influxd')
         self.monitor_labels = [Label(text=f"",
-                                   font_name="./font/Ubuntu-Regular.ttf",
+                                   font_name="./font/Ubuntu/Ubuntu-Regular.ttf",
                                    size_hint=(None, None),
                                    height=20,
                                    width=300,
-                                   font_size="20sp",
+                                   font_size="15sp",
                                    halign="left",
                                    pos_hint={"top": 1}) for _ in range(4)]
         label_container = GridLayout(cols=1, spacing=20)
@@ -52,7 +52,18 @@ class ProcessesPage(Screen):
         self.process_scroll.add_widget(self.process_container)
         layout.add_widget(self.process_scroll)
 
-        add_ue_button = Button(text='New UE', on_press=self.open_add_process_popup, background_color=[0,1,0,1], size_hint_y=None)
+
+        add_ue_button = Button(
+            text='Add Process',
+            on_press=self.open_add_process_popup,
+            background_color=[0,0.75,0.25,1],
+            size_hint=(None,None),
+            width=200,
+            height=40,
+            font_name="./font/Ubuntu/Ubuntu-Regular.ttf",
+            pos_hint={"top": 1, "right": 1}
+        )
+        button_container = FloatLayout()
         layout.add_widget(add_ue_button)
 
         self.config_file = ""
@@ -77,8 +88,8 @@ class ProcessesPage(Screen):
 
     def open_add_process_popup(self, instance):
         content = BoxLayout(orientation='vertical')
-        self.config_label = Label(text="Selected file: None")
-        self.process_type_label = Label(text=f"Process Type: {self.process_type}")
+        self.config_label = Label(text="Selected file: None", font_name="./font/Ubuntu/Ubuntu-Regular.ttf")
+        self.process_type_label = Label(text=f"Process Type: {self.process_type}", font_name="./font/Ubuntu/Ubuntu-Regular.ttf")
 
         cancel_button = Button(text="Cancel", size_hint_y=None, height=50)
         select_config_button = Button(text="Select config", size_hint_y=None, height=50)
@@ -189,24 +200,26 @@ class ProcessesPage(Screen):
     def add_process_log(self, ue_type, config, arguments, handle):
         log_view = GridLayout(
             cols=1,
-            spacing=40,
+            spacing=60,
             size_hint_y=None,
-            height=500
+            height=700
         )
         new_process_text = Label(
             text="",
             halign="left",
             size_hint=(1,None),
             text_size=(None,None),
-            font_size="15sp",
-            padding=[10,20,10,20]
+            font_size="25sp",
+            padding=[10,20,10,20],
+            font_name="./font/Ubuntu_Mono/UbuntuMono-Regular.ttf"
         )
 
         content_label = Label(
             text="",
-            font_size="20sp",
+            font_size="30sp",
             padding=[10,20,10,20],
-            color=[1,1,0,1]
+            color=[1,1,0,1],
+            font_name="./font/Ubuntu_Mono/UbuntuMono-Regular.ttf"
         )
 
         if ue_type == "clean" or ue_type == "tester":
