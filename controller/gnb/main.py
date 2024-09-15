@@ -15,6 +15,7 @@ sys.path.insert(0, parent_dir)
 
 from CoreNetwork import CoreNetwork
 from Gnb import Gnb
+from MetricsServer import MetricsServer
 
 from common.Iperf import Iperf
 
@@ -24,6 +25,7 @@ class gnb_controller:
     def __init__(self):
         self.core_handle = CoreNetwork()
         self.gnb_handle = Gnb()
+        self.metrics_handle = MetricsServer()
 
     def start_core(self, rebuild):
         if self.core_handle.isRunning:
@@ -34,6 +36,16 @@ class gnb_controller:
 
     def stop_core(self):
         self.core_handle.stop()
+
+    def start_metrics(self, rebuild):
+        if self.metrics_handle.isRunning:
+            self.metrics_handle.stop()
+        self.metrics_handle.start(rebuild)
+
+    def stop_metrics(self):
+        self.metrics_handle.stop()
+
+
 
     def start_gnb(self, gnb_config):
         if self.gnb_handle.isRunning:
@@ -68,6 +80,13 @@ class gnb_controller:
                     self.start_core(True)
                 elif command["action"] == "stop":
                     self.stop_core()
+            elif command["target"] == "metrics":
+                if command["action"] == "start":
+                    self.start_metrics(True)
+                elif command["action"] == "stop":
+                    self.stop_metrics()
+
+
 
 
 def parse():
@@ -90,6 +109,7 @@ def main():
     time.sleep(0.1)
     controller = gnb_controller()
     controller.start_core(args.rebuild_core)
+    controller.start_metrics(True)
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((args.ip, args.port))
@@ -101,6 +121,8 @@ def main():
         time.sleep(1)
         controller.listen_for_command(server_socket, lambda x: iperf_servers.append(x))
     controller.stop_core()
+    controller.stop_metrics()
+    controller.stop_gnb()
     return 0
 
 if __name__ == "__main__":

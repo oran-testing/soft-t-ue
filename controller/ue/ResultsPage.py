@@ -15,7 +15,7 @@ class LegendItem(GridLayout):
     def __init__(self, **kwargs):
         super(LegendItem, self).__init__(**kwargs)
         self.size_hint_y = None
-        self.height = 40
+        self.height = 50
         self.cols = 2
         self.padding = [40,0,40,0]
 
@@ -49,15 +49,11 @@ class ResultsPage(Screen):
             graph = Graph(
                 xlabel='time (s)',
                 ylabel=f"UE{ue_ref['index']}",
-                x_ticks_minor=5,
-                x_ticks_major=50,
-                y_ticks_major=50,
-                y_ticks_minor=5,
-                y_grid_label=True,
-                x_grid_label=True,
+                x_ticks_minor=1,
+                x_ticks_major=5,
+                y_ticks_minor=1,
+                y_ticks_major=5,
                 padding=5,
-                xlog=False,
-                ylog=False,
                 x_grid=True,
                 y_grid=True,
                 ymin=0,
@@ -65,7 +61,7 @@ class ResultsPage(Screen):
                 xmax=100,
                 ymax=200,
                 size_hint_y=None,
-                height=500
+                height=1000
             )
             self.rendered_ue_list.append(ue_ref["id"])
             container = BoxLayout(orientation="vertical", size_hint_y=None, height=1000)
@@ -80,7 +76,7 @@ class ResultsPage(Screen):
                               plot_map_ref="ping"
                               )
 
-            legend_grid = GridLayout(cols=2 , padding=[10,40,10,10], spacing=20)
+            legend_grid = GridLayout(cols=2)
 
             container.add_widget(Label(text=f"UE{ue_ref['index']}, rnti: {ue_ref['handle'].rnti}, Iperf running: {ue_ref['handle'].iperf_client.isRunning}", size_hint_y=None, height=20, font_size="20sp"))
             container.add_widget(graph)
@@ -93,11 +89,11 @@ class ResultsPage(Screen):
             for plot_type, plot_config in SharedState.plot_map.items():
                 label = LegendItem()
                 label.add_widget(Label(text=f"{plot_type}",color=plot_config["color"], font_size="20sp"))
-                label.add_widget(Label(text=f"{plot_config['description']}"))
-                self.value_labels[plot_type] = Label(text=f"0")
+                label.add_widget(Label(text=f"{plot_config['description']}", font_size="20sp"))
+                self.value_labels[plot_type] = Label(text=f"0", font_size="20sp")
                 label.add_widget(self.value_labels[plot_type])
                 Clock.schedule_interval(lambda dt, p=plot_type: self.update_legend(p), 1)
-                label.add_widget(Label(text=f"{plot_config['unit']}"))
+                label.add_widget(Label(text=f"{plot_config['unit']}", font_size="20sp"))
                 legend_grid.add_widget(label)
                 if plot_type == "iperf" or plot_type == "ping":
                     continue
@@ -133,6 +129,7 @@ class ResultsPage(Screen):
         if len(data_ref) < 100:
             plot.points = data_ref
         else:
-            plot.points = data_ref[-100:]
+            offset = len(data_ref) - 100
+            plot.points = [(t[0] - offset, t[1]) for t in data_ref[-100:]]
         SharedState.plot_map[plot_map_ref]["current_value"] = data_ref[-1][1]
 
