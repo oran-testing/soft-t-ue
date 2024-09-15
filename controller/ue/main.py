@@ -1,18 +1,34 @@
+import argparse
+import os
+os.environ["KIVY_NO_ARGS"] = "1"
+from kivy.config import Config
+Config.set('kivy', 'log_enable', 1)
+Config.set('kivy', 'log_dir', '.')
+Config.set('kivy', 'log_level', 'debug')
+Config.set('kivy', 'log_name', 'run.log')
+Config.set('kivy', 'fullscreen', 0)
+Config.write()
+
+import pathlib
+import sys
 import time
 import uuid
-import os
-import sys
+import logging
 import yaml
-import argparse
-import pathlib
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 
-from common.utils import send_command
-from Ue import Ue
+from kivy.logger import Logger
+
+
+
 from MainApp import MainApp
 from SharedState import SharedState
+from Ue import Ue
+
+from common.utils import send_command
+
 
 def parse():
     script_dir = pathlib.Path(__file__).resolve().parent
@@ -35,7 +51,7 @@ def parse():
 
 
 def main():
-    os.system("sudo kill -9 $(ps aux | awk '/srsue/ && ! /main/ && !/awk/{print $2}')")
+    os.system("sudo kill -9 $(ps aux | awk '/srsue/ && !/main/{print $2}') > /dev/null 2>1&")
     args = parse()
     SharedState.cli_args = args
 
@@ -45,13 +61,21 @@ def main():
         options = yaml.safe_load(file)
 
     if options.get("gnb", False):
-        send_command(args.ip, args.port, f"gnb:start:{options.get('gnb')['config']}")
+        send_command(args.ip, args.port,
+                     {"target": "gnb",
+                      "action": "start",
+                      "config": options.get('gnb')['config']}
+                     )
     else:
-        send_command(args.ip, args.port, f"gnb:start:{args.gnb_config}")
+        send_command(args.ip, args.port,
+                     {"target": "gnb",
+                      "action": "start",
+                      "config": str(args.gnb_config)}
+                     )
     SharedState.ue_index = 1
 
     for namespace in options.get("namespaces", []):
-        os.system(f"sudo ip netns add {namespace['name']}")
+        os.system(f"sudo ip netns add {namespace['name']} > /dev/null 2>&1")
 
     time.sleep(0.5)
 
@@ -74,6 +98,7 @@ def main():
         SharedState.ue_index += 1
 
 
+    print(f"Running as: {os.getlogin()}")
     MainApp().run()
     return 0
 

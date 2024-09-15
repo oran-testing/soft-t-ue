@@ -1,4 +1,4 @@
-International Mobile Subscriber Identity Catching Attack
+IMSI Catching Attack
 ==========================================================
 
 Implementation (gNB):

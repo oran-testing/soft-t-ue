@@ -1,15 +1,15 @@
-import yaml
-import threading
-import gnuradio
-import statistics
-import osmosdr
-import sys
-import numpy as np
-import random
-import time
-import pathlib
 import argparse
+import pathlib
+import random
+import statistics
+import sys
 import threading
+import time
+
+import gnuradio
+import numpy as np
+import osmosdr
+import yaml
 from gnuradio import analog
 from gnuradio.filter import firdes
 

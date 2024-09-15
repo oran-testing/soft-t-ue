@@ -1,18 +1,18 @@
-from kivy.uix.screenmanager import Screen
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.popup import Popup
-from kivy.uix.spinner import Spinner
-from kivy.uix.filechooser import FileChooserListView
-from kivy.uix.label import Label
-from kivy.clock import Clock
-
 import uuid
 
-from Ue import Ue
 from Channel import Channel
+from kivy.clock import Clock
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.filechooser import FileChooserListView
+from kivy.uix.label import Label
+from kivy.uix.popup import Popup
+from kivy.uix.screenmanager import Screen
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.spinner import Spinner
 from SharedState import SharedState
+from Ue import Ue
+
 
 class ProcessesPage(Screen):
     def __init__(self, **kwargs):

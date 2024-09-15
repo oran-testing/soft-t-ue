@@ -1,4 +1,4 @@
-Random Access Channel Flooding
+RACH Signal Flooding attack
 ==========================================================
 
 Implementation (T-UE):

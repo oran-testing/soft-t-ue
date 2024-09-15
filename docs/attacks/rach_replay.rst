@@ -1,4 +1,4 @@
-Random Access Channel Request Replay Attack
+RACH Replay Attack
 ==========================================================
 
 Implementation (UE):

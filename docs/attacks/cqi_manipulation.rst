@@ -1,4 +1,4 @@
-Bandwidth Hogging Attack Using Manipulated CQI Values
+CQI Manipulation attack
 =====================================================
 
 Implementation (UE Side):
