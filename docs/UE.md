@@ -60,5 +60,5 @@ processes:
     args -> OPTIONAL: arguments to pass to the process (str)
 
 Example configuration files:
-- [basic_ue_zmq.rst](https://github.com/oran-testing/soft-t-ue/blob/main/configs/basic_ue_zmq.rst)
-- [multi_ue_zmq.rst](https://github.com/oran-testing/soft-t-ue/blob/main/configs/multi_ue_zmq.rst)
+- [basic_ue_zmq.yaml](https://github.com/oran-testing/soft-t-ue/blob/main/configs/basic_ue_zmq.rst)
+- [multi_ue_zmq.yaml](https://github.com/oran-testing/soft-t-ue/blob/main/configs/multi_ue_zmq.rst)
