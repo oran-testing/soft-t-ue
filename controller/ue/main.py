@@ -4,9 +4,9 @@ os.environ["KIVY_NO_ARGS"] = "1"
 from kivy.config import Config
 Config.set('kivy', 'log_enable', 1)
 Config.set('kivy', 'log_dir', '.')
-Config.set('kivy', 'log_level', 'error')
+Config.set('kivy', 'log_level', 'debug')
 Config.set('kivy', 'log_name', 'run.log')
-Config.set('kivy', 'fullscreen', 1)
+Config.set('kivy', 'fullscreen', 0)
 Config.write()
 
 import pathlib
