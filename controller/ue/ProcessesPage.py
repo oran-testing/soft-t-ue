@@ -1,6 +1,5 @@
 import uuid
 
-from Channel import Channel
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -10,8 +9,13 @@ from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.spinner import Spinner
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.gridlayout import GridLayout
+
 from SharedState import SharedState
 from Ue import Ue
+from Channel import Channel
+from Monitor import Monitor
 
 
 class ProcessesPage(Screen):
@@ -19,6 +23,26 @@ class ProcessesPage(Screen):
         super().__init__(**kwargs)
         self.ue_index = SharedState.ue_index
         layout = BoxLayout(orientation='vertical')
+        self.monitor = Monitor()
+        self.monitor.monitor_process("gnb", r'gnb -c')
+        self.monitor.monitor_process("open5gs", r'open5gs-nrfd')
+        self.monitor.monitor_process("metrics-server", r'/usr/local/bin/metrics-server')
+        self.monitor.monitor_process("influxdb", r'influxd')
+        self.monitor_labels = [Label(text=f"",
+                                   font_name="./font/Ubuntu-Regular.ttf",
+                                   size_hint=(None, None),
+                                   height=20,
+                                   width=300,
+                                   font_size="20sp",
+                                   halign="left",
+                                   pos_hint={"top": 1}) for _ in range(4)]
+        label_container = GridLayout(cols=1, spacing=20)
+        monitor_container = FloatLayout()
+        for label in self.monitor_labels:
+            label_container.add_widget(label)
+        monitor_container.add_widget(label_container)
+        self.add_widget(monitor_container)
+        Clock.schedule_interval(lambda dt: self.update_monitor_label(), 1)
         self.process_container = BoxLayout(
             orientation="vertical", 
             size_hint_y=None,
@@ -38,6 +62,18 @@ class ProcessesPage(Screen):
             self.add_process_log(ue["type"], ue["config"], [], ue["handle"])
 
         self.add_widget(layout)
+
+    def update_monitor_label(self):
+        count = 0
+        for name, isRunning in self.monitor.monitor_list.items():
+            if isRunning:
+                self.monitor_labels[count].text = f"{name}: Running"
+                self.monitor_labels[count].color = [0,1,1,1]
+            else:
+                self.monitor_labels[count].text = f"{name}: Down"
+                self.monitor_labels[count].color = [1,0,0,1]
+            count += 1
+
 
     def open_add_process_popup(self, instance):
         content = BoxLayout(orientation='vertical')
@@ -151,14 +187,17 @@ class ProcessesPage(Screen):
         log_ref.scroll_y = 0
 
     def add_process_log(self, ue_type, config, arguments, handle):
-        log_view = BoxLayout(
-            orientation="vertical",
+        log_view = GridLayout(
+            cols=1,
+            spacing=40,
             size_hint_y=None,
             height=500
         )
         new_process_text = Label(
-            text="", 
-            size_hint_y=None,
+            text="",
+            halign="left",
+            size_hint=(1,None),
+            text_size=(None,None),
             font_size="15sp",
             padding=[10,20,10,20]
         )

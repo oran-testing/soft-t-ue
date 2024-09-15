@@ -1,14 +1,6 @@
 import argparse
 import os
 os.environ["KIVY_NO_ARGS"] = "1"
-from kivy.config import Config
-Config.set('kivy', 'log_enable', 1)
-Config.set('kivy', 'log_dir', '.')
-Config.set('kivy', 'log_level', 'debug')
-Config.set('kivy', 'log_name', 'run.log')
-Config.set('kivy', 'fullscreen', 0)
-Config.write()
-
 import pathlib
 import sys
 import time
@@ -18,10 +10,6 @@ import yaml
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
-
-from kivy.logger import Logger
-
-
 
 from MainApp import MainApp
 from SharedState import SharedState
