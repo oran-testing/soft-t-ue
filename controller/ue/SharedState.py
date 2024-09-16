@@ -5,6 +5,7 @@ class SharedState:
     attack_args = []
     cli_args = None
     ue_index = 1
+    channel_index = 1
     plot_map = {
         "bsr":          {
             "color": [1, 0, 0, 1],

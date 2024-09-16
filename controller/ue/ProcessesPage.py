@@ -14,7 +14,7 @@ from kivy.uix.gridlayout import GridLayout
 
 from SharedState import SharedState
 from Ue import Ue
-from Channel import Channel
+from ChannelAgent import ChannelAgent
 from Monitor import Monitor
 
 
@@ -70,7 +70,7 @@ class ProcessesPage(Screen):
         self.process_type = "clean"
 
         for ue in SharedState.process_list:
-            self.add_process_log(ue["type"], ue["config"], [], ue["handle"])
+            self.add_process_log(ue["type"], ue["config"], ue["handle"])
 
         self.add_widget(layout)
 
@@ -97,7 +97,7 @@ class ProcessesPage(Screen):
 
         process_type_spinner = Spinner(
             text='clean',
-            values=('clean', 'tester', 'sense', 'jam_sequential', 'jam_random', 'jam_fixed'),
+            values=('clean', 'tester', 'listener', 'jam_sequential', 'jam_random', 'jam_fixed'),
             size_hint=(None, None),
             size=(200, 44)
         )
@@ -158,17 +158,17 @@ class ProcessesPage(Screen):
             SharedState.process_list.append({
                 'id': str(uuid.uuid4()),
                 'type': self.process_type,
-                'config': self.config_file,
+                'config': self.config_file + ' '.join(SharedState.attack_args),
                 'handle': new_ue,
                 'index': self.ue_index
             })
 
-            self.add_process_log(self.process_type, self.config_file, SharedState.attack_args, new_ue)
+            self.add_process_log(self.process_type, self.config_file + ' '.join(SharedState.attack_args), new_ue)
             self.ue_index += 1
 
-        elif self.process_type == "sense" or self.process_type == "jam_sequential" or self.process_type == "jam_random":
-            new_channel = Channel(config_file=self.config_file)
-            new_channel.run_threaded(getattr(new_channel, self.process_type))
+        elif self.process_type == "listener" or self.process_type == "jam_sequential" or self.process_type == "jam_random" or self.process_type == "jam_fixed":
+            new_channel = ChannelAgent()
+            new_channel.start(self.config_file)
 
             SharedState.process_list.append({
                 'id': str(uuid.uuid4()),
@@ -178,10 +178,7 @@ class ProcessesPage(Screen):
                 'index': 0
             })
 
-            self.add_process_log(self.process_type, self.config_file, [], new_channel)
-
-
-
+            self.add_process_log(self.process_type, self.config_file, new_channel)
 
 
         self.config_file = ""
@@ -197,7 +194,7 @@ class ProcessesPage(Screen):
             title_ref.color = [0,1,0,1]
         log_ref.scroll_y = 0
 
-    def add_process_log(self, ue_type, config, arguments, handle):
+    def add_process_log(self, ue_type, config, handle):
         log_view = GridLayout(
             cols=1,
             spacing=60,
@@ -224,10 +221,10 @@ class ProcessesPage(Screen):
 
         if ue_type == "clean" or ue_type == "tester":
             new_process_text.text = f"starting UE ({ue_type})..."
-            content_label.text =  f"sudo srsue {config} {arguments if ue_type == 'tester' else ''}"
+            content_label.text =  f"sudo srsue {config}"
         else:
             new_process_text.text = ue_type
-            content_label.text = f"python3 Channel.py --config {config}"
+            content_label.text = f"sudo uuagent {config}"
 
 
         Clock.schedule_interval(lambda dt: self.collect_logs(new_process_text, handle, log_view, content_label), 1)
