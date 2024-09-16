@@ -14,6 +14,7 @@ sys.path.insert(0, parent_dir)
 from MainApp import MainApp
 from SharedState import SharedState
 from Ue import Ue
+from Channel import Channel
 
 from common.utils import send_command
 
@@ -67,23 +68,37 @@ def main():
 
     time.sleep(0.5)
 
-    for ue in options.get("processes", []):
-        if not os.path.exists(ue["config_file"]):
-            print(f"Error: File not found {ue['config_file']}")
-            return 1
-        new_ue = Ue(SharedState.ue_index)
-        if ue['type'] == "tester":
-            new_ue.start([ue["config_file"]] + ue["args"].split(" "))
+    for process in options.get("processes", []):
+        if process["type"] == "tester" or process["type"] == "clean":
+            ue = process
+            if not os.path.exists(ue["config_file"]):
+                print(f"Error: File not found {ue['config_file']}")
+                return 1
+            new_ue = Ue(SharedState.ue_index)
+            if ue['type'] == "tester":
+                new_ue.start([ue["config_file"]] + ue["args"].split(" "))
+            else:
+                new_ue.start([ue["config_file"]])
+            SharedState.process_list.append({
+                'id': str(uuid.uuid4()),
+                'type': ue['type'],
+                'config': ue['config_file'],
+                'handle': new_ue,
+                'index': SharedState.ue_index
+            })
+            SharedState.ue_index += 1
+            print("STARTED:", new_ue)
         else:
-            new_ue.start([ue["config_file"]])
-        SharedState.process_list.append({
-            'id': str(uuid.uuid4()),
-            'type': ue['type'],
-            'config': ue['config_file'],
-            'handle': new_ue,
-            'index': SharedState.ue_index
-        })
-        SharedState.ue_index += 1
+            channel = process
+            new_channel = None
+            if "config_file" in channel.keys():
+                new_channel = Channel(config_file=channel["config_file"])
+            else:
+                new_channel = Channel()
+
+            #if channel["type"] == "":
+
+
 
 
     print(f"Running as: {os.getlogin()}")

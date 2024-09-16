@@ -97,7 +97,7 @@ class ProcessesPage(Screen):
 
         process_type_spinner = Spinner(
             text='clean',
-            values=('clean', 'tester', 'sense', 'jam_sequential', 'jam_random'),
+            values=('clean', 'tester', 'sense', 'jam_sequential', 'jam_random', 'jam_fixed'),
             size_hint=(None, None),
             size=(200, 44)
         )

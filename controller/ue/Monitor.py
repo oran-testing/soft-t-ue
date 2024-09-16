@@ -37,7 +37,6 @@ class Monitor:
                     continue
 
             self.monitor_list[process_name] = found_this_iteration
-            time.sleep(0.5)
 
     def __repr__(self):
         return f"Process Monitor object, result: {self.monitor_list}"

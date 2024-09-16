@@ -55,6 +55,8 @@ class ResultsPage(Screen):
                 y_ticks_minor=1,
                 y_ticks_major=5,
                 padding=5,
+                y_grid_label=True,
+                x_grid_label=True,
                 x_grid=True,
                 y_grid=True,
                 ymin=0,
