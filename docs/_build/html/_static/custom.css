@@ -34,23 +34,3 @@ footer {
     margin-top: auto;
 }
 
-
-
-/* Style for the "Scroll to Top" button */
-.scroll-to-top {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #333;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 10px;
-    cursor: pointer;
-    z-index: 1000;
-    display: none; /* Hidden by default */
-}
-
-.scroll-to-top:hover {
-    background: #555;
-}

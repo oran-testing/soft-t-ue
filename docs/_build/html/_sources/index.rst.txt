@@ -3,61 +3,60 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-NTIA Software Tester
-=====================
+NTIA Software Tester UE
+==========================
 
-An SDR security testing UE based on srsRAN's UE.
+Penetration testing tool for Software Defined Radio
 
 Overview
 --------
 
-The tester consists of a client PC running the test GUI and a server PC running
-the base station. (In some cases, a single PC can run both the client and the
-server.) The client GUI launches a series of applications to run a test. It
-communicates with the server to indirectly launch server-side applications with
-appropriate configurations.
+This project is a security testing tool based on srsRAN Project's User Equipment, used to test 5G and open radio access networks (RANs) via the Uu air interface between the UE and the network. While this enables different types of testing, the focus of the software is on RAN security testing. This soft T-UE is fully software-defined and compatible with widely available, commercial off-the-shelf software radio hardware. Standardized 3GPP or O-RAN tests as well as custom test procedures can then be implemented and executed at minimal cost and at different stages of RAN development and integration. This system allows for testing many commercial and open source random access networks with minimal technical overhead. Many attacks on the RAN can be run automatically by the system.
 
-Legend:
+- `UE Documentation <rstFiles/UE.rst>`_
+- `gNB Documentation <rstFiles/gNB.rst>`_
 
-- A solid line indicates a process/subprocess relationship. If bidirectional,
-  the subprocess provides data back to the process via pipes.
-- A dotted line indicates data movement between two processes.
-
-.. image:: images/soft-t-ue.png
+**NOTE: This system is designed to run on Ubuntu and is tested on Ubuntu 20.04.**
 
 Installation
 ------------
+If testing with ZMQ one machine can be used. If using an RU run with two machines A and B.
 
-To install the UE, run:
-
-.. code-block:: bash
-
-   ./scripts/install-ue.sh
-
-To install the gNB, run:
+To install the UE run (Machine A):
 
 .. code-block:: bash
 
-   ./scripts/install-open5gs.sh
-   ./scripts/install-gnb.sh
+   sudo ./scripts/install-ue.sh
 
-To install dependencies for the UE controller, use:
+To install the gNB run (Machine B):
 
 .. code-block:: bash
 
-   cd ue-controller
-   poetry install
+   sudo ./scripts/install-open5gs.sh
+   sudo ./scripts/install-gnb.sh
 
 Running
 -------
 
-To run the controller, use:
+To start the gNB daemon (Machine B):
 
 .. code-block:: bash
 
-   cd ue-controller
-   poetry run python ue_controller/ui.py
+   sudo systemctl daemon-reload
+   sudo systemctl start gnb-controller.service
 
+To run the GUI (Machine A):
+
+.. code-block:: bash
+
+   cd controller/ue
+   python3 main.py
+
+
+System Architecture
+--------------------
+
+.. image:: images/Soft-T-UE-System.png
 
 .. toctree::
    :maxdepth: 1

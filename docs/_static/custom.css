@@ -34,3 +34,10 @@ footer {
     margin-top: auto;
 }
 
+.container.bottom-right {
+    display: none !important;
+  }
+
+.rst-versions .rst-other-versions dl:last-child {
+  display: none !important;
+}
