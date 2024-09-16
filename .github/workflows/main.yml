@@ -1,5 +1,4 @@
 name: Soft T UE System Test
-
 on:
   push:
     branches:

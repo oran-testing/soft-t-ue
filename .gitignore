@@ -1,11 +1,3 @@
 build
-controller/lib
-controller/lib64
-controller/bin
-controller/include
-controller/pyvenv.cfg
-controller/share
+**/__pycache__/
 
-controller/ue/__pycache__
-controller/common/__pycache__
-controller/gnb/__pycache__

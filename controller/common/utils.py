@@ -1,3 +1,5 @@
+import json
+import socket
 import subprocess
 
 
@@ -12,7 +14,7 @@ def start_subprocess(command):
 def kill_subprocess(process):
     process.terminate()  # Graceful termination
     try:
-        process.wait(timeout=5)
+        process.wait(timeout=2)
     except subprocess.TimeoutExpired:
         process.kill()  # Forceful termination
     process.communicate()
@@ -54,4 +56,12 @@ def shift_bytes_left(byte_obj, shift_amount):
 
     return shifted_bytes
 
+def send_command(ip, port, cmd_json):
+        try:
+            cmd_string = json.dumps(cmd_json)
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.connect((ip, port))
+                sock.sendall(cmd_string.encode('utf-8'))
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
