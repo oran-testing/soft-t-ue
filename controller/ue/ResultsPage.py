@@ -1,4 +1,5 @@
 from kivy.clock import Clock
+from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
@@ -6,6 +7,8 @@ from kivy.uix.screenmanager import Screen
 from kivy_garden.graph import Graph, MeshLinePlot
 from kivy.uix.scrollview import ScrollView
 from kivy.graphics import Line, Color
+from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
 from SharedState import SharedState
 import time
 import threading
@@ -88,6 +91,19 @@ class ResultsPage(Screen):
                 font_size="20sp",
                 font_name="./font/Ubuntu/Ubuntu-Bold.ttf"
             ))
+            container.add_widget(
+                Button(
+                    text='Export to CSV',
+                    on_press=lambda instance: self.open_export_csv_popup(instance, 
+                                                                         f"UE{ue_ref['index']}, rnti: {ue_ref['handle'].rnti}, Iperf running: {ue_ref['handle'].iperf_client.isRunning}", 
+                                                                         ue_ref),
+                    background_color=[0,0.75,0.25,1],
+                    size_hint=(None,None),
+                    width=200,
+                    height=40,
+                    font_name="./font/Ubuntu/Ubuntu-Regular.ttf",
+                )
+            )
             container.add_widget(graph)
 
             self.value_labels = {}
@@ -156,4 +172,65 @@ class ResultsPage(Screen):
             offset = len(data_ref) - 100
             plot.points = [(t[0] - offset, t[1]) for t in data_ref[-100:]]
         SharedState.plot_map[plot_map_ref]["current_value"] = data_ref[-1][1]
+
+    def open_export_csv_popup(self, instance, ue_text, ue_ref):
+        content = BoxLayout(orientation='vertical')
+        export_label = Label(text=ue_text, font_name="./font/Ubuntu/Ubuntu-Regular.ttf")
+
+        cancel_button = Button(text="Cancel", size_hint_y=None, height=50)
+        export_button = Button(text="Export", size_hint_y=None, height=50)
+
+        file_text = TextInput(hint_text="filename to export")
+        button_wrapper = BoxLayout(orientation='horizontal')
+
+        content.add_widget(export_label)
+        button_wrapper.add_widget(cancel_button)
+        button_wrapper.add_widget(export_button)
+        content.add_widget(button_wrapper)
+
+        self.popup = Popup(title='Export to CSV', content=content, size_hint=(0.5, 0.5))
+        cancel_button.bind(on_press=self.popup.dismiss)
+        export_button.bind(on_press=lambda instance: self.export_data(instance, file_text.text, ue_ref))
+        self.popup.open()
+
+    def export_data(self, instance, filename, ue_ref):
+        if not filename and ue_ref["handle"].rnti not in SharedState.metrics_client.ue_data.keys():
+            return
+        self.popup.dismiss()
+
+        rows = list()
+
+        headers = list()
+        headers.append("iperf")
+        headers.append("ping")
+
+        for key in SharedState.metrics_client.ue_data[ue_ref["handle"].rnti].keys():
+            headers.append(key)
+
+        rows.append(",".join(headers))
+
+        for i in range(len(ue_ref["handle"].ping_client.output)):
+            current_row = list()
+            for h in headers:
+                if h == "iperf":
+                    if i >= len(ue_ref["handle"].iperf_client.output):
+                        current_row.append(str(0))
+                    else:
+                        current_row.append(str(ue_ref["handle"].iperf_client.output[i]))
+                elif h == "ping":
+                    current_row.append(str(ue_ref["handle"].ping_client.output[i]))
+                else:
+
+                    if h in SharedState.metrics_client.ue_data[ue_ref["handle"].rnti].keys():
+                        if i < len(SharedState.metrics_client.ue_data[ue_ref["handle"].rnti][h]):
+                            #current_row.append(SharedState.metrics_client.ue_data[ue_ref["handle"].rnti][h][i])
+                            current_row.append(str(0))
+                        else:
+                            current_row.append(str(0))
+                    else:
+                        current_row.append(str(0))
+            rows.append(','.join(current_row))
+        
+        with open(filename, 'w') as f:
+            f.write('\n'.join(rows))
 
