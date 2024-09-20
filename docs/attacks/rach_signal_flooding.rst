@@ -5,7 +5,7 @@ Random Access Channel Flooding
 >>>>>>> 4196d37552bb0dd4264f2b7a3594da230898f4f8
 ==========================================================
 
-Implementation (T-UE):
+Implementation (T-UE)
 --------------------------
 Initiate flooding on the UE side by:
 
@@ -13,11 +13,11 @@ Initiate flooding on the UE side by:
 - develop an environment with multiple UEs over UHD, where the results of the experiment can be seen in real time
 - create an attack option in the GUI
 
-Mitigation (gNB):
+Mitigation (gNB)
 --------------------------
 - Blacklisting UEs with excessive RACH requests
 
-Attack Metrics:
+Attack Metrics
 ----------------
 - Possible throughput reduction of clean UEs on the network
 - Disconnect of clean UEs

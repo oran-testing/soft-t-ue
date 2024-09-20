@@ -22,6 +22,8 @@ apt-get update && apt-get upgrade -y
 apt-get install -y cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev
 apt-get install -y libzmq3-dev
 apt-get install -y net-tools libboost-all-dev libconfig++-dev iperf3 git libxcb-cursor0? libgles2-mesa-dev?
+apt-get install -y gr-osmosdr python3 python3-pip
+pip install kivy kivy_garden.graph
 
 # We're installing an add-on application software package, which belongs in `/opt` per the [Filesystem Hierarchy Standard](https://www.pathname.com/fhs/pub/fhs-2.3.html#OPTADDONAPPLICATIONSOFTWAREPACKAGES).
 cd /opt
@@ -37,9 +39,5 @@ cmake ../
 make -j $(nproc)
 make install
 srsran_install_configs.sh user
-cp ./srsue/src/srsue /usr/local/bin/
-
-ip netns add ue1
-ip netns list
 
 set -x

@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Soft-Tester UE'
-copyright = '2024, Joshua J. Moore'
+copyright = '2024, RAN TESTER UE'
 author = 'Joshua J. Moore'
 release = '1.0'
 
@@ -32,8 +32,34 @@ html_theme_options = {
     "show_sourcelink": False,
     "collapse_navigation" : False,
     "sticky_navigation": False,
+    'flyout': False,  
+}
+
+html_context = {
+    "sidebar_external_links_caption": "Useful Links",
+    "sidebar_external_links": [
+        (
+            '<i class="fa fa-globe"></i> Website',
+            "https://www.rantesterue.org/",
+        ),
+        (
+            '<i class="fa fa-github fa-fw"></i> Source code',
+            "https://github.com/oran-testing/soft-t-ue",
+        ),
+        (
+            '<i class="fa fa-bug fa-fw"></i> Report an issue',
+            "https://github.com/oran-testing/soft-t-ue/issues",
+        ),
+    ],
 }
 
 html_show_sphinx = False
 html_show_sourcelink = False
 html_favicon = 'images/favicon.png'
+html_logo = 'images/logo.png'
+html_static_path = ['_static']
+html_css_files = [
+    'custom.css',
+]
+templates_path = ['_templates']
+

@@ -5,17 +5,17 @@ Random Access Channel Request Replay Attack
 >>>>>>> 4196d37552bb0dd4264f2b7a3594da230898f4f8
 ==========================================================
 
-Implementation (UE):
+Implementation (UE)
 --------------------------
 
 - Capture the RACH requests of other UEs
 - Replay these requests later to confuse the RAN
 
-Mitigation (UE and gNB):
+Mitigation (UE and gNB)
 --------------------------
 - add identifiers to RACH requests like timestamps or identifiers
 
-Attack Metrics:
+Attack Metrics
 ----------------
 - Disconnected UEs
 - Channel quality reduction

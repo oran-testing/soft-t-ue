@@ -1,76 +1,44 @@
-# NTIA Software Tester
+# NTIA Software Tester UE
 
-An SDR security testing UE based on srsRAN's UE.
+Penetration Testing Tool for Software Defined Radio
 
 ## Overview
 
-The tester consists of a client PC running the test GUI and a server PC running
-the base station. (In some cases, a single PC can run both the client and the
-server.) The client GUI launches a series of applications to run a test. It
-communicates with the server to indirectly launch server-side applications with
-appropriate configurations.
+This project is a security testing tool based on srsRAN Project's User Equipment, used to test 5G and open radio access networks (RANs) via the Uu air interface between the UE and the network. While this enables different types of testing, the focus of the software is on RAN security testing. This soft T-UE is fully software-defined and compatible with widely available, commercial off-the-shelf software radio hardware. Standardized 3GPP or O-RAN tests as well as custom test procedures can then be implemented and executed at minimal cost and at different stages of RAN development and integration. This system allows for testing many commercial and open source random access networks with minimal technical overhead. Many attacks on the RAN can be run automatically by the system.
 
-<img src='https://g.gravizo.com/svg?
-digraph G {
-    subgraph cluster_client {
-        label = "Client PC"
-        client -> tue
-        client -> pcap [ dir=both ]
-        client -> grafana_gnb
-        client -> grafana_5gc
-        client -> iperf3 [ dir = both ]
-        client [ label = "Client GUI\n(Python)"]
-        tue [ label = "Soft T-UE"]
-        pcap [ label = "Packet capture\n(scapy)"]
-        grafana_gnb [ label = "Grafana gNodeB\ndata viz"]
-        grafana_5gc [ label = "Grafana open 5G core\ndata viz"]
-        iperf3 [ label = "iperf3\nclient"]
-    }
-    client -> server [ dir = both, style = dotted ]
-    tue -> gnb [ dir = both, style = dotted ]
-    gnb -> grafana_gnb [ style = dotted ]
-    open5g -> grafana_5gc [ style = dotted ]
-    iperf3 -> iperf3_server [ dir = both, style = dotted ]
-    subgraph cluster_server {
-        label = "Server PC"
-        server -> iperf3_server
-        server -> gnb
-        gnb -> open5g [ style = dotted ]
-        server [ label = "Server\n(Python)"]
-        gnb [ label = "gNodeB"]
-        open5g [ label = "Open5G\nCore"]
-        iperf3_server [ label = "iperf3\nserver"]
-    }
-})'/>
+- [UE Documentation](https://github.com/oran-testing/soft-t-ue/blob/main/docs/UE.md)
+- [gNB Documentation](https://github.com/oran-testing/soft-t-ue/blob/main/docs/gNB.md)
+- [Attack Documentation](https://github.com/oran-testing/soft-t-ue/blob/main/docs/attacks) 
 
-Legend:
-
-- A solid line indicates a process/subprocess relationship. If bidirectional,
-  the subprocess provides data back to the process via pipes.
-- A dotted line indicates data movement between two processes.
-![soft-t-ue.png](https://github.com/oran-testing/soft-t-ue/blob/main/docs/images/soft-t-ue.png)
+**NOTE: This system is designed to run on ubuntu and is tested on ubuntu 20.04**
 
 ## Installation
 
-To install the UE run:
-`./scripts/install-ue.sh`
+If testing with ZMQ one machine can be used. If using an RU run with two machines A and B.
 
-To install the gNB run:
-```
-./scripts/install-open5gs.sh
-./scripts/install-gnb.sh
+To install the UE run (Machine A):
+``` bash
+sudo ./scripts/install-ue.sh
 ```
 
-To install dependencies for the UE controller:
+To install the gNB run (Machine B):
+``` bash
+sudo ./scripts/install-open5gs.sh
+sudo ./scripts/install-gnb.sh
 ```
-cd ue-controller
-poetry install
+## Running
+
+To start the gNB daemon (Machine B):
+``` bash
+sudo systemctl daemon-reload
+sudo systemctl start gnb-controller.service
 ```
 
-## Running 
+To run the GUI (Machine A):
+``` bash
+cd controller/ue
+python3 main.py
+```
 
-To run the controller:
-```
-cd ue-controller
-poetry run python ue_controller/ui.py
-```
+## System Architecture
+![Soft-T-UE-System.png](https://github.com/oran-testing/soft-t-ue/blob/grafana_integration/docs/images/Soft-T-UE-System.png)

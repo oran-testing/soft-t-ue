@@ -5,7 +5,7 @@ Bandwidth Hogging Attack Using Manipulated CQI Values
 >>>>>>> 4196d37552bb0dd4264f2b7a3594da230898f4f8
 =====================================================
 
-Implementation (UE Side):
+Implementation (UE Side)
 --------------------------
 - **Override CQI**: Implement code to consistently send high CQI values.
 
@@ -13,7 +13,7 @@ Implementation (UE Side):
    - **Measure Throughput**: Track throughput and bandwidth allocated to the UE.
    - **Assess Network Impact**: Evaluate the effects on other users and overall network performance.
 
-Mitigation Components in srsRAN gNB under Test:
+Mitigation Components in srsRAN gNB under Test
 ------------------------------------------------
 1. **Proportional Fair Scheduling (PFS)**:
     - **Balance Allocation**: Distributes resources considering both channel quality and historical throughput.
@@ -31,7 +31,7 @@ Mitigation Components in srsRAN gNB under Test:
     - **Maximum Limits**: Configures resource limits to prevent excessive bandwidth use by any single UE.
     - **Rate Limiting**: Implements rate limiting to ensure fair resource distribution.
 
-Metrics to Assess the Attack:
+Metrics to Assess the Attack
 ------------------------------
 1. **Bandwidth Utilization**:
     - **Throughput Measurement**: Quantify throughput allocated to the modified UE.
@@ -46,6 +46,6 @@ Metrics to Assess the Attack:
     - **System Performance**: Assess the impact on network CPU and memory usage due to increased load.
 
 Notes
------
+------
 - **Development Branch**: `cqi_attack_development <https://github.com/oran-testing/soft-t-ue/tree/cqi_attack_development>`_
 

@@ -2,7 +2,7 @@
 Preamble Collision attack
 ==========================================================
 
-Introduction:
+Introduction
 --------------
 A Preamble Collision Attack targets the Random Access Procedure in LTE and 5G networks by deliberately causing preamble collisions during the Random Access Channel (RACH) process. In standard network operations, UEs (User Equipment) select a random preamble from a set of available options to initiate a connection with the base station. However, in a Preamble Collision Attack, an adversary repeatedly sends the same preamble as legitimate UEs, causing multiple devices to use the same preamble simultaneously. This leads to collisions, resulting in failed or delayed connection attempts, as the base station cannot differentiate between the colliding UEs. Such an attack can degrade network performance, particularly in high-load scenarios, and can be used to disrupt the normal operation of UEs within the coverage area.
 
@@ -12,7 +12,7 @@ A Preamble Collision Attack targets the Random Access Procedure in LTE and 5G ne
 - Send the captured preamble repeatedly to confuse the network.
 - Repeat the process for every new UE connecting to the RAN.
 
-Implementation:
+Implementation
 ---------------------
 
 - Simulate multiple UEs in srsRAN to perform a Preamble Collision Attack.
@@ -24,7 +24,7 @@ Implementation:
 
 This test helps us understand the network's vulnerability to preamble collisions and assess potential countermeasures, such as dynamic preamble allocation or collision resolution strategies.
 
-Mitigation (gNB):
+Mitigation (gNB)
 ------------------
 - Once a UE sends the preamble attach, invalidate that preamble as long as the UE remains connected.
 =======
@@ -43,7 +43,7 @@ Mitigation (gNB):
 - Once a UE sends the preamble attach, then invalidate that preamble so long as the UE is connected
 >>>>>>> 4196d37552bb0dd4264f2b7a3594da230898f4f8
 
-Attack Metrics:
+Attack Metrics
 ----------------
 - Disconnected UEs
 - Lowering of channel quality

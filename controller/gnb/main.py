@@ -1,13 +1,13 @@
+import argparse
 import itertools
+import json
+import logging
+import os
+import pathlib
+import socket
 import sys
 import threading
 import time
-import os
-import pathlib
-import argparse
-import socket
-import logging
-
 
 # add the common directory to the import path
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -15,6 +15,8 @@ sys.path.insert(0, parent_dir)
 
 from CoreNetwork import CoreNetwork
 from Gnb import Gnb
+from MetricsServer import MetricsServer
+
 from common.Iperf import Iperf
 
 
@@ -23,6 +25,7 @@ class gnb_controller:
     def __init__(self):
         self.core_handle = CoreNetwork()
         self.gnb_handle = Gnb()
+        self.metrics_handle = MetricsServer()
 
     def start_core(self, rebuild):
         if self.core_handle.isRunning:
@@ -33,6 +36,16 @@ class gnb_controller:
 
     def stop_core(self):
         self.core_handle.stop()
+
+    def start_metrics(self, rebuild):
+        if self.metrics_handle.isRunning:
+            self.metrics_handle.stop()
+        self.metrics_handle.start(rebuild)
+
+    def stop_metrics(self):
+        self.metrics_handle.stop()
+
+
 
     def start_gnb(self, gnb_config):
         if self.gnb_handle.isRunning:
@@ -46,25 +59,34 @@ class gnb_controller:
     def listen_for_command(self, server_socket, add_callback):
         while True:
             client_socket, _ = server_socket.accept()
-            command = client_socket.recv(1024).decode('utf-8').strip()
+            recv_data = client_socket.recv(1024).decode('utf-8').strip()
             client_socket.close()
 
-            directives = command.split(":")
+            command = json.loads(recv_data)
 
-            iperf_process = Iperf()
-            if directives[0] == "iperf":
-                iperf_process.start(["-s", "-i", "1", "-p", directives[1]], process_type="server")
+            print(command)
+
+            if command["target"] == "iperf":
+                iperf_process = Iperf()
+                iperf_process.start(["-s", "-i", "1", "-p", command["port"]], process_type="server")
                 add_callback(iperf_process)
-            elif directives[0] == "gnb":
-                if directives[1] == "start":
-                    self.start_gnb(directives[2])
-                else:
+            elif command["target"] == "gnb":
+                if command["action"] == "start":
+                    self.start_gnb(command["config"])
+                elif command["action"] == "stop":
                     self.stop_gnb()
-            elif directives[0] == "core":
-                if directives[1] == "start":
+            elif command["target"] == "core":
+                if command["action"] == "start":
                     self.start_core(True)
-                else:
+                elif command["action"] == "stop":
                     self.stop_core()
+            elif command["target"] == "metrics":
+                if command["action"] == "start":
+                    self.start_metrics(True)
+                elif command["action"] == "stop":
+                    self.stop_metrics()
+
+
 
 
 def parse():
@@ -82,11 +104,12 @@ def parse():
 def main():
     args = parse()
     print(args)
-    os.system("kill -9 $(ps aux | awk '!/gnb_controller\.py/ && /gnb/{print $2}')")
+    os.system("kill -9 $(ps aux | awk '!/main\.py/ && /gnb/{print $2}')")
     os.system("kill -9 $(ps aux | awk '/open5gs/{print $2}')")
     time.sleep(0.1)
     controller = gnb_controller()
     controller.start_core(args.rebuild_core)
+    controller.start_metrics(True)
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((args.ip, args.port))
@@ -97,6 +120,9 @@ def main():
     while True:
         time.sleep(1)
         controller.listen_for_command(server_socket, lambda x: iperf_servers.append(x))
+    controller.stop_core()
+    controller.stop_metrics()
+    controller.stop_gnb()
     return 0
 
 if __name__ == "__main__":
