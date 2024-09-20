@@ -104,6 +104,7 @@ srsenb/test/rrc/rrc_meascfg_test: lib/src/common/libsrsran_common.a
 srsenb/test/rrc/rrc_meascfg_test: lib/src/support/libsupport.a
 srsenb/test/rrc/rrc_meascfg_test: lib/src/srslog/libsrslog.a
 srsenb/test/rrc/rrc_meascfg_test: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
+srsenb/test/rrc/rrc_meascfg_test: /usr/lib/x86_64-linux-gnu/libsctp.so
 srsenb/test/rrc/rrc_meascfg_test: srsgnb/src/stack/rrc/libsrsgnb_rrc_config_utils.a
 srsenb/test/rrc/rrc_meascfg_test: lib/src/phy/libsrsran_phy.a
 srsenb/test/rrc/rrc_meascfg_test: /usr/lib/x86_64-linux-gnu/libfftw3f.so

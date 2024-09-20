@@ -112,6 +112,7 @@ srsepc/src/srsepc: lib/src/support/libsupport.a
 srsepc/src/srsepc: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
 srsepc/src/srsepc: lib/src/phy/libsrsran_phy.a
 srsepc/src/srsepc: /usr/lib/x86_64-linux-gnu/libfftw3f.so
+srsepc/src/srsepc: /usr/lib/x86_64-linux-gnu/libsctp.so
 srsepc/src/srsepc: srsepc/src/CMakeFiles/srsepc.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable srsepc"
 	cd /home/prab/soft-t-ue/build/srsepc/src && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/srsepc.dir/link.txt --verbose=$(VERBOSE)

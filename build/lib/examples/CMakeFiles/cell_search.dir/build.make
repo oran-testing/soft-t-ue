@@ -98,6 +98,7 @@ lib/examples/cell_search: lib/src/phy/rf/libsrsran_rf.so.23.04.0
 lib/examples/cell_search: lib/src/support/libsupport.a
 lib/examples/cell_search: lib/src/srslog/libsrslog.a
 lib/examples/cell_search: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
+lib/examples/cell_search: /usr/lib/x86_64-linux-gnu/libsctp.so
 lib/examples/cell_search: lib/src/phy/rf/libsrsran_rf_utils.a
 lib/examples/cell_search: lib/src/phy/libsrsran_phy.a
 lib/examples/cell_search: /usr/lib/x86_64-linux-gnu/libfftw3f.so

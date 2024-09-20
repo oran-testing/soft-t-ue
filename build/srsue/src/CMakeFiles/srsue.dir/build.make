@@ -192,6 +192,7 @@ srsue/src/srsue: lib/src/phy/libsrsran_phy.a
 srsue/src/srsue: /usr/lib/x86_64-linux-gnu/libfftw3f.so
 srsue/src/srsue: lib/src/support/libsupport.a
 srsue/src/srsue: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
+srsue/src/srsue: /usr/lib/x86_64-linux-gnu/libsctp.so
 srsue/src/srsue: srsue/src/CMakeFiles/srsue.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable srsue"
 	cd /home/prab/soft-t-ue/build/srsue/src && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/srsue.dir/link.txt --verbose=$(VERBOSE)

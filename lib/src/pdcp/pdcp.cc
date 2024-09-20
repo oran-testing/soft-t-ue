@@ -301,7 +301,27 @@ void pdcp::write_pdu_bcch_bch(unique_byte_buffer_t sdu)
 
 void pdcp::write_pdu_bcch_dlsch(unique_byte_buffer_t sdu)
 {
+  //Write the sdu to this function 
+
+    // Check if the unique pointer is valid
+  if (sdu) {
+    const uint8_t* buffer_data = sdu->data(); 
+    size_t buffer_size = sdu->size();
+
+    // Print the contents of the buffer
+    std::cout << "RRC - PDCP SDU buffer contents: ";
+    for (size_t i = 0; i < buffer_size; ++i) {
+      std::cout << std::hex << static_cast<int>(buffer_data[i]) << " ";
+    }
+    std::cout << std::endl;
+  } else {
+    std::cout << "SDU is empty or moved." << std::endl;
+  }
+
+  
+
   rrc->write_pdu_bcch_dlsch(std::move(sdu));
+  
 }
 
 void pdcp::write_pdu_pcch(unique_byte_buffer_t sdu)

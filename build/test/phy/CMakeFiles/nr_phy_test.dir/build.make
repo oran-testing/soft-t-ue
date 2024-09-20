@@ -111,6 +111,7 @@ test/phy/nr_phy_test: /usr/lib/x86_64-linux-gnu/libfftw3f.so
 test/phy/nr_phy_test: lib/src/support/libsupport.a
 test/phy/nr_phy_test: lib/src/srslog/libsrslog.a
 test/phy/nr_phy_test: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
+test/phy/nr_phy_test: /usr/lib/x86_64-linux-gnu/libsctp.so
 test/phy/nr_phy_test: srsenb/src/stack/mac/common/libsrsenb_mac_common.a
 test/phy/nr_phy_test: test/phy/CMakeFiles/nr_phy_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable nr_phy_test"

@@ -102,6 +102,7 @@ srsenb/test/mac/sched_tpc_test: /usr/lib/x86_64-linux-gnu/libfftw3f.so
 srsenb/test/mac/sched_tpc_test: lib/src/support/libsupport.a
 srsenb/test/mac/sched_tpc_test: lib/src/srslog/libsrslog.a
 srsenb/test/mac/sched_tpc_test: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
+srsenb/test/mac/sched_tpc_test: /usr/lib/x86_64-linux-gnu/libsctp.so
 srsenb/test/mac/sched_tpc_test: srsenb/src/stack/mac/libsrsenb_mac.a
 srsenb/test/mac/sched_tpc_test: srsenb/src/stack/mac/common/libsrsenb_mac_common.a
 srsenb/test/mac/sched_tpc_test: srsenb/test/mac/CMakeFiles/sched_tpc_test.dir/link.txt

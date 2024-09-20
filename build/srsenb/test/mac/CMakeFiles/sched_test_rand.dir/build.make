@@ -110,6 +110,7 @@ srsenb/test/mac/sched_test_rand: /usr/lib/x86_64-linux-gnu/libfftw3f.so
 srsenb/test/mac/sched_test_rand: lib/src/support/libsupport.a
 srsenb/test/mac/sched_test_rand: lib/src/srslog/libsrslog.a
 srsenb/test/mac/sched_test_rand: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
+srsenb/test/mac/sched_test_rand: /usr/lib/x86_64-linux-gnu/libsctp.so
 srsenb/test/mac/sched_test_rand: srsenb/test/mac/CMakeFiles/sched_test_rand.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable sched_test_rand"
 	cd /home/prab/soft-t-ue/build/srsenb/test/mac && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/sched_test_rand.dir/link.txt --verbose=$(VERBOSE)

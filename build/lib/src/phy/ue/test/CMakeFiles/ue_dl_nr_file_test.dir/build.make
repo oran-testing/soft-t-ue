@@ -99,6 +99,7 @@ lib/src/phy/ue/test/ue_dl_nr_file_test: /usr/lib/x86_64-linux-gnu/libfftw3f.so
 lib/src/phy/ue/test/ue_dl_nr_file_test: lib/src/support/libsupport.a
 lib/src/phy/ue/test/ue_dl_nr_file_test: lib/src/srslog/libsrslog.a
 lib/src/phy/ue/test/ue_dl_nr_file_test: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
+lib/src/phy/ue/test/ue_dl_nr_file_test: /usr/lib/x86_64-linux-gnu/libsctp.so
 lib/src/phy/ue/test/ue_dl_nr_file_test: lib/src/phy/ue/test/CMakeFiles/ue_dl_nr_file_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable ue_dl_nr_file_test"
 	cd /home/prab/soft-t-ue/build/lib/src/phy/ue/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ue_dl_nr_file_test.dir/link.txt --verbose=$(VERBOSE)

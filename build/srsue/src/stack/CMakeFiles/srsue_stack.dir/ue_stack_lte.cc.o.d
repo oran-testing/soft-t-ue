@@ -584,6 +584,8 @@ srsue/src/stack/CMakeFiles/srsue_stack.dir/ue_stack_lte.cc.o: \
  /home/prab/soft-t-ue/lib/include/srsran/adt/circular_map.h \
  /home/prab/soft-t-ue/lib/include/srsran/adt/expected.h \
  /home/prab/soft-t-ue/lib/include/srsran/common/common_nr.h \
+ /home/prab/soft-t-ue/lib/include/srsran/interfaces/ue_pdcp_interfaces.h \
+ /home/prab/soft-t-ue/lib/include/srsran/interfaces/pdcp_interface_types.h \
  /home/prab/soft-t-ue/lib/include/srsran/interfaces/ue_sdap_interfaces.h \
  /home/prab/soft-t-ue/srsue/hdr/stack/upper/gw.h \
  /home/prab/soft-t-ue/lib/include/srsran/common/bearer_manager.h \
@@ -606,8 +608,6 @@ srsue/src/stack/CMakeFiles/srsue_stack.dir/ue_stack_lte.cc.o: \
  /home/prab/soft-t-ue/lib/include/srsran/radio/rf_timestamp.h \
  /home/prab/soft-t-ue/lib/include/srsran/radio/radio_base.h \
  /home/prab/soft-t-ue/lib/include/srsran/rlc/rlc.h \
- /home/prab/soft-t-ue/lib/include/srsran/interfaces/ue_pdcp_interfaces.h \
- /home/prab/soft-t-ue/lib/include/srsran/interfaces/pdcp_interface_types.h \
  /home/prab/soft-t-ue/lib/include/srsran/rlc/rlc_common.h \
  /home/prab/soft-t-ue/lib/include/srsran/rlc/bearer_mem_pool.h \
  /home/prab/soft-t-ue/lib/include/srsran/upper/pdcp.h \

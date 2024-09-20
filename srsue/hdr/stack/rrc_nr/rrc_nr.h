@@ -37,6 +37,8 @@
 #include "srsran/interfaces/ue_nas_interfaces.h"
 #include "srsran/interfaces/ue_nr_interfaces.h"
 #include "srsran/interfaces/ue_rrc_interfaces.h"
+#include "srsran/interfaces/ue_pdcp_interfaces.h"
+#include "srsran/interfaces/ue_rlc_interfaces.h"
 #include "srsran/interfaces/ue_sdap_interfaces.h"
 #include "srsue/hdr/stack/upper/gw.h"
 #include "srsue/hdr/stack/mac_nr/mux_nr.h"
@@ -46,7 +48,8 @@ namespace srsue {
 class usim_interface_rrc_nr;
 class pdcp_interface_rrc;
 class rlc_interface_rrc;
-class mux_nr;
+class rlc_interface_pdcp;
+
 class rrc_nr final : public rrc_interface_phy_nr,
                      public rrc_interface_pdcp,
                      public rrc_interface_rlc,
@@ -63,6 +66,7 @@ public:
            mac_interface_rrc_nr*       mac_,
            rlc_interface_rrc*          rlc_,
            pdcp_interface_rrc*         pdcp_,
+           //rlc_interface_pdcp*         rpdcp_,
            sdap_interface_rrc*         sdap_,
            gw_interface_rrc*           gw_,
            nas_5g_interface_rrc_nr*    nas_,
@@ -70,12 +74,16 @@ public:
            usim_interface_rrc_nr*      usim_,
            srsran::timer_handler*      timers_,
            stack_interface_rrc*        stack_,
-           const rrc_nr_args_t&        args_);
+           const rrc_nr_args_t&        args_
+           );
 
   void stop();
 
+ 
+
   void get_metrics(rrc_nr_metrics_t& m);
-  void get_RLC_metrics(mux_nr& RLC_mem);
+  int get_RLC_PDU_metrics();
+  int get_MAC_buff_metrics();
 
   // Timeout callback interface
   void timer_expired(uint32_t timeout_id) final;
@@ -135,6 +143,7 @@ public:
   bool configure_sk_counter(uint16_t sk_counter);
   bool is_config_pending();
 
+
   // STACK interface
   void cell_search_found_cell(const rrc_interface_phy_nr::cell_search_result_t& result) final;
   void cell_select_completed(const cell_select_result_t& result) final;
@@ -146,7 +155,7 @@ private:
   srsran::unique_byte_buffer_t fuzz_ccch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_ccch_msg_s msg, std::string msg_name);
   srsran::unique_byte_buffer_t fuzz_dcch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_dcch_msg_s msg, std::string msg_name);
   srsran::unique_byte_buffer_t signal_flood_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name);
-  srsran::unique_byte_buffer_t rlc_buffer_overflow_attack_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name);
+  srsran::unique_byte_buffer_t rlc_buffer_overflow_attack_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu);
 
 
   // parsers
@@ -156,13 +165,14 @@ private:
   // senders
   void send_setup_request(srsran::nr_establishment_cause_t cause);
   void send_con_setup_complete(srsran::unique_byte_buffer_t nas_msg);
+
   void send_rrc_reconfig_complete();
   int  send_ue_capability_info(const asn1::rrc_nr::ue_cap_enquiry_s& msg);
   void send_ul_info_transfer(srsran::unique_byte_buffer_t nas_msg);
   void send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg);
   void send_ul_dcch_msg(uint32_t lcid, const asn1::rrc_nr::ul_dcch_msg_s& msg);
   void send_security_mode_complete();
-
+ 
   // helpers
   void set_phy_default_config();
   void handle_sib1(const asn1::rrc_nr::sib1_s& sib1);
@@ -214,6 +224,7 @@ private:
   srsran::timer_handler::unique_timer sim_measurement_timer;
 
   rrc_nr_state_t state = RRC_NR_STATE_IDLE;
+
 
   uint8_t transaction_id = 0;
 

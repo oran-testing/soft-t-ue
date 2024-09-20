@@ -101,6 +101,7 @@ srsue/src/phy/test/nr_cell_search_rf: lib/src/common/libsrsran_common.a
 srsue/src/phy/test/nr_cell_search_rf: lib/src/support/libsupport.a
 srsue/src/phy/test/nr_cell_search_rf: lib/src/srslog/libsrslog.a
 srsue/src/phy/test/nr_cell_search_rf: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
+srsue/src/phy/test/nr_cell_search_rf: /usr/lib/x86_64-linux-gnu/libsctp.so
 srsue/src/phy/test/nr_cell_search_rf: lib/src/phy/rf/libsrsran_rf.so.23.04.0
 srsue/src/phy/test/nr_cell_search_rf: lib/src/phy/rf/libsrsran_rf_utils.a
 srsue/src/phy/test/nr_cell_search_rf: lib/src/phy/libsrsran_phy.a

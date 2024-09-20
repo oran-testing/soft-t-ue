@@ -99,6 +99,7 @@ lib/test/pdcp/pdcp_lte_test_status_report: /usr/lib/x86_64-linux-gnu/libfftw3f.s
 lib/test/pdcp/pdcp_lte_test_status_report: lib/src/support/libsupport.a
 lib/test/pdcp/pdcp_lte_test_status_report: lib/src/srslog/libsrslog.a
 lib/test/pdcp/pdcp_lte_test_status_report: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
+lib/test/pdcp/pdcp_lte_test_status_report: /usr/lib/x86_64-linux-gnu/libsctp.so
 lib/test/pdcp/pdcp_lte_test_status_report: lib/src/asn1/libsrsran_asn1.a
 lib/test/pdcp/pdcp_lte_test_status_report: lib/test/pdcp/CMakeFiles/pdcp_lte_test_status_report.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable pdcp_lte_test_status_report"

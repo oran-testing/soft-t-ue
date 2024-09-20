@@ -98,6 +98,7 @@ lib/test/common/tti_point_test: /usr/lib/x86_64-linux-gnu/libfftw3f.so
 lib/test/common/tti_point_test: lib/src/support/libsupport.a
 lib/test/common/tti_point_test: lib/src/srslog/libsrslog.a
 lib/test/common/tti_point_test: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
+lib/test/common/tti_point_test: /usr/lib/x86_64-linux-gnu/libsctp.so
 lib/test/common/tti_point_test: lib/test/common/CMakeFiles/tti_point_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable tti_point_test"
 	cd /home/prab/soft-t-ue/build/lib/test/common && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/tti_point_test.dir/link.txt --verbose=$(VERBOSE)

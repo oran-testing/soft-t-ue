@@ -102,6 +102,7 @@ srsue/src/stack/mac_nr/test/mac_nr_test: /usr/lib/x86_64-linux-gnu/libfftw3f.so
 srsue/src/stack/mac_nr/test/mac_nr_test: lib/src/support/libsupport.a
 srsue/src/stack/mac_nr/test/mac_nr_test: lib/src/srslog/libsrslog.a
 srsue/src/stack/mac_nr/test/mac_nr_test: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
+srsue/src/stack/mac_nr/test/mac_nr_test: /usr/lib/x86_64-linux-gnu/libsctp.so
 srsue/src/stack/mac_nr/test/mac_nr_test: srsue/src/stack/mac_nr/test/CMakeFiles/mac_nr_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable mac_nr_test"
 	cd /home/prab/soft-t-ue/build/srsue/src/stack/mac_nr/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/mac_nr_test.dir/link.txt --verbose=$(VERBOSE)

@@ -500,6 +500,9 @@ srsue/src/stack/rrc_nr/CMakeFiles/srsue_rrc_nr.dir/rrc_nr.cc.o: \
  /home/prab/soft-t-ue/lib/include/srsran/asn1/nas_5g_utils.h \
  /home/prab/soft-t-ue/lib/include/srsran/interfaces/ue_nr_interfaces.h \
  /home/prab/soft-t-ue/lib/include/srsran/common/interfaces_common.h \
+ /home/prab/soft-t-ue/lib/include/srsran/interfaces/ue_pdcp_interfaces.h \
+ /home/prab/soft-t-ue/lib/include/srsran/interfaces/pdcp_interface_types.h \
+ /home/prab/soft-t-ue/lib/include/srsran/interfaces/ue_rlc_interfaces.h \
  /home/prab/soft-t-ue/lib/include/srsran/interfaces/ue_sdap_interfaces.h \
  /home/prab/soft-t-ue/srsue/hdr/stack/upper/gw.h \
  /home/prab/soft-t-ue/srsue/hdr/stack/upper/gw_metrics.h \
@@ -532,9 +535,6 @@ srsue/src/stack/rrc_nr/CMakeFiles/srsue_rrc_nr.dir/rrc_nr.cc.o: \
  /home/prab/soft-t-ue/srsue/hdr/stack/mac_common/mux_base.h \
  /home/prab/soft-t-ue/lib/include/srsran/common/band_helper.h \
  /home/prab/soft-t-ue/lib/include/srsran/common/standard_streams.h \
- /home/prab/soft-t-ue/lib/include/srsran/interfaces/ue_pdcp_interfaces.h \
- /home/prab/soft-t-ue/lib/include/srsran/interfaces/pdcp_interface_types.h \
- /home/prab/soft-t-ue/lib/include/srsran/interfaces/ue_rlc_interfaces.h \
  /home/prab/soft-t-ue/srsue/hdr/stack/rrc_nr/rrc_nr_procedures.h \
  /home/prab/soft-t-ue/srsue/hdr/stack/upper/usim.h \
  /home/prab/soft-t-ue/srsue/hdr/stack/upper/usim_base.h \

@@ -131,6 +131,7 @@ srsenb/test/enb_metrics_test: /usr/lib/x86_64-linux-gnu/libfftw3f.so
 srsenb/test/enb_metrics_test: lib/src/support/libsupport.a
 srsenb/test/enb_metrics_test: lib/src/srslog/libsrslog.a
 srsenb/test/enb_metrics_test: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
+srsenb/test/enb_metrics_test: /usr/lib/x86_64-linux-gnu/libsctp.so
 srsenb/test/enb_metrics_test: srsenb/test/CMakeFiles/enb_metrics_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable enb_metrics_test"
 	cd /home/prab/soft-t-ue/build/srsenb/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/enb_metrics_test.dir/link.txt --verbose=$(VERBOSE)

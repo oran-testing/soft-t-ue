@@ -62,6 +62,11 @@ public:
   // Get the log of RLC PDU size and available remaining space in MAC Buffer
   int get_RLC_PDU_len() ;
   int get_MAC_rem_buffer_space_len();
+  void run_loop(); 
+
+  mutable int RLC_pdu_len;
+  mutable int MAC_buff_rem_space;
+
 
 
 private:
@@ -91,11 +96,13 @@ private:
   // Mutex for exclusive access
   std::mutex mutex;
 
-  mutable int RLC_pdu_len;
-  mutable int MAC_buff_rem_space;
+
+
 
 };
 
 } // namespace srsue
+
+
 
 #endif // SRSUE_MUX_NR_H

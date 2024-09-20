@@ -18,14 +18,15 @@
  * and at http://www.gnu.org/licenses/.
  *
  */
-
+#include <iostream>
 #include "srsue/hdr/stack/mac_nr/mux_nr.h"
 #include "srsran/common/buffer_pool.h"
 #include "srsran/interfaces/ue_rlc_interfaces.h"
+using namespace std;
 
 namespace srsue {
 
-mux_nr::mux_nr(mac_interface_mux_nr& mac_, srslog::basic_logger& logger_) : mac(mac_), logger(logger_) , RLC_pdu_len(0), MAC_buff_rem_space(0){}
+mux_nr::mux_nr(mac_interface_mux_nr& mac_, srslog::basic_logger& logger_) : mac(mac_), logger(logger_) {}
 
 int32_t mux_nr::init(rlc_interface_mac* rlc_)
 {
@@ -82,6 +83,7 @@ srsran::unique_byte_buffer_t mux_nr::pdu_get_nolock(uint32_t max_pdu_len)
   // Pack normal UL data PDU
   int32_t remaining_len = tx_pdu.get_remaing_len(); // local variable to reserve space for CEs
 
+
   if (!msg3_is_pending() && add_bsr_ce == sbsr_ce) {
     // reserve space for SBSR
     remaining_len -= 2;
@@ -101,8 +103,6 @@ srsran::unique_byte_buffer_t mux_nr::pdu_get_nolock(uint32_t max_pdu_len)
 
       // Read PDU from RLC (account for subPDU header)
       int pdu_len = rlc->read_pdu(lc.lcid, rd, remaining_len - subpdu_header_len);
-
-      RLC_pdu_len = pdu_len;
 
       if (pdu_len > remaining_len) {
         logger.error("Can't add SDU of %d B. Available space %d B", pdu_len, remaining_len);
@@ -131,10 +131,26 @@ srsran::unique_byte_buffer_t mux_nr::pdu_get_nolock(uint32_t max_pdu_len)
 
         remaining_len -= (pdu_len + subpdu_header_len);
 
-        MAC_buff_rem_space = remaining_len;
+
         logger.debug("%d B remaining PDU", remaining_len);
       }
     }
+
+/*
+    for (int i = 0 ; i <5; i++)
+    {
+      int32_t subpdu_header_len = (remaining_len >= srsran::mac_sch_subpdu_nr::MAC_SUBHEADER_LEN_THRESHOLD ? 3 : 2);
+      uint8_t* rd = rlc_buff->msg;
+      int pdu_len = rlc->read_pdu(lc.lcid, rd, remaining_len - subpdu_header_len);
+      
+      RLC_pdu_len = pdu_len;
+      cout<<" (MUX) test RLC PDU Len: "<< RLC_pdu_len<<std::endl;
+      //RLC_pdu_len = pdu_len;
+        cout<<" (MUX) test RLC remaining Len: "<<remaining_len<<std::endl;
+    }
+
+*/
+
   }
 
   // check if
@@ -165,19 +181,21 @@ srsran::unique_byte_buffer_t mux_nr::pdu_get_nolock(uint32_t max_pdu_len)
     logger.info("%s", srsran::to_c_str(buff));
     logger.debug(phy_tx_pdu->msg, phy_tx_pdu->N_bytes, "Generated MAC PDU (%d B)", phy_tx_pdu->N_bytes);
   }
+ 
+
 
   return phy_tx_pdu;
 }
 
 int mux_nr::get_RLC_PDU_len()
 {
-  std::lock_guard<std::mutex> lock(mutex);
+  std::lock_guard<std::mutex> lock(mutex); // Ensure thread safety
   return RLC_pdu_len;
 }
 
 int mux_nr::get_MAC_rem_buffer_space_len()
 {
-  std::lock_guard<std::mutex> lock(mutex);
+  std::lock_guard<std::mutex> lock(mutex); // Ensure thread safety
   return MAC_buff_rem_space;
 }
 
@@ -255,4 +273,6 @@ void mux_nr::generate_bsr_mac_ce(const srsran::bsr_format_nr_t& format)
   }
 }
 
+
 } // namespace srsue
+

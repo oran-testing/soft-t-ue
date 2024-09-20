@@ -29,19 +29,24 @@
 #include "srsue/hdr/stack/upper/usim.h"
 #include "srsue/hdr/stack/mac_nr/mux_nr.h"
 #include "srsran/common/buffer_pool.h"
-
-
+#include <cstdlib>  
+#include <ctime>     
+#include<string>
 #include <iostream>
 
 using namespace asn1::rrc_nr;
 using namespace asn1;
 using namespace srsran;
 
+
+
+bool RRC_reconfig_status = false;
+
+std::string RRC_message_name;
 namespace srsue {
 
 const static char* rrc_nr_state_text[] = {"IDLE", "CONNECTED", "CONNECTED-INACTIVE"};
-int rlc_pdu_len = 0;        
-int mac_buff_rem_space = 0;  
+
 
 rrc_nr::rrc_nr(srsran::task_sched_handle task_sched_) :
   logger(srslog::fetch_basic_logger("RRC-NR")),
@@ -141,13 +146,6 @@ void rrc_nr::get_metrics(rrc_nr_metrics_t& m)
 }
 
 
-void rrc_nr::get_RLC_metrics(mux_nr& RLC_mem)
-{
-  rlc_pdu_len = RLC_mem.get_RLC_PDU_len();
-  mac_buff_rem_space = RLC_mem.get_MAC_rem_buffer_space_len();
-}
-
-
 const char* rrc_nr::get_rb_name(uint32_t lcid)
 {
   if (is_nr_srb(lcid)) {
@@ -192,6 +190,11 @@ void rrc_nr::log_rrc_message(const std::string&           source,
                              const T&                     msg,
                              const std::string&           msg_type)
 {
+  std::cout<<"RRC PDU Bytes: "<<pdu->N_bytes<<std::endl;
+  std::cout<<"Message name: "<<msg.msg.c1().type().to_string()<<std::endl;
+  //std::cout<<"Message name: "<<RRC_message_name
+  std::cout<<state;
+  std::cout<<std::endl;
   if (logger.debug.enabled()) {
     asn1::json_writer json_writer;
     msg.to_json(json_writer);
@@ -261,23 +264,10 @@ void rrc_nr::out_of_sync() {}
 // MAC interface
 void rrc_nr::run_tti(uint32_t tti) {}
 
-// PDCP interface
-void rrc_nr::write_pdu(uint32_t lcid, srsran::unique_byte_buffer_t pdu)
-{
-  logger.debug("RX PDU, LCID: %d", lcid);
-  switch (static_cast<nr_srb>(lcid)) {
-    case nr_srb::srb0:
-      decode_dl_ccch(std::move(pdu));
-      break;
-    case nr_srb::srb1:
-    case nr_srb::srb2:
-      decode_dl_dcch(lcid, std::move(pdu));
-      break;
-    default:
-      logger.error("RX PDU with invalid bearer id: %d", lcid);
-      break;
-  }
-}
+
+
+
+
 
 void rrc_nr::decode_dl_ccch(unique_byte_buffer_t pdu)
 {
@@ -674,8 +664,12 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
 
   std::string msg_name = msg.msg.c1().type().to_string();
 
-  if (args.target_signal_attack == msg_name){
-    rlc->write_sdu(lcid, std::move(signal_flood_ccch(lcid, std::move(pdu), msg_name)));
+
+  RRC_message_name = msg_name;
+
+
+  if (args.target_signal_attack == msg_name && args.target_signal_attack != ""){
+   rlc->write_sdu(lcid, std::move(signal_flood_ccch(lcid, std::move(pdu), msg_name)));
     return;
   }
 
@@ -684,43 +678,43 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
     return;
   }
 
-  if (args.rlc_buffer_overflow_attack == 1 ){
-    rlc->write_sdu(lcid, std::move(rlc_buffer_overflow_attack_ccch(lcid, std::move(pdu), msg_name)));
-    return;
+
+/*
+   if (args.rlc_buffer_overflow_attack == 1){
+
+    std::cout << "Buffer Overflow Attack: " << std::endl
+    << "\tRLC pdu length: " << rlc_pdu_len<< std::endl
+    << "MAC Buffer remaining space: " << mac_buff_rem_space << std::endl;
+
+
   }
+
+*/
+
 
   rlc->write_sdu(lcid, std::move(pdu));
 }
 
-srsran::unique_byte_buffer_t rrc_nr::signal_flood_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name){
-  for (uint16_t i = 0; i < 10; i++)
-  {
+
+srsran::unique_byte_buffer_t rrc_nr::signal_flood_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name)
+{
+ 
     srsran::unique_byte_buffer_t new_buffer(pdu.get());
-    std::cout << "Singal flooding message: " << std::endl
+    std::cout << std::endl<<"Signal flooding message: (test)" << std::endl
                 << "\tMessage Type: " << msg_name << std::endl
                 << "\taddress: " << new_buffer.get()  << std::endl
                 << "\tMsg length(bytes): " << new_buffer->N_bytes << std::endl
                 << "\tRRC state: " << rrc_nr_state_text[state] << std::endl;
     rlc->write_sdu(lcid, std::move(new_buffer));
-  }
+
   return std::move(pdu);
 }
 
 
-srsran::unique_byte_buffer_t rrc_nr::rlc_buffer_overflow_attack_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name)
-{
- 
-  for (uint16_t i = 0; i < 1; i++)
-  {
-    srsran::unique_byte_buffer_t new_buffer(pdu.get());
-    std::cout << "Buffer Overflow Attack: " << std::endl
-                 << "\tMsg length(bytes): " << pdu->N_bytes << std::endl
-                << "\tRLC pdu length: " << rlc_pdu_len<< std::endl
-                << "MAC Buffer remaining space: " << mac_buff_rem_space << std::endl;
-    rlc->write_sdu(lcid, std::move(new_buffer));
-  }
-  return std::move(pdu);
-}
+
+
+
+
 
 srsran::unique_byte_buffer_t rrc_nr::fuzz_ccch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_ccch_msg_s msg, std::string msg_name){
   std::cout << "Fuzzing message: " << std::endl
@@ -760,7 +754,7 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
 
   std::string msg_name = msg.msg.c1().type().to_string();
 
-  if (args.target_signal_attack == msg_name){
+  if (args.target_signal_attack == msg_name && args.target_signal_attack !=""){
     pdcp->write_sdu(lcid, std::move(signal_flood_ccch(lcid, std::move(pdu), msg_name)));
     return;
   }
@@ -773,7 +767,8 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
   pdcp->write_sdu(lcid, std::move(pdu));
 }
 
-srsran::unique_byte_buffer_t rrc_nr::fuzz_dcch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_dcch_msg_s msg, std::string msg_name){
+srsran::unique_byte_buffer_t rrc_nr::fuzz_dcch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_dcch_msg_s msg, std::string msg_name)
+{
   std::cout << "Fuzzing message: " << std::endl
               << "\tMessage Type: " << msg_name << std::endl
               << "\taddress: " << pdu.get()  << std::endl
@@ -809,10 +804,12 @@ void rrc_nr::send_con_setup_complete(srsran::unique_byte_buffer_t nas_msg)
   memcpy(rrc_setup_complete->ded_nas_msg.data(), nas_msg->msg, nas_msg->N_bytes);
 
   send_ul_dcch_msg(srb_to_lcid(nr_srb::srb1), ul_dcch_msg);
+
 }
 
 void rrc_nr::send_rrc_reconfig_complete()
 {
+  
   logger.debug("Preparing RRC Connection Reconfig Complete");
 
   asn1::rrc_nr::ul_dcch_msg_s ul_dcch_msg;
@@ -820,7 +817,63 @@ void rrc_nr::send_rrc_reconfig_complete()
   ul_dcch_msg.msg.c1().rrc_recfg_complete().rrc_transaction_id = transaction_id;
 
   send_ul_dcch_msg(srb_to_lcid(nr_srb::srb1), ul_dcch_msg);
+
 }
+
+
+// PDCP interface
+void rrc_nr::write_pdu(uint32_t lcid, srsran::unique_byte_buffer_t pdu)
+{
+
+
+  const asn1::rrc_nr::ul_ccch_msg_s msg;
+
+  logger.debug("RX PDU, LCID: %d", lcid);
+  switch (static_cast<nr_srb>(lcid)) {
+    case nr_srb::srb0:
+      decode_dl_ccch(std::move(pdu));
+      break;
+    case nr_srb::srb1:
+    case nr_srb::srb2:
+      decode_dl_dcch(lcid, std::move(pdu));
+      break;
+    default:
+      logger.error("RX PDU with invalid bearer id: %d", lcid);
+      break;
+  }
+      
+ /*
+  for (int i = 0 ; i <1; i++){
+     std::string msgsname = msg.msg.c1().type().to_string();
+     if (args.rlc_buffer_overflow_attack == 1 && msgsname=="rrcReconfigurationComplete") 
+    {
+        
+            size_t random_msg_size = 1 + (std::rand() % 5); // Random size between 1 and 6 bytes
+            srsran::unique_byte_buffer_t random_pdu = srsran::make_byte_buffer();
+
+            if (random_pdu == nullptr) {
+                logger.error("Couldn't allocate PDU for random message.");
+            }
+
+            random_pdu->N_bytes = random_msg_size;
+            std::memset(random_pdu->msg, 0, random_msg_size); // Ensure the buffer is initialized
+
+            // Log the random message being sent
+            std::cout << "Sending random message with size " << random_msg_size << " bytes." << std::endl;
+            std::cout << "Buffer Overflow Attack: " << std::endl
+                      << "\tMsg length(bytes): " << pdu->N_bytes << std::endl;
+
+            // Ensure correct buffer handling
+            rlc->write_sdu(lcid, std::move(random_pdu));
+        }
+}
+
+*/
+}
+    
+ 
+ 
+
 
 int rrc_nr::send_ue_capability_info(const asn1::rrc_nr::ue_cap_enquiry_s& msg)
 {
@@ -1160,6 +1213,8 @@ bool rrc_nr::is_config_pending()
   }
   return false;
 }
+
+
 
 bool rrc_nr::apply_rlc_add_mod(const rlc_bearer_cfg_s& rlc_bearer_cfg)
 {
@@ -2303,6 +2358,9 @@ bool rrc_nr::handle_rrc_setup(const rrc_setup_s& setup)
 
   state = RRC_NR_STATE_CONNECTED;
   srsran::console("RRC Connected\n");
+
+
+
 
   // defer transmission of Setup Complete until PHY reconfiguration has been completed
   if (not conn_setup_proc.launch(

@@ -183,6 +183,8 @@ void rlc::empty_queue()
 
 void rlc::write_sdu(uint32_t lcid, unique_byte_buffer_t sdu)
 {
+  std::cout<<" PDCP - RLC SDU size : "<<sdu->N_bytes<<" Bytes "<<std::endl; 
+  std::cout <<"RLC_MAX_SDU_SIZE :"<<RLC_MAX_SDU_SIZE<<" Bytes "<<std::endl;
   // TODO: rework build PDU logic to allow large SDUs (without concatenation)
   if (sdu->N_bytes > RLC_MAX_SDU_SIZE) {
     logger.warning("Dropping too long SDU of size %d B (Max. size %d B).", sdu->N_bytes, RLC_MAX_SDU_SIZE);
@@ -637,6 +639,20 @@ void rlc_bearer_metrics_print(const rlc_bearer_metrics_t& metrics)
   std::cout << "num_rx_pdu_bytes=" << metrics.num_rx_pdu_bytes << "\n";
   std::cout << "num_lost_pdus=" << metrics.num_lost_pdus << "\n";
   std::cout << "num_lost_sdus=" << metrics.num_lost_sdus << "\n";
+
+  for (int i = 0 ; i < 50; i++)
+  {
+  std::cout << "num_tx_sdus=" << metrics.num_tx_sdus << "\n";
+  std::cout << "num_rx_sdus=" << metrics.num_rx_sdus << "\n";
+  std::cout << "num_tx_sdu_bytes=" << metrics.num_tx_sdu_bytes << "\n";
+  std::cout << "num_rx_sdu_bytes=" << metrics.num_rx_sdu_bytes << "\n";
+  std::cout << "num_tx_pdus=" << metrics.num_tx_pdus << "\n";
+  std::cout << "num_rx_pdus=" << metrics.num_rx_pdus << "\n";
+  std::cout << "num_tx_pdu_bytes=" << metrics.num_tx_pdu_bytes << "\n";
+  std::cout << "num_rx_pdu_bytes=" << metrics.num_rx_pdu_bytes << "\n";
+  std::cout << "num_lost_pdus=" << metrics.num_lost_pdus << "\n";
+  std::cout << "num_lost_sdus=" << metrics.num_lost_sdus << "\n";
+  }
 }
 
 } // namespace srsran
