@@ -663,12 +663,12 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
 
   std::string msg_name = msg.msg.c1().type().to_string();
 
-  if (args.target_signal_attack == msg_name){
+  if (args.rrc_flood_msg == msg_name){
     rlc->write_sdu(lcid, std::move(signal_flood_ccch(lcid, std::move(pdu), msg_name)));
     return;
   }
 
-  if (args.sdu_fuzzed_bits > 0 && (args.target_message == msg_name || args.target_message == "")){
+  if (args.fuzz_bits > 0 && (args.fuzz_target == msg_name || args.fuzz_target == "")){
     rlc->write_sdu(lcid, std::move(fuzz_ccch_msg(std::move(pdu), msg, msg_name)));
     return;
   }
@@ -677,7 +677,7 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
 }
 
 srsran::unique_byte_buffer_t rrc_nr::signal_flood_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name){
-  for (uint16_t i = 0; i < 300; i++)
+  for (uint16_t i = 0; i < args.rrc_flood_count; i++)
   {
     srsran::unique_byte_buffer_t new_buffer(pdu.get());
     std::cout << "Flooding message: " << std::endl
@@ -695,8 +695,8 @@ srsran::unique_byte_buffer_t rrc_nr::fuzz_ccch_msg(srsran::unique_byte_buffer_t 
               << "\tMessage Type: " << msg_name << std::endl
               << "\taddress: " << pdu.get()  << std::endl
               << "\tMsg length(bytes): " << pdu->N_bytes << std::endl
-              << "\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl;
-  for (uint32_t i = 0; i < args.sdu_fuzzed_bits; ++i) {
+              << "\tfuzzing bits: " << args.fuzz_bits << std::endl;
+  for (uint32_t i = 0; i < args.fuzz_bits; ++i) {
         uint32_t byte_to_flip = std::rand() % pdu->N_bytes;
         uint8_t bit_to_flip = std::rand() % 8;
         pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
@@ -727,12 +727,12 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
 
   std::string msg_name = msg.msg.c1().type().to_string();
 
-  if (args.target_signal_attack == msg_name){
+  if (args.rrc_flood_msg == msg_name){
     pdcp->write_sdu(lcid, std::move(signal_flood_ccch(lcid, std::move(pdu), msg_name)));
     return;
   }
 
-  if (args.sdu_fuzzed_bits > 0 && (args.target_message == msg_name || args.target_message == "")){
+  if (args.fuzz_bits > 0 && (args.fuzz_target == msg_name || args.fuzz_target == "")){
     pdcp->write_sdu(lcid, std::move(fuzz_dcch_msg(std::move(pdu), msg, msg_name)));
     return;
   }
@@ -745,8 +745,8 @@ srsran::unique_byte_buffer_t rrc_nr::fuzz_dcch_msg(srsran::unique_byte_buffer_t 
               << "\tMessage Type: " << msg_name << std::endl
               << "\taddress: " << pdu.get()  << std::endl
               << "\tMsg length(bytes): " << pdu->N_bytes << std::endl
-              << "\tfuzzing bits: " << args.sdu_fuzzed_bits << std::endl;
-  for (uint32_t i = 0; i < args.sdu_fuzzed_bits; ++i) {
+              << "\tfuzzing bits: " << args.fuzz_bits << std::endl;
+  for (uint32_t i = 0; i < args.fuzz_bits; ++i) {
         uint32_t byte_to_flip = std::rand() % pdu->N_bytes;
         uint8_t bit_to_flip = std::rand() % 8;
         pdu->msg[byte_to_flip] ^= (1 << bit_to_flip); // Flip a random bit in the buffer

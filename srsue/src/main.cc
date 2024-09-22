@@ -152,10 +152,6 @@ static int parse_args(all_args_t* args, int argc, char* argv[])
     ("rrc.mbms_service_port",   bpo::value<uint32_t>(&args->stack.rrc.mbms_service_port)->default_value(4321),                    "Port of the MBMS service")
     ("rrc.nr_measurement_pci",  bpo::value<uint32_t>(&args->stack.rrc_nr.sim_nr_meas_pci)->default_value(500),                    "NR PCI for the simulated NR measurement")
     ("rrc.nr_short_sn_support", bpo::value<bool>(&args->stack.rrc_nr.pdcp_short_sn_support)->default_value(true),                 "Announce PDCP short SN support")
-    ("rrc.sdu_fuzzed_bits",     bpo::value<uint32_t>(&args->stack.rrc_nr.sdu_fuzzed_bits)->default_value(0),                      "Number of bits to fuzz in the SDU buffer (0 disables fuzzing)")
-    ("rrc.fuzz_target_message", bpo::value<string>(&args->stack.rrc_nr.target_message)->default_value(""),                        "The Message to be fuzzed in the RRC")
-    ("phy.rach_flood_count",    bpo::value<uint32_t>(&args->stack.rrc_nr.rach_flood_count)->default_value(0),                     "Enable RACH Flooding attack, how many messages to send")
-    ("rrc.target_signal_attack",     bpo::value<string>(&args->stack.rrc_nr.target_signal_attack)->default_value(""),              "The Singalling storm type to be injected")
 
     ("nas.apn",               bpo::value<string>(&args->stack.nas.apn_name)->default_value(""),          "Set Access Point Name (APN) for data services")
     ("nas.apn_protocol",      bpo::value<string>(&args->stack.nas.apn_protocol)->default_value(""),  "Set Access Point Name (APN) protocol for data services")
@@ -502,7 +498,14 @@ static int parse_args(all_args_t* args, int argc, char* argv[])
 
     ("stack.have_tti_time_stats",
         bpo::value<bool>(&args->stack.have_tti_time_stats)->default_value(true),
-        "Calculate TTI execution statistics");
+        "Calculate TTI execution statistics")
+
+    // ATTACKS: arguments for added attacks
+    ("fuzz.rrc_random",     bpo::value<uint32_t>(&args->stack.rrc_nr.fuzz_bits)->default_value(0), "Number of bits to fuzz in the SDU buffer (0 disables fuzzing)")
+    ("fuzz.rrc_target",     bpo::value<string>(&args->stack.rrc_nr.fuzz_target)->default_value(""), "The Message to be fuzzed in the RRC")
+    ("flood.rach_count",    bpo::value<uint32_t>(&args->stack.rrc_nr.rach_flood_count)->default_value(0), "Enable RACH Flooding attack, how many messages to send")
+    ("flood.rrc_count",     bpo::value<uint32_t>(&args->stack.rrc_nr.rrc_flood_count)->default_value(0), "The Singalling storm type to be injected")
+    ("flood.rrc_message",   bpo::value<string>(&args->stack.rrc_nr.rrc_flood_msg)->default_value(""), "The Singalling storm type to be injected");
 
 
   // Positional options - config file location

@@ -40,10 +40,11 @@ struct rrc_nr_args_t {
   srsran_subcarrier_spacing_t ssb_scs;
   std::string                 log_level;
   uint32_t                    log_hex_limit;
-  uint32_t                    sdu_fuzzed_bits;
-  std::string                 target_message;
+  uint32_t                    fuzz_bits;
+  std::string                 fuzz_target;
   uint32_t                    rach_flood_count;
-  std::string                 target_signal_attack;
+  std::string                 rrc_flood_msg;
+  uint32_t                    rrc_flood_count;
 };
 
 } // namespace srsue
