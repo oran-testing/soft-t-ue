@@ -183,6 +183,7 @@ rrc_nr::setup_request_proc::setup_request_proc(rrc_nr& parent_) :
   rrc_handle(parent_), logger(srslog::fetch_basic_logger("RRC-NR"))
 {}
 
+// NOTE: This is where we change the data in RRC setup request
 proc_outcome_t rrc_nr::setup_request_proc::init(srsran::nr_establishment_cause_t cause_,
                                                 srsran::unique_byte_buffer_t     dedicated_info_nas_)
 {

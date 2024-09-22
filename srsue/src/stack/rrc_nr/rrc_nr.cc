@@ -617,13 +617,14 @@ void rrc_nr::send_setup_request(srsran::nr_establishment_cause_t cause)
   ul_ccch_msg_s            ul_ccch_msg;
   rrc_setup_request_ies_s* rrc_setup_req = &ul_ccch_msg.msg.set_c1().set_rrc_setup_request().rrc_setup_request;
 
-  // TODO: implement ng_minus5_g_s_tmsi_part1
+  // TODO: fuzz random UE ID (rrcSetupRequest)
   rrc_setup_req->ue_id.set_random_value();
   uint64_t random_id = srsran_random_uniform_int_dist(random_gen, 0, 12345);
   for (uint i = 0; i < 5; i++) { // fill random ID bytewise, 40 bits = 5 bytes
     random_id |= ((uint64_t)rand() & 0xFF) << i * 8;
   }
   rrc_setup_req->ue_id.random_value().from_number(random_id, rrc_setup_req->ue_id.random_value().length());
+  // TODO: fuzz extablishment cause (rrcSetupRequest)
   rrc_setup_req->establishment_cause = (establishment_cause_opts::options)cause;
 
   send_ul_ccch_msg(ul_ccch_msg);
@@ -756,6 +757,20 @@ srsran::unique_byte_buffer_t rrc_nr::fuzz_dcch_msg(srsran::unique_byte_buffer_t 
 void rrc_nr::send_con_setup_complete(srsran::unique_byte_buffer_t nas_msg)
 {
   logger.debug("Preparing RRC Connection Setup Complete");
+  // TODO:  fuzz the following
+  // bool                        registered_amf_present           = false;
+  // bool                        guami_type_present               = false;
+  // bool                        ng_minus5_g_s_tmsi_value_present = false;
+  // bool                        non_crit_ext_present             = false;
+  // uint8_t                     sel_plmn_id                      = 1;
+  // registered_amf_s            registered_amf;
+  // guami_type_e_               guami_type;
+  // s_nssai_list_l_             s_nssai_list;
+  // dyn_octstring               ded_nas_msg;
+  // ng_minus5_g_s_tmsi_value_c_ ng_minus5_g_s_tmsi_value;
+  // dyn_octstring               late_non_crit_ext;
+
+
 
   // Prepare ConnectionSetupComplete packet
   asn1::rrc_nr::ul_dcch_msg_s ul_dcch_msg;
