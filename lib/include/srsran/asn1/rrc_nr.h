@@ -6588,6 +6588,7 @@ struct meas_cfg_s {
 
 // RRCReconfiguration-v1530-IEs ::= SEQUENCE
 struct rrc_recfg_v1530_ies_s {
+  // TODO: fuzz this value by making it too long
   using ded_nas_msg_list_l_ = bounded_array<dyn_octstring, 29>;
 
   // member variables

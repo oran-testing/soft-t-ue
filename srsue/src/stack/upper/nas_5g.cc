@@ -266,13 +266,17 @@ int nas_5g::send_registration_request()
       registration_type_5gs_t::follow_on_request_bit_type_::options::follow_on_request_pending;
   reg_req.registration_type_5gs.registration_type =
       registration_type_5gs_t::registration_type_type_::options::initial_registration;
+  // NOTE: SUCI to modify
   mobile_identity_5gs_t::suci_s& suci = reg_req.mobile_identity_5gs.set_suci();
   suci.supi_format                    = mobile_identity_5gs_t::suci_s::supi_format_type_::options::imsi;
+  // TODO: fuzz mcc and mnc
   usim->get_home_mcc_bytes(suci.mcc.data(), suci.mcc.size());
   usim->get_home_mnc_bytes(suci.mnc.data(), suci.mnc.size());
 
   suci.scheme_output.resize(5);
+  // TODO: fuzz msin bcd
   usim->get_home_msin_bcd(suci.scheme_output.data(), 5);
+  // TODO: fuzz IMSI
   logger.info("Requesting IMSI attach (IMSI=%s)", usim->get_imsi_str().c_str());
 
   reg_req.ue_security_capability_present = true;
@@ -284,6 +288,8 @@ int nas_5g::send_registration_request()
     set_nssai(nssai);
     reg_req.requested_nssai.s_nssai_list.push_back(nssai);
   }
+  // TODO: fuzz, here is the PDU for rrcConnectionRequest
+  // NOTE: initial_registration_request_stored has all modifiable data
   if (initial_registration_request_stored.pack(pdu) != SRSASN_SUCCESS) {
     logger.error("Failed to pack registration request");
     return SRSRAN_ERROR;
@@ -302,6 +308,8 @@ int nas_5g::send_registration_request()
     rrc_nr->write_sdu(std::move(pdu));
   } else {
     logger.debug("Initiating RRC NR Connection");
+    // NOTE: Setup Request procedure (rrcSetupRequest)
+    // TODO: fuzz establishment cause
     if (rrc_nr->connection_request(nr_establishment_cause_t::mo_Signalling, std::move(pdu)) != SRSRAN_SUCCESS) {
       logger.warning("Error starting RRC NR connection");
       return SRSRAN_ERROR;
