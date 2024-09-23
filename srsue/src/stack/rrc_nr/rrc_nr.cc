@@ -696,6 +696,11 @@ srsran::unique_byte_buffer_t rrc_nr::fuzz_ccch_msg(srsran::unique_byte_buffer_t 
               << "\taddress: " << pdu.get()  << std::endl
               << "\tMsg length(bytes): " << pdu->N_bytes << std::endl
               << "\tfuzzing bits: " << args.fuzz_bits << std::endl;
+  if(args.fuzz_bits_index != -1){
+        uint8_t bit_to_flip = std::rand() % 8;
+        pdu->msg[args.fuzz_bits_index] ^= (1 << bit_to_flip); // Flip a random bit in the buffer
+        return std::move(pdu);
+  }
   for (uint32_t i = 0; i < args.fuzz_bits; ++i) {
         uint32_t byte_to_flip = std::rand() % pdu->N_bytes;
         uint8_t bit_to_flip = std::rand() % 8;

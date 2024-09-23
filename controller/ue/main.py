@@ -26,7 +26,7 @@ def parse():
     parser.add_argument(
         "--config",
         type=pathlib.Path,
-        default=script_dir.parent.parent / "configs" / "basic_ue_zmq.yaml",
+        default=script_dir.parent.parent / "configs" / "multi_ue_zmq.yaml",
         help="Path of the controller config file")
     parser.add_argument(
         "--gnb_config",
@@ -61,6 +61,13 @@ def main():
                       "action": "start",
                       "config": str(args.gnb_config)}
                      )
+        if "gnu_radio" in options.get('gnb', {}).keys():
+            print("HERE" * 1000)
+            send_command(args.ip, args.port, 
+                         {"target": "gnu_radio",
+                          "action": "start",
+                          "file": options.get('gnb')["gnu_radio"],
+                         })
     SharedState.ue_index = 1
 
     for namespace in options.get("namespaces", []):

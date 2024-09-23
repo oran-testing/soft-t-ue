@@ -1,5 +1,6 @@
 gnb:
   config: "../../configs/zmq/multi/gnb_zmq.yaml"
+  gnu_radio: "../../configs/zmq/multi/multi_ue_scenario.py"
 
 namespaces:
   - name: "ue1"

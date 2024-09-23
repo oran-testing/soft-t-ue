@@ -41,6 +41,7 @@ struct rrc_nr_args_t {
   std::string                 log_level;
   uint32_t                    log_hex_limit;
   uint32_t                    fuzz_bits;
+  int                         fuzz_bits_index;
   std::string                 fuzz_target;
   uint32_t                    rach_flood_count;
   std::string                 rrc_flood_msg;

@@ -503,6 +503,7 @@ static int parse_args(all_args_t* args, int argc, char* argv[])
 
     // ATTACKS: arguments for added attacks
     ("fuzz.rrc_random",     bpo::value<uint32_t>(&args->stack.rrc_nr.fuzz_bits)->default_value(0), "Number of bits to fuzz in the SDU buffer (0 disables fuzzing)")
+    ("fuzz.rrc_random_index",     bpo::value<int>(&args->stack.rrc_nr.fuzz_bits_index)->default_value(-1), "Index of the bit to flip")
     ("fuzz.rrc_target",     bpo::value<string>(&args->stack.rrc_nr.fuzz_target)->default_value(""), "The Message to be fuzzed in the RRC")
     ("fuzz.setup_request.mcc",   bpo::value<string>(&args->stack.nas_5g.fuzz_mcc)->default_value(""),  "MCC to pass to the rrcSetupRequest")
     ("fuzz.setup_request.mnc",   bpo::value<string>(&args->stack.nas_5g.fuzz_mnc)->default_value(""),  "MNC to pass to the rrcSetupRequest")

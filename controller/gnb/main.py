@@ -16,6 +16,7 @@ sys.path.insert(0, parent_dir)
 from CoreNetwork import CoreNetwork
 from Gnb import Gnb
 from MetricsServer import MetricsServer
+from GnuRadio import GnuRadio
 
 from common.Iperf import Iperf
 
@@ -26,6 +27,7 @@ class gnb_controller:
         self.core_handle = CoreNetwork()
         self.gnb_handle = Gnb()
         self.metrics_handle = MetricsServer()
+        self.gnu_radio_handle = GnuRadio()
 
     def start_core(self, rebuild):
         if self.core_handle.isRunning:
@@ -54,6 +56,14 @@ class gnb_controller:
 
     def stop_gnb(self):
         self.gnb_handle.stop()
+
+    def start_gnu(self, filename):
+        if self.gnu_radio_handle.isRunning:
+            self.core_handle.stop()
+        self.gnu_radio_handle.start(filename)
+
+    def stop_gnu(self):
+        self.gnu_radio_handle.stop()
 
 
     def listen_for_command(self, server_socket, add_callback):
@@ -85,6 +95,11 @@ class gnb_controller:
                     self.start_metrics(True)
                 elif command["action"] == "stop":
                     self.stop_metrics()
+            elif command["target"] == "gnu_radio":
+                if command["action"] == "start":
+                    self.start_gnu(command["filename"])
+                elif command["action"] == "stop":
+                    self.stop_gnb()
 
 
 
