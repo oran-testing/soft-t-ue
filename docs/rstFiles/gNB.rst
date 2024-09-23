@@ -5,8 +5,8 @@ Overview
 --------
 
 Our gNB controller software manages four main processes: 
-- Open5GS Core
-Network 
+
+- Open5GS Core Network 
 - srsRAN generational Node B 
 - Python Metrics Server 
 - InfluxDB
@@ -46,5 +46,10 @@ Message structure
 
 Each message passed from UE to gNB controllers is as follows:
 
-{ “target”: service to target (str) “action”: action to perform (start
-\| stop) “port”: OPTIONAL port to use (int) }
+.. code:: bash
+
+   {
+   “target”: “service_name”,
+   “action”: “start|stop”,
+   “port”: optional_port_number
+   }

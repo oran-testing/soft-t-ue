@@ -46,32 +46,38 @@ To run the controller:
    cd controller/ue
    python3 main.py
 
-Controller arguments: ```python3 main.py -h –config /path/to/config
-–gnb_config /path/to/gnb_config –ip IP –port PORT```
+Controller arguments: ``python3 main.py -h –config /path/to/config –gnb_config /path/to/gnb_config –ip IP –port PORT``
 
 Run an srsRAN gNB and Open5GS, then send metrics to the ue_controller
 
-options: -h, –help –config default:../../configs/basic_ue_zmq.yaml Path
-of the controller config file –gnb_config
-default:../../configs/zmq/gnb_zmq.conf Path of the controller config
-file –ip default:127.0.0.1 IP used to communicate the gNB controller
-–port default:5000 Port used to communicate with the gNB controller
+.. code:: bash
+
+	options:
+		-h, --help
+		--config PATH (default: ../../configs/basic_ue_zmq.yaml)
+		--gnb_config PATH (default: ../../configs/zmq/gnb_zmq.conf)
+		--ip IP (default: 127.0.0.1)	#IP used to communicate with gNB controller
+		--port PORT (default: 5000)	#Port used to communicate with gNB controller
+
 
 Configuring the UE
 -------------------
 
 The UE controller reads a yaml config file with the following options:
-gnb: config -> gNB config file (str)
 
-namespaces: 
-- name -> namespace to be created (str)
+.. code:: bash
+	
+	#YAML config structure
+	gnb:
+		- config: str
+	namespaces:
+		- name: str
+	processes:
+		- type: clean | tester | jammer | ...
+		- config_file: str
+		- args: str (optional)
 
-processes: 
-- type -> type of process to run (clean \| tester \| jammer
-\| …) config_file -> config file for process (str) args -> OPTIONAL:
-arguments to pass to the process (str)
-
-Example configuration files:
+**Example configuration files**:
 
 - `basic_ue_zmq.yaml <https://raw.githubusercontent.com/oran-testing/soft-t-ue/ue_redesign/configs/basic_ue_zmq.yaml>`__
 - `multi_ue_zmq.yaml <https://raw.githubusercontent.com/oran-testing/soft-t-ue/ue_redesign/configs/multi_ue_zmq.yaml>`__
