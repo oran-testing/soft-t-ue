@@ -98,7 +98,6 @@ lib/examples/pdsch_enodeb: lib/src/phy/rf/libsrsran_rf.so.23.04.0
 lib/examples/pdsch_enodeb: lib/src/support/libsupport.a
 lib/examples/pdsch_enodeb: lib/src/srslog/libsrslog.a
 lib/examples/pdsch_enodeb: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
-lib/examples/pdsch_enodeb: /usr/lib/x86_64-linux-gnu/libsctp.so
 lib/examples/pdsch_enodeb: lib/src/phy/rf/libsrsran_rf_utils.a
 lib/examples/pdsch_enodeb: lib/src/phy/libsrsran_phy.a
 lib/examples/pdsch_enodeb: /usr/lib/x86_64-linux-gnu/libfftw3f.so

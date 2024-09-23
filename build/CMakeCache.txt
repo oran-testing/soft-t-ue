@@ -657,7 +657,7 @@ srsgnb_rrc_LIB_DEPENDS:STATIC=general;srsgnb_rrc_config_utils;
 srsgnb_rrc_config_utils_LIB_DEPENDS:STATIC=general;srsran_phy;
 
 //Dependencies for the target
-srsran_common_LIB_DEPENDS:STATIC=general;srsran_phy;general;support;general;srslog;general;/usr/lib/x86_64-linux-gnu/libmbedcrypto.so;general;/usr/lib/x86_64-linux-gnu/libsctp.so;
+srsran_common_LIB_DEPENDS:STATIC=general;srsran_phy;general;support;general;srslog;general;/usr/lib/x86_64-linux-gnu/libmbedcrypto.so;
 
 //Dependencies for the target
 srsran_gtpu_LIB_DEPENDS:STATIC=general;srsran_common;general;srsran_asn1;

@@ -21,8 +21,15 @@
 
 #include "srsran/upper/pdcp.h"
 #include "srsran/upper/pdcp_entity_nr.h"
+#include <chrono>
+
+
+
 
 namespace srsran {
+
+int PDCP_transmit_count = 0;
+
 
 pdcp::pdcp(srsran::task_sched_handle task_sched_, const char* logname) :
   task_sched(task_sched_), logger(srslog::fetch_basic_logger(logname))
@@ -287,54 +294,197 @@ std::map<uint32_t, srsran::unique_byte_buffer_t> pdcp::get_buffered_pdus(uint32_
 *******************************************************************************/
 void pdcp::write_pdu(uint32_t lcid, unique_byte_buffer_t pdu)
 {
+
+    std::cout <<"PDCP_transmit_count"<<PDCP_transmit_count<<std::endl;
+
+    // Check if the unique pointer is valid
+    const uint8_t* buffer_data = pdu->data(); 
+    size_t buffer_size = pdu->size();
+    // Create a new buffer of type srsran::byte_buffer_t and double the size
+ unique_byte_buffer_t new_pdu;
+  bool time_elapsed = false; 
+      if (PDCP_transmit_count > 6) 
+      {
+          new_pdu = std::make_unique<srsran::byte_buffer_t>(buffer_size * 2);
+          std::cout<<"New PDU buffer size: "<<buffer_size * 2<<std::endl;
+          std::copy(buffer_data, buffer_data + buffer_size, new_pdu->data());
+          if (valid_lcid(lcid)) 
+            {
+          //pdcp_array.at(lcid)->write_pdu(std::move(pdu));
+          pdcp_array.at(lcid)->write_pdu(std::move(new_pdu));
+            } 
+          else
+            {
+              logger.warning("Dropping PDU, lcid=%d doesnt exists", lcid);
+            }
+        }
+      else 
+      {
+        new_pdu = std::make_unique<srsran::byte_buffer_t>(buffer_size * 1);
+         std::cout<<"Original PDU buffer size: "<<buffer_size * 1<<std::endl;
+        std::copy(buffer_data, buffer_data + buffer_size, new_pdu->data());
+          if (valid_lcid(lcid)) 
+          {
+            //pdcp_array.at(lcid)->write_pdu(std::move(pdu));
+            pdcp_array.at(lcid)->write_pdu(std::move(new_pdu));
+          } 
+          else {
+                logger.warning("Dropping PDU, lcid=%d doesnt exists", lcid);
+               }
+    }
+    PDCP_transmit_count += 1;
+ }
+
+    
+
+    // Copy the original data to the new buffer
+    
+
+    // Append the original data again (to double the buffer size)
+    //std::copy(buffer_data, buffer_data + buffer_size, new_pdu->data() + buffer_size);
+
+  /*
+    const uint8_t* buffer_data = pdu->data(); 
+    size_t buffer_size = pdu->size();
+
+    // Print the contents of the buffer
+    std::cout << "RRC- PDCP PDU buffer contents: ";
+    for (size_t i = 0; i < buffer_size; ++i) {
+      
+      std::cout << std::hex << static_cast<int>(buffer_data[i]) << " ";
+    }
+    std::cout << std::endl;
+
   if (valid_lcid(lcid)) {
-    pdcp_array.at(lcid)->write_pdu(std::move(pdu));
+    //pdcp_array.at(lcid)->write_pdu(std::move(pdu));
+    pdcp_array.at(lcid)->write_pdu(std::move(new_pdu));
   } else {
     logger.warning("Dropping PDU, lcid=%d doesnt exists", lcid);
   }
 }
-
+*/
 void pdcp::write_pdu_bcch_bch(unique_byte_buffer_t sdu)
 {
+
+
+    // Check if the unique pointer is valid
+    const uint8_t* buffer_data = sdu->data(); 
+    size_t buffer_size = sdu->size();
+
+    // Create a new buffer of type srsran::byte_buffer_t and double the size
+    unique_byte_buffer_t new_sdu = std::make_unique<srsran::byte_buffer_t>(buffer_size * 2);
+
+    // Copy the original data to the new buffer
+    std::copy(buffer_data, buffer_data + buffer_size, new_sdu->data());
+
+    // Append the original data again (to double the buffer size)
+    std::copy(buffer_data, buffer_data + buffer_size, new_sdu->data() + buffer_size);
+ 
   rrc->write_pdu_bcch_bch(std::move(sdu));
+  //rrc->write_pdu_bcch_bch(std::move(new_sdu));
 }
 
 void pdcp::write_pdu_bcch_dlsch(unique_byte_buffer_t sdu)
 {
+  /*
+   Old code 
   //Write the sdu to this function 
 
     // Check if the unique pointer is valid
-  if (sdu) {
     const uint8_t* buffer_data = sdu->data(); 
     size_t buffer_size = sdu->size();
 
     // Print the contents of the buffer
-    std::cout << "RRC - PDCP SDU buffer contents: ";
+    std::cout << "RRC- PDCP SDU buffer contents: ";
     for (size_t i = 0; i < buffer_size; ++i) {
+      
       std::cout << std::hex << static_cast<int>(buffer_data[i]) << " ";
     }
     std::cout << std::endl;
-  } else {
-    std::cout << "SDU is empty or moved." << std::endl;
-  }
+  
 
   
 
   rrc->write_pdu_bcch_dlsch(std::move(sdu));
+  */
+    const uint8_t* buffer_data = sdu->data(); 
+    size_t buffer_size = sdu->size();
+
+    // Print the contents of the buffer
+    std::cout << "RRC- PDCP SDU buffer contents: ";
+    for (size_t i = 0; i < buffer_size; ++i) {
+      
+      std::cout << std::hex << static_cast<int>(buffer_data[i]) << " ";
+    }
+    std::cout << std::endl;
   
+
+    // Check if the unique pointer is valid
+    const uint8_t* buffer_data1 = sdu->data(); 
+    size_t buffer_size1 = sdu->size();
+
+    // Create a new buffer of type srsran::byte_buffer_t and double the size
+    unique_byte_buffer_t new_sdu = std::make_unique<srsran::byte_buffer_t>(buffer_size1 * 5);
+
+    // Copy the original data to the new buffer
+    std::copy(buffer_data1, buffer_data1 + buffer_size1, new_sdu->data());
+
+    // Append the original data again (to double the buffer size)
+    std::copy(buffer_data1, buffer_data1 + buffer_size1, new_sdu->data() + buffer_size1);
+    std::cout << std::endl;
+
+    // Pass the new SDU to the next function
+    //rrc->write_pdu_bcch_dlsch(std::move(new_sdu));
+    rrc->write_pdu_bcch_dlsch(std::move(sdu));
+
 }
 
 void pdcp::write_pdu_pcch(unique_byte_buffer_t sdu)
+    
 {
-  rrc->write_pdu_pcch(std::move(sdu));
+
+  // new code 
+
+    const uint8_t* buffer_data = sdu->data(); 
+    size_t buffer_size = sdu->size();
+
+    // Create a new buffer of type srsran::byte_buffer_t and double the size
+    unique_byte_buffer_t new_sdu = std::make_unique<srsran::byte_buffer_t>(buffer_size * 2);
+
+    // Copy the original data to the new buffer
+    std::copy(buffer_data, buffer_data + buffer_size, new_sdu->data());
+
+    // Append the original data again (to double the buffer size)
+    std::copy(buffer_data, buffer_data + buffer_size, new_sdu->data() + buffer_size);
+
+    std::cout << std::endl;
+   rrc->write_pdu_pcch(std::move(sdu));
+  //rrc->write_pdu_pcch(std::move(new_sdu));
 }
 
 void pdcp::write_pdu_mch(uint32_t lcid, unique_byte_buffer_t sdu)
 {
+
+  // new code 
+
+    const uint8_t* buffer_data = sdu->data(); 
+    size_t buffer_size = sdu->size();
+
+    // Create a new buffer of type srsran::byte_buffer_t and double the size
+    unique_byte_buffer_t new_sdu = std::make_unique<srsran::byte_buffer_t>(buffer_size * 2);
+
+    // Copy the original data to the new buffer
+    std::copy(buffer_data, buffer_data + buffer_size, new_sdu->data());
+
+    // Append the original data again (to double the buffer size)
+    std::copy(buffer_data, buffer_data + buffer_size, new_sdu->data() + buffer_size);
+    
   if (0 == lcid) {
     rrc->write_pdu_mch(lcid, std::move(sdu));
+   //rrc->write_pdu_mch(lcid, std::move(new_sdu));
   } else {
-    gw->write_pdu_mch(lcid, std::move(sdu));
+   gw->write_pdu_mch(lcid, std::move(sdu));
+   //gw->write_pdu_mch(lcid, std::move(new_sdu));
   }
 }
 

@@ -99,7 +99,6 @@ srsue/src/stack/rrc/test/rrc_phy_ctrl_test: /usr/lib/x86_64-linux-gnu/libfftw3f.
 srsue/src/stack/rrc/test/rrc_phy_ctrl_test: lib/src/support/libsupport.a
 srsue/src/stack/rrc/test/rrc_phy_ctrl_test: lib/src/srslog/libsrslog.a
 srsue/src/stack/rrc/test/rrc_phy_ctrl_test: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
-srsue/src/stack/rrc/test/rrc_phy_ctrl_test: /usr/lib/x86_64-linux-gnu/libsctp.so
 srsue/src/stack/rrc/test/rrc_phy_ctrl_test: srsue/src/stack/rrc/test/CMakeFiles/rrc_phy_ctrl_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable rrc_phy_ctrl_test"
 	cd /home/prab/soft-t-ue/build/srsue/src/stack/rrc/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/rrc_phy_ctrl_test.dir/link.txt --verbose=$(VERBOSE)

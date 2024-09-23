@@ -103,6 +103,8 @@ void pdcp_entity_nr::reset()
 void pdcp_entity_nr::write_sdu(unique_byte_buffer_t sdu, int sn)
 {
   // Log SDU
+ //std::cout<< "PDCP - RLC  SDU Size : "<< std::dec << (sdu->N_bytes / 1048576.0) <<
+  //" (MB)" <<std::endl;
   logger.info(sdu->msg,
               sdu->N_bytes,
               "TX %s SDU (%dB), integrity=%s, encryption=%s",
@@ -163,7 +165,7 @@ void pdcp_entity_nr::write_sdu(unique_byte_buffer_t sdu, int sn)
 
   // Set meta-data for RLC AM
   sdu->md.pdcp_sn = tx_next;
-
+ 
   logger.info(sdu->msg,
               sdu->N_bytes,
               "TX %s PDU (%dB), HFN=%d, SN=%d, integrity=%s, encryption=%s",
@@ -186,6 +188,9 @@ void pdcp_entity_nr::write_sdu(unique_byte_buffer_t sdu, int sn)
 void pdcp_entity_nr::write_pdu(unique_byte_buffer_t pdu)
 {
   // Log PDU
+  // PDU size seems to be fixed at 5c7 bytes.
+  std::cout<< "PDCP PDU Size : "<< std::dec << (pdu->N_bytes / 1048576.0) <<
+  " (MB)" <<std::endl;
   logger.info(pdu->msg,
               pdu->N_bytes,
               "RX %s PDU (%d B), integrity=%s, encryption=%s",

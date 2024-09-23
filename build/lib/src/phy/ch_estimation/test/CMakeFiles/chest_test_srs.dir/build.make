@@ -99,7 +99,6 @@ lib/src/phy/ch_estimation/test/chest_test_srs: /usr/lib/x86_64-linux-gnu/libfftw
 lib/src/phy/ch_estimation/test/chest_test_srs: lib/src/support/libsupport.a
 lib/src/phy/ch_estimation/test/chest_test_srs: lib/src/srslog/libsrslog.a
 lib/src/phy/ch_estimation/test/chest_test_srs: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
-lib/src/phy/ch_estimation/test/chest_test_srs: /usr/lib/x86_64-linux-gnu/libsctp.so
 lib/src/phy/ch_estimation/test/chest_test_srs: lib/src/phy/ch_estimation/test/CMakeFiles/chest_test_srs.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable chest_test_srs"
 	cd /home/prab/soft-t-ue/build/lib/src/phy/ch_estimation/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/chest_test_srs.dir/link.txt --verbose=$(VERBOSE)

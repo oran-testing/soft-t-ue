@@ -101,7 +101,6 @@ lib/src/mac/test/pdu_test: /usr/lib/x86_64-linux-gnu/libfftw3f.so
 lib/src/mac/test/pdu_test: lib/src/support/libsupport.a
 lib/src/mac/test/pdu_test: lib/src/srslog/libsrslog.a
 lib/src/mac/test/pdu_test: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
-lib/src/mac/test/pdu_test: /usr/lib/x86_64-linux-gnu/libsctp.so
 lib/src/mac/test/pdu_test: lib/src/mac/test/CMakeFiles/pdu_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable pdu_test"
 	cd /home/prab/soft-t-ue/build/lib/src/mac/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/pdu_test.dir/link.txt --verbose=$(VERBOSE)

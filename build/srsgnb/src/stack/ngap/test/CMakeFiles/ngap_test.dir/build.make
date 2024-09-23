@@ -107,7 +107,6 @@ srsgnb/src/stack/ngap/test/ngap_test: /usr/lib/x86_64-linux-gnu/libfftw3f.so
 srsgnb/src/stack/ngap/test/ngap_test: lib/src/support/libsupport.a
 srsgnb/src/stack/ngap/test/ngap_test: lib/src/srslog/libsrslog.a
 srsgnb/src/stack/ngap/test/ngap_test: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
-srsgnb/src/stack/ngap/test/ngap_test: /usr/lib/x86_64-linux-gnu/libsctp.so
 srsgnb/src/stack/ngap/test/ngap_test: lib/src/asn1/libsrsran_asn1.a
 srsgnb/src/stack/ngap/test/ngap_test: srsgnb/src/stack/ngap/test/CMakeFiles/ngap_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable ngap_test"

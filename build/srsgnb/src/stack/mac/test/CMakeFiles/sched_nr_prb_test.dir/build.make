@@ -105,7 +105,6 @@ srsgnb/src/stack/mac/test/sched_nr_prb_test: /usr/lib/x86_64-linux-gnu/libfftw3f
 srsgnb/src/stack/mac/test/sched_nr_prb_test: lib/src/support/libsupport.a
 srsgnb/src/stack/mac/test/sched_nr_prb_test: lib/src/srslog/libsrslog.a
 srsgnb/src/stack/mac/test/sched_nr_prb_test: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
-srsgnb/src/stack/mac/test/sched_nr_prb_test: /usr/lib/x86_64-linux-gnu/libsctp.so
 srsgnb/src/stack/mac/test/sched_nr_prb_test: srsgnb/src/stack/mac/test/CMakeFiles/sched_nr_prb_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable sched_nr_prb_test"
 	cd /home/prab/soft-t-ue/build/srsgnb/src/stack/mac/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/sched_nr_prb_test.dir/link.txt --verbose=$(VERBOSE)

@@ -101,7 +101,6 @@ lib/test/asn1/ngap_asn1_test: /usr/lib/x86_64-linux-gnu/libfftw3f.so
 lib/test/asn1/ngap_asn1_test: lib/src/support/libsupport.a
 lib/test/asn1/ngap_asn1_test: lib/src/srslog/libsrslog.a
 lib/test/asn1/ngap_asn1_test: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
-lib/test/asn1/ngap_asn1_test: /usr/lib/x86_64-linux-gnu/libsctp.so
 lib/test/asn1/ngap_asn1_test: lib/test/asn1/CMakeFiles/ngap_asn1_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable ngap_asn1_test"
 	cd /home/prab/soft-t-ue/build/lib/test/asn1 && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ngap_asn1_test.dir/link.txt --verbose=$(VERBOSE)

@@ -98,7 +98,6 @@ lib/test/adt/bounded_bitset_test: /usr/lib/x86_64-linux-gnu/libfftw3f.so
 lib/test/adt/bounded_bitset_test: lib/src/support/libsupport.a
 lib/test/adt/bounded_bitset_test: lib/src/srslog/libsrslog.a
 lib/test/adt/bounded_bitset_test: /usr/lib/x86_64-linux-gnu/libmbedcrypto.so
-lib/test/adt/bounded_bitset_test: /usr/lib/x86_64-linux-gnu/libsctp.so
 lib/test/adt/bounded_bitset_test: lib/test/adt/CMakeFiles/bounded_bitset_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/prab/soft-t-ue/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable bounded_bitset_test"
 	cd /home/prab/soft-t-ue/build/lib/test/adt && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/bounded_bitset_test.dir/link.txt --verbose=$(VERBOSE)

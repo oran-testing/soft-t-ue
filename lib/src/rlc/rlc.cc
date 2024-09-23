@@ -183,10 +183,13 @@ void rlc::empty_queue()
 
 void rlc::write_sdu(uint32_t lcid, unique_byte_buffer_t sdu)
 {
-  std::cout<<" PDCP - RLC SDU size : "<<sdu->N_bytes<<" Bytes "<<std::endl; 
-  std::cout <<"RLC_MAX_SDU_SIZE :"<<RLC_MAX_SDU_SIZE<<" Bytes "<<std::endl;
+  //std::cout<<" PDCP - RLC SDU size : "<<sdu->N_bytes<<" Bytes "<<std::endl; 
+  //std::cout <<"RLC_MAX_SDU_SIZE :"<<RLC_MAX_SDU_SIZE<<" Bytes "<<std::endl;
   // TODO: rework build PDU logic to allow large SDUs (without concatenation)
+
+
   if (sdu->N_bytes > RLC_MAX_SDU_SIZE) {
+   // std::cout<<"PCDP SDU is greater than RLC_MAX_SDU_SIZE"<<std::endl;
     logger.warning("Dropping too long SDU of size %d B (Max. size %d B).", sdu->N_bytes, RLC_MAX_SDU_SIZE);
     return;
   }
@@ -263,6 +266,7 @@ void rlc::get_buffer_state(uint32_t lcid, uint32_t& tx_queue, uint32_t& prio_tx_
       prio_tx_queue = 0;
     } else {
       rlc_array.at(lcid)->get_buffer_state(tx_queue, prio_tx_queue);
+
     }
   }
 }
@@ -272,6 +276,7 @@ uint32_t rlc::get_buffer_state(uint32_t lcid)
   uint32_t tx_queue = 0, prio_tx_queue = 0;
   get_buffer_state(lcid, tx_queue, prio_tx_queue);
   return tx_queue + prio_tx_queue;
+  
 }
 
 uint32_t rlc::get_total_mch_buffer_state(uint32_t lcid)
