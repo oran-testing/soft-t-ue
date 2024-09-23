@@ -133,15 +133,17 @@ Software development plan
 -------------------------
 
 1. Use Python, running on the UE, to script everything.
+
 2. Use PyQt6 as a GUI.
+
 3. To prepare the system, open a series of terminals; use asyncio to
    stream data while also updating GUI.
 
-   1. Run the open 5G core.
-   2. When it’s up, run gNodeB.
-   3. When it’s up, run the 4G UE.
-   4. When it’s up, run iperf -s in the 5G core container. (Perhaps several, one for each UE.)
-   5. When it’s up, run iperf –json on the client. Listen to JSON data
+   i. Run the open 5G core.
+   ii. When it's up, run gNodeB.
+   iii. When it's up, run the 4G UE.
+   iv. When it's up, run iperf -s in the 5G core container.
+   v. When it's up, run iperf --json on the client. Listen to JSON data
       then graph.
 
 4. Write a Python-based install script to download/install the entire

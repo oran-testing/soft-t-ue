@@ -22,14 +22,18 @@ To Install the customized srsRAN UE:
 The UE can be passed arguments described in the following pages to run
 various attacks: -
 
-- :doc:`CQI Manipulation attack <../attacks/cqi_manipulation>`
+- :doc:`CQI Manipulation Attack <../attacks/cqi_manipulation>`
 - :doc:`gNB Impersonation Attack <../attacks/gnb_impersonation_attack>`
 - :doc:`IMSI Catching Attack <../attacks/imsi_capture>`
-- :doc:`Preamble Collision attack <../attacks/preamble_collision>`
+- :doc:`Preamble Collision Attack <../attacks/preamble_collision>`
 - :doc:`RACH Jamming Attack <../attacks/rach_jamming>`
 - :doc:`RACH Replay Attack <../attacks/rach_replay>`
-- :doc:`RACH Signal Flooding attack <../attacks/rach_signal_flooding>`
+- :doc:`RACH Signal Flooding Attack <../attacks/rach_signal_flooding>`
 - :doc:`RoHC Poisoning Attack <../attacks/rohc_poisoning_attack>`
+- :doc:`Signaling Storm Injection Attack <../attacks/signal_storming>`
+- :doc:`PDCP message Parroting Attack <../attacks/pdcpParrot>`
+- :doc:`RRC Release Request Spoofing Attack<../attacks/request_spoofing>`
+- :doc:`SDU Fuzzing Attack <../attacks/sdu_fuzzing>`
 
 
 Python Controller and Graphical User Interface
@@ -68,5 +72,6 @@ processes:
 arguments to pass to the process (str)
 
 Example configuration files:
-- `basic_ue_zmq.yaml <https://github.com/oran-testing/soft-t-ue/blob/main/configs/basic_ue_zmq.rst>`__
-- `multi_ue_zmq.yaml <https://github.com/oran-testing/soft-t-ue/blob/main/configs/multi_ue_zmq.rst>`__
+
+- `basic_ue_zmq.yaml <https://raw.githubusercontent.com/oran-testing/soft-t-ue/ue_redesign/configs/basic_ue_zmq.yaml>`__
+- `multi_ue_zmq.yaml <https://raw.githubusercontent.com/oran-testing/soft-t-ue/ue_redesign/configs/multi_ue_zmq.yaml>`__

@@ -1,4 +1,4 @@
-Preamble Collision attack
+Preamble Collision Attack
 ==========================================================
 
 Introduction
