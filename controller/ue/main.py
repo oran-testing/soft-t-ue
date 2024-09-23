@@ -40,7 +40,7 @@ def parse():
 
 
 def main():
-    os.system("sudo kill -9 $(ps aux | awk '/srsue/ && !/main/{print $2}') > /dev/null 2>1&")
+    os.system("sudo kill -9 $(ps aux | awk '/srsue/ && !/main/{print $2}') > /dev/null 2>&1")
     args = parse()
     SharedState.cli_args = args
 

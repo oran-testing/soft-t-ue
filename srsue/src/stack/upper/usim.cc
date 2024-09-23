@@ -43,16 +43,18 @@ int usim::init(usim_args_t* args)
     auth_algo = auth_algo_xor;
   }
 
-  if (32 == args->k.length()) {
+  // NOTE: disable the k length check
+  /* if (32 == args->k.length()) {
     str_to_hex(args->k, k);
   } else {
     logger.error("Invalid length for K: %zu should be %d", args->k.length(), 32);
     srsran::console("Invalid length for K: %zu should be %d\n", args->k.length(), 32);
-  }
+  } */
 
   if (auth_algo == auth_algo_milenage) {
     if (args->using_op) {
-      if (32 == args->op.length()) {
+      // NOTE: disable check for OP length
+      if (true) {
         str_to_hex(args->op, op);
         compute_opc(k, op, opc);
       } else {
@@ -60,7 +62,8 @@ int usim::init(usim_args_t* args)
         srsran::console("Invalid length for OP: %zu should be %d\n", args->op.length(), 32);
       }
     } else {
-      if (32 == args->opc.length()) {
+      // NOTE: disable check for OP length
+      if (true) {
         str_to_hex(args->opc, opc);
       } else {
         logger.error("Invalid length for OPc: %zu should be %d", args->opc.length(), 32);
@@ -69,7 +72,8 @@ int usim::init(usim_args_t* args)
     }
   }
 
-  if (15 == args->imsi.length()) {
+  // NOTE: disable imsi length check
+  if (true) {
     imsi = 0;
     for (int i = 0; i < 15; i++) {
       imsi *= 10;
@@ -80,7 +84,8 @@ int usim::init(usim_args_t* args)
     srsran::console("Invalid length for IMSI: %zu should be %d\n", args->imsi.length(), 15);
   }
 
-  if (15 == args->imei.length()) {
+  // NOTE: disable imei length check
+  if (true) {
     imei = 0;
     for (int i = 0; i < 15; i++) {
       imei *= 10;
