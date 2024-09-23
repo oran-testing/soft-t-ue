@@ -34,6 +34,7 @@
 #include <fstream>
 #include <iomanip>
 #include <unistd.h>
+#include <iostream>
 
 #define MAC_5G_OFFSET 2
 #define SEQ_5G_OFFSET 6
@@ -269,9 +270,25 @@ int nas_5g::send_registration_request()
   // NOTE: SUCI to modify
   mobile_identity_5gs_t::suci_s& suci = reg_req.mobile_identity_5gs.set_suci();
   suci.supi_format                    = mobile_identity_5gs_t::suci_s::supi_format_type_::options::imsi;
-  // TODO: fuzz mcc and mnc
-  usim->get_home_mcc_bytes(suci.mcc.data(), suci.mcc.size());
-  usim->get_home_mnc_bytes(suci.mnc.data(), suci.mnc.size());
+  // NOTE: fuzz mcc and mnc
+  if(cfg.fuzz_mcc.length() == 3){
+    std::cout << "FUZZ (rrcSetupRequest): changing UE MCC to " << cfg.fuzz_mcc << std::endl;
+    for(uint8_t i = 0; i < cfg.fuzz_mcc.length() && i < 3; ++i){
+      suci.mcc[i] = cfg.fuzz_mcc[i];
+    }
+  } else{
+    usim->get_home_mcc_bytes(suci.mcc.data(), suci.mcc.size());
+  }
+
+
+  if(cfg.fuzz_mnc.length() == 3){
+    std::cout << "FUZZ (rrcSetupRequest): changing UE MNC to " << cfg.fuzz_mnc << std::endl;
+    for(uint8_t i = 0; i < cfg.fuzz_mnc.length() && i < 3; ++i){
+      suci.mnc[i] = cfg.fuzz_mnc[i];
+    }
+  } else{
+    usim->get_home_mnc_bytes(suci.mnc.data(), suci.mnc.size());
+  }
 
   suci.scheme_output.resize(5);
   // TODO: fuzz msin bcd

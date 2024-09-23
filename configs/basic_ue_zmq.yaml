@@ -2,5 +2,6 @@ namespaces:
   - name: "ue1"
 
 processes:
-  - type: "clean"
+  - type: "tester"
     config_file: "../../configs/zmq/ue_zmq.conf"
+    args: "--fuzz.setup_request.mcc 999 --fuzz.setup_request.mnc 999"

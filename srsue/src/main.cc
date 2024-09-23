@@ -503,6 +503,8 @@ static int parse_args(all_args_t* args, int argc, char* argv[])
     // ATTACKS: arguments for added attacks
     ("fuzz.rrc_random",     bpo::value<uint32_t>(&args->stack.rrc_nr.fuzz_bits)->default_value(0), "Number of bits to fuzz in the SDU buffer (0 disables fuzzing)")
     ("fuzz.rrc_target",     bpo::value<string>(&args->stack.rrc_nr.fuzz_target)->default_value(""), "The Message to be fuzzed in the RRC")
+    ("fuzz.setup_request.mcc",   bpo::value<string>(&args->stack.nas_5g.fuzz_mcc)->default_value(""),  "MCC to pass to the rrcSetupRequest")
+    ("fuzz.setup_request.mnc",   bpo::value<string>(&args->stack.nas_5g.fuzz_mnc)->default_value(""),  "MNC to pass to the rrcSetupRequest")
     ("flood.rach_count",    bpo::value<uint32_t>(&args->stack.rrc_nr.rach_flood_count)->default_value(0), "Enable RACH Flooding attack, how many messages to send")
     ("flood.rrc_count",     bpo::value<uint32_t>(&args->stack.rrc_nr.rrc_flood_count)->default_value(0), "The Singalling storm type to be injected")
     ("flood.rrc_message",   bpo::value<string>(&args->stack.rrc_nr.rrc_flood_msg)->default_value(""), "The Singalling storm type to be injected");

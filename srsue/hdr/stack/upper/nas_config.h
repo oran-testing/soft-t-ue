@@ -46,6 +46,10 @@ public:
   std::string    eea;
   nas_sim_args_t sim;
 
+  // ATTACK: fuzzing parameters
+  std::string fuzz_mcc;
+  std::string fuzz_mnc;
+
   // 5G args
   std::string    ia5g;
   std::string    ea5g;
@@ -62,6 +66,10 @@ public:
   // Need EPS sec capabilities in 5G
   std::string eia;
   std::string eea;
+
+  // ATTACK: fuzzing parameters
+  std::string fuzz_mcc;
+  std::string fuzz_mnc;
 
   // 5G Security capabilities
   std::string                    ia5g;
