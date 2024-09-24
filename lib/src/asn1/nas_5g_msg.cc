@@ -3641,6 +3641,7 @@ SRSASN_CODE nas_5gs_msg::pack(std::vector<uint8_t>& buf)
 
 SRSASN_CODE nas_5gs_msg::pack(asn1::bit_ref& msg_bref)
 {
+  // NOTE: Select message type and pack headers and msg
   HANDLE_CODE(hdr.pack(msg_bref));
   switch (hdr.message_type) {
     case msg_types::options::registration_request: {

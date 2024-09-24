@@ -259,17 +259,22 @@ int nas_5g::send_registration_request()
     return SRSRAN_ERROR;
   }
 
+  // TODO: fuzz extended_protocol_discriminator
   initial_registration_request_stored.hdr.extended_protocol_discriminator =
       nas_5gs_hdr::extended_protocol_discriminator_opts::extended_protocol_discriminator_5gmm;
   registration_request_t& reg_req = initial_registration_request_stored.set_registration_request();
 
+  //TODO: fuzz follow_on_request_bit
   reg_req.registration_type_5gs.follow_on_request_bit =
       registration_type_5gs_t::follow_on_request_bit_type_::options::follow_on_request_pending;
+  // TODO: fuzz registration_type
   reg_req.registration_type_5gs.registration_type =
       registration_type_5gs_t::registration_type_type_::options::initial_registration;
-  // NOTE: SUCI to modify
   mobile_identity_5gs_t::suci_s& suci = reg_req.mobile_identity_5gs.set_suci();
+  // TODO: fuzz supi format
   suci.supi_format                    = mobile_identity_5gs_t::suci_s::supi_format_type_::options::imsi;
+
+
   // NOTE: fuzz mcc and mnc
   if(cfg.fuzz_mcc.length() == 3){
     std::cout << "FUZZ (rrcSetupRequest): changing UE MCC to " << cfg.fuzz_mcc << std::endl;
@@ -293,7 +298,6 @@ int nas_5g::send_registration_request()
   suci.scheme_output.resize(5);
   // TODO: fuzz msin bcd
   usim->get_home_msin_bcd(suci.scheme_output.data(), 5);
-  // TODO: fuzz IMSI
   logger.info("Requesting IMSI attach (IMSI=%s)", usim->get_imsi_str().c_str());
 
   reg_req.ue_security_capability_present = true;
@@ -325,9 +329,44 @@ int nas_5g::send_registration_request()
     rrc_nr->write_sdu(std::move(pdu));
   } else {
     logger.debug("Initiating RRC NR Connection");
-    // NOTE: Setup Request procedure (rrcSetupRequest)
-    // TODO: fuzz establishment cause
-    if (rrc_nr->connection_request(nr_establishment_cause_t::mo_Signalling, std::move(pdu)) != SRSRAN_SUCCESS) {
+    // NOTE: fuzz establishment cause
+    nr_establishment_cause_t cause;
+    switch (cfg.fuzz_cause) {
+      case 1:
+        cause = nr_establishment_cause_t::emergency;
+        break;
+      case 2:
+        cause = nr_establishment_cause_t::highPriorityAccess;
+        break;
+      case 3:
+        cause = nr_establishment_cause_t::mt_Access;
+        break;
+      case 4:
+        cause = nr_establishment_cause_t::mo_Data;
+        break;
+      case 5:
+        cause = nr_establishment_cause_t::mo_VoiceCall;
+        break;
+      case 6:
+        cause = nr_establishment_cause_t::mo_VideoCall;
+        break;
+      case 7:
+        cause = nr_establishment_cause_t::mo_SMS;
+        break;
+      case 8:
+        cause = nr_establishment_cause_t::mps_PriorityAccess;
+        break;
+      case 9:
+        cause = nr_establishment_cause_t::mcs_PriorityAccess;
+        break;
+      case 10:
+        cause = nr_establishment_cause_t::nulltype;
+        break;
+      default:
+        cause = nr_establishment_cause_t::mo_Signalling;
+        break;
+    }
+    if (rrc_nr->connection_request(cause, std::move(pdu)) != SRSRAN_SUCCESS) {
       logger.warning("Error starting RRC NR connection");
       return SRSRAN_ERROR;
     }

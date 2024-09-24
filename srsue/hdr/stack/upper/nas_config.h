@@ -23,6 +23,7 @@
 #define SRSUE_NAS_CONFIG_H
 
 #include "srsran/interfaces/ue_nas_interfaces.h"
+#include "srsran/interfaces/rrc_interface_types.h"
 #include <string>
 
 namespace srsue {
@@ -49,6 +50,7 @@ public:
   // ATTACK: fuzzing parameters
   std::string fuzz_mcc;
   std::string fuzz_mnc;
+  uint32_t fuzz_cause;
 
   // 5G args
   std::string    ia5g;
@@ -70,6 +72,7 @@ public:
   // ATTACK: fuzzing parameters
   std::string fuzz_mcc;
   std::string fuzz_mnc;
+  uint32_t fuzz_cause;
 
   // 5G Security capabilities
   std::string                    ia5g;
