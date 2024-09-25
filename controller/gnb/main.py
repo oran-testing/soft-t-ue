@@ -27,67 +27,65 @@ class gnb_controller:
         self.gnb_handle = Gnb()
         self.metrics_handle = MetricsServer()
 
-    def start_core(self, rebuild):
+    def start_core(self, command):
         if self.core_handle.isRunning:
-            self.core_handle.stop()
-        self.core_handle.start(rebuild)
+            return "Success"
+        self.core_handle.start(True)
         while not self.core_handle.initialized:
             time.sleep(0.1)
+        return "Success"
 
     def stop_core(self):
         self.core_handle.stop()
+        return "Success"
 
-    def start_metrics(self, rebuild):
+    def start_metrics(self, command):
         if self.metrics_handle.isRunning:
             self.metrics_handle.stop()
-        self.metrics_handle.start(rebuild)
+        self.metrics_handle.start(True)
+        return "Success"
 
     def stop_metrics(self):
         self.metrics_handle.stop()
+        return "Success"
 
-
-
-    def start_gnb(self, gnb_config):
+    def start_gnb(self, command):
         if self.gnb_handle.isRunning:
             self.gnb_handle.stop()
-        self.gnb_handle.start([gnb_config])
+        self.gnb_handle.start([command["config"]])
+        while not self.gnb_handle.isRunning:
+            time.sleep(0.1)
+        time.sleep(5)
+        return "Success"
 
     def stop_gnb(self):
         self.gnb_handle.stop()
+        return "Success"
 
 
     def listen_for_command(self, server_socket, add_callback):
         while True:
             client_socket, _ = server_socket.accept()
             recv_data = client_socket.recv(1024).decode('utf-8').strip()
-            client_socket.close()
 
             command = json.loads(recv_data)
 
             print(command)
 
+            response = {"result": "Failure"}
             if command["target"] == "iperf":
                 iperf_process = Iperf()
                 iperf_process.start(["-s", "-i", "1", "-p", command["port"]], process_type="server")
                 add_callback(iperf_process)
-            elif command["target"] == "gnb":
+                response["result"] = "Success"
+            else:
                 if command["action"] == "start":
-                    self.start_gnb(command["config"])
-                elif command["action"] == "stop":
-                    self.stop_gnb()
-            elif command["target"] == "core":
-                if command["action"] == "start":
-                    self.start_core(True)
-                elif command["action"] == "stop":
-                    self.stop_core()
-            elif command["target"] == "metrics":
-                if command["action"] == "start":
-                    self.start_metrics(True)
-                elif command["action"] == "stop":
-                    self.stop_metrics()
-
-
-
+                    response["result"] = getattr(self, "start_" + command["target"])(command)
+                else:
+                    response["result"] = getattr(self, "stop_" + command["target"])()
+            response_str = json.dumps(response)
+            client_socket.sendall(response_str.encode('utf-8'))
+            client_socket.close()
 
 def parse():
     current_script_path = pathlib.Path(__file__).resolve()
@@ -108,18 +106,12 @@ def main():
     os.system("kill -9 $(ps aux | awk '/open5gs/{print $2}')")
     time.sleep(0.1)
     controller = gnb_controller()
-    controller.start_core(args.rebuild_core)
-    controller.start_metrics(True)
-
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((args.ip, args.port))
     server_socket.listen(1)
-
     iperf_servers = []
-
-    while True:
-        time.sleep(1)
-        controller.listen_for_command(server_socket, lambda x: iperf_servers.append(x))
+    print("SERVER STARTED")
+    controller.listen_for_command(server_socket, lambda x: iperf_servers.append(x))
     controller.stop_core()
     controller.stop_metrics()
     controller.stop_gnb()

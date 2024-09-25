@@ -42,26 +42,28 @@ def parse():
 def main():
     os.system("sudo kill -9 $(ps aux | awk '/srsue/ && !/main/{print $2}') > /dev/null 2>1&")
     args = parse()
-    SharedState.cli_args = args
 
 
     options = None
     with open(str(args.config), 'r') as file:
         options = yaml.safe_load(file)
-
     if options.get("gnb", False):
-        send_command(args.ip, args.port,
-                     {"target": "gnb",
-                      "action": "start",
-                      "config": options.get('gnb')['config']}
-                     )
-    else:
-        send_command(args.ip, args.port,
-                     {"target": "gnb",
-                      "action": "start",
-                      "config": str(args.gnb_config)}
-                     )
+        args.ip = options.get("gnb")["ip"]
+        args.port = options.get("gnb")["port"]
+        args.gnb_config = options.get("gnb")["gnb_config"]
+
+    SharedState.cli_args = args
     SharedState.ue_index = 1
+    send_command(args.ip, args.port,
+                    {"target": "core",
+                     "action": "start",
+                     "rebuild": True
+                    })
+    send_command(args.ip, args.port,
+                    {"target": "gnb",
+                    "action": "start",
+                    "config": str(args.gnb_config)
+                    })
 
     for namespace in options.get("namespaces", []):
         os.system(f"sudo ip netns add {namespace['name']} > /dev/null 2>&1")
