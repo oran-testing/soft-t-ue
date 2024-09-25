@@ -201,8 +201,8 @@ bool usim_base::get_home_msin_bcd(uint8_t* msin_, uint32_t n)
   srsran::plmn_id_t tmp_plmn;
   get_home_plmn_id(&tmp_plmn);
 
-  uint8_t imsi_vec[15];
-  get_imsi_vec(imsi_vec, 15);
+    uint8_t imsi_vec[15];
+    get_imsi_vec(imsi_vec, 15);
 
   int total_msin_len = (tmp_plmn.nof_mnc_digits + 3) / 2;
   int j              = 0;

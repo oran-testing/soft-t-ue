@@ -277,27 +277,41 @@ int nas_5g::send_registration_request()
 
   // NOTE: fuzz mcc and mnc
   if(cfg.fuzz_mcc.length() == 3){
-    std::cout << "FUZZ (rrcSetupRequest): changing UE MCC to " << cfg.fuzz_mcc << std::endl;
     for(uint8_t i = 0; i < cfg.fuzz_mcc.length() && i < 3; ++i){
       suci.mcc[i] = cfg.fuzz_mcc[i];
     }
+    std::cout << "FUZZ (rrcSetupRequest): changed UE MCC to " << cfg.fuzz_mcc << std::endl;
   } else{
     usim->get_home_mcc_bytes(suci.mcc.data(), suci.mcc.size());
   }
 
 
   if(cfg.fuzz_mnc.length() == 3){
-    std::cout << "FUZZ (rrcSetupRequest): changing UE MNC to " << cfg.fuzz_mnc << std::endl;
     for(uint8_t i = 0; i < cfg.fuzz_mnc.length() && i < 3; ++i){
       suci.mnc[i] = cfg.fuzz_mnc[i];
     }
+    std::cout << "FUZZ (rrcSetupRequest): changed UE MNC to " << cfg.fuzz_mnc << std::endl;
   } else{
     usim->get_home_mnc_bytes(suci.mnc.data(), suci.mnc.size());
   }
 
   suci.scheme_output.resize(5);
   // TODO: fuzz msin bcd
-  usim->get_home_msin_bcd(suci.scheme_output.data(), 5);
+  if(cfg.fuzz_msin.length() > 0){
+    srsran::plmn_id_t tmp_plmn;
+    usim->get_home_plmn_id(&tmp_plmn);
+    uint32_t total_msin_len = (tmp_plmn.nof_mnc_digits + 3) / 2;
+    uint32_t i = 0;
+    if(cfg.fuzz_msin.length() == total_msin_len){
+      for(; i < cfg.fuzz_msin.length(); i++){
+        suci.scheme_output.data()[i] = cfg.fuzz_msin[i];
+      }
+    } else {
+      std::cout << "Invalid MSIN length: " << i << " expected length: " << total_msin_len << std::endl;
+    }
+  } else{
+    usim->get_home_msin_bcd(suci.scheme_output.data(), 5);
+  }
   logger.info("Requesting IMSI attach (IMSI=%s)", usim->get_imsi_str().c_str());
 
   reg_req.ue_security_capability_present = true;
