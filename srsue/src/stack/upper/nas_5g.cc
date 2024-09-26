@@ -278,9 +278,10 @@ int nas_5g::send_registration_request()
         registration_type_5gs_t::follow_on_request_bit_type_::options::no_follow_on_request_pending;
   }
 
-  // TODO: fuzz registration_type
   reg_req.registration_type_5gs.registration_type =
       registration_type_5gs_t::registration_type_type_::options::initial_registration;
+
+  // HACK: fuzz registration_type
   if(cfg.fuzz_registration_type != 0){
     registration_type_5gs_t::registration_type_type_::options reg_type;
     switch (cfg.fuzz_registration_type) {
@@ -301,6 +302,22 @@ int nas_5g::send_registration_request()
   mobile_identity_5gs_t::suci_s& suci = reg_req.mobile_identity_5gs.set_suci();
   // TODO: fuzz supi format
   suci.supi_format                    = mobile_identity_5gs_t::suci_s::supi_format_type_::options::imsi;
+
+  if(cfg.fuzz_supi_format != 0){
+    mobile_identity_5gs_t::suci_s::supi_format_type_::options supi_for;
+    switch (cfg.fuzz_supi_format) {
+      case 1:
+        supi_for = mobile_identity_5gs_t::suci_s::supi_format_type_::options::network_specific_identifier;
+      case 2:
+        supi_for = mobile_identity_5gs_t::suci_s::supi_format_type_::options::gci;
+      case 3:
+        supi_for = mobile_identity_5gs_t::suci_s::supi_format_type_::options::gli;
+      default:
+        supi_for = mobile_identity_5gs_t::suci_s::supi_format_type_::options::imsi;
+        break;
+    }
+    suci.supi_format = supi_for;
+  }
 
 
   // HACK: fuzz mcc and mnc
