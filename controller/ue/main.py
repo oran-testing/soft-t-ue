@@ -60,6 +60,11 @@ def main():
                      "rebuild": True
                     })
     send_command(args.ip, args.port,
+                    {"target": "metrics",
+                     "action": "start",
+                     "rebuild": True
+                    })
+    send_command(args.ip, args.port,
                     {"target": "gnb",
                     "action": "start",
                     "config": str(args.gnb_config)

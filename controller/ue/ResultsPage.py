@@ -137,7 +137,7 @@ class ResultsPage(Screen):
                 legend_grid.add_widget(label)
                 if plot_type == "iperf" or plot_type == "ping":
                     continue
-                if self.grafana_enabled:
+                if self.grafana_enabled and plot_type in SharedState.metrics_client.ue_data[ue_ref["handle"].rnti].keys():
                     self.create_graph(
                         graph,
                         SharedState.metrics_client.ue_data[ue_ref["handle"].rnti][plot_type]["values"],
