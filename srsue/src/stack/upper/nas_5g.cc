@@ -269,16 +269,35 @@ int nas_5g::send_registration_request()
   }
   registration_request_t& reg_req = initial_registration_request_stored.set_registration_request();
 
-  //TODO: fuzz follow_on_request_bit
   reg_req.registration_type_5gs.follow_on_request_bit =
       registration_type_5gs_t::follow_on_request_bit_type_::options::follow_on_request_pending;
+
+  //HACK: fuzz follow_on_request_bit
   if(cfg.fuzz_follow_on_request != 0){
     reg_req.registration_type_5gs.follow_on_request_bit =
         registration_type_5gs_t::follow_on_request_bit_type_::options::no_follow_on_request_pending;
   }
+
   // TODO: fuzz registration_type
   reg_req.registration_type_5gs.registration_type =
       registration_type_5gs_t::registration_type_type_::options::initial_registration;
+  if(cfg.fuzz_registration_type != 0){
+    registration_type_5gs_t::registration_type_type_::options reg_type;
+    switch (cfg.fuzz_registration_type) {
+      case 1:
+        reg_type = registration_type_5gs_t::registration_type_type_::options::mobility_registration_updating;
+      case 2:
+        reg_type =  registration_type_5gs_t::registration_type_type_::options::periodic_registration_updating;
+      case 3:
+        reg_type =  registration_type_5gs_t::registration_type_type_::options::emergency_registration;
+      case 4:
+        reg_type =  registration_type_5gs_t::registration_type_type_::options::reserved;
+      default:
+        reg_type =  registration_type_5gs_t::registration_type_type_::options::initial_registration;
+        break;
+    }
+    reg_req.registration_type_5gs.registration_type = reg_type;
+  }
   mobile_identity_5gs_t::suci_s& suci = reg_req.mobile_identity_5gs.set_suci();
   // TODO: fuzz supi format
   suci.supi_format                    = mobile_identity_5gs_t::suci_s::supi_format_type_::options::imsi;
