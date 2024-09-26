@@ -14,7 +14,7 @@ sys.path.insert(0, parent_dir)
 from MainApp import MainApp
 from SharedState import SharedState
 from Ue import Ue
-from Channel import Channel
+from ChannelAgent import ChannelAgent
 
 from common.utils import send_command
 
@@ -40,7 +40,7 @@ def parse():
 
 
 def main():
-    os.system("sudo kill -9 $(ps aux | awk '/srsue/ && !/main/{print $2}') > /dev/null 2>1&")
+    os.system("sudo kill -9 $(ps aux | awk '/srsue/ && !/main/{print $2}') > /dev/null 2>&1")
     args = parse()
 
 
@@ -89,7 +89,7 @@ def main():
             SharedState.process_list.append({
                 'id': str(uuid.uuid4()),
                 'type': ue['type'],
-                'config': ue['config_file'],
+                'config': ue['config_file'] + " " + ue['args'],
                 'handle': new_ue,
                 'index': SharedState.ue_index
             })
@@ -98,12 +98,30 @@ def main():
         else:
             channel = process
             new_channel = None
+            channel_config = ""
             if "config_file" in channel.keys():
-                new_channel = Channel(config_file=channel["config_file"])
+                new_channel = ChannelAgent(config_file=channel["config_file"])
+                channel_config = channel["config_file"]
             else:
-                new_channel = Channel()
+                new_channel = ChannelAgent()
 
-            #if channel["type"] == "":
+            if channel["type"] == "listener":
+                new_channel.sense()
+            elif channel["type"] == "jam_fixed":
+                new_channel.jam_fixed()
+            elif channel["type"] == "jam_sequential":
+                new_channel.jam_sequential()
+            elif channel["type"] == "jam_random":
+                new_channel.jam_random()
+
+            SharedState.process_list.append({
+                'id': str(uuid.uuid4()),
+                'type': channel['type'],
+                'config': channel_config,
+                'handle': new_channel,
+                'index': SharedState.channel_index
+            })
+            SharedState.channel_index += 1
 
 
 
