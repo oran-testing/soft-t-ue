@@ -82,9 +82,9 @@ class AttacksPage(Screen):
     def set_target_message(self, spinner, text):
         self.target_message = text
         if text != "All":
-            SharedState.attack_args = ["--rrc.sdu_fuzzed_bits", str(self.num_fuzzed_bits)
-                           , "--rrc.fuzz_target_message", self.target_message]
-            self.title.text = f"--rrc.sdu_fuzzed_bits {self.num_fuzzed_bits} --rrc.fuzz_target_message {self.target_message}"
+            SharedState.attack_args = ["--fuzz.rrc_random", str(self.num_fuzzed_bits)
+                           , "--fuzz.rrc_target", self.target_message]
+            self.title.text = f"--fuzz.rrc_random {self.num_fuzzed_bits} --ufzz.rrc_target {self.target_message}"
 
     def set_fuzzed_bits(self, spinner, text):
         self.num_fuzzed_bits = int(text)

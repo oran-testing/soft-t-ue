@@ -259,9 +259,14 @@ int nas_5g::send_registration_request()
     return SRSRAN_ERROR;
   }
 
-  // TODO: fuzz extended_protocol_discriminator
   initial_registration_request_stored.hdr.extended_protocol_discriminator =
       nas_5gs_hdr::extended_protocol_discriminator_opts::extended_protocol_discriminator_5gmm;
+
+  // HACK: fuzz extended_protocol_discriminator
+  if(cfg.fuzz_protocol_discriminatior != 0){
+    initial_registration_request_stored.hdr.extended_protocol_discriminator =
+        nas_5gs_hdr::extended_protocol_discriminator_opts::extended_protocol_discriminator_5gsm;
+  }
   registration_request_t& reg_req = initial_registration_request_stored.set_registration_request();
 
   //TODO: fuzz follow_on_request_bit
@@ -275,7 +280,7 @@ int nas_5g::send_registration_request()
   suci.supi_format                    = mobile_identity_5gs_t::suci_s::supi_format_type_::options::imsi;
 
 
-  // NOTE: fuzz mcc and mnc
+  // HACK: fuzz mcc and mnc
   if(cfg.fuzz_mcc.length() == 3){
     for(uint8_t i = 0; i < cfg.fuzz_mcc.length() && i < 3; ++i){
       suci.mcc[i] = cfg.fuzz_mcc[i];
@@ -296,7 +301,7 @@ int nas_5g::send_registration_request()
   }
 
   suci.scheme_output.resize(5);
-  // TODO: fuzz msin bcd
+  // HACK: fuzz msin bcd
   if(cfg.fuzz_msin.length() > 0){
     srsran::plmn_id_t tmp_plmn;
     usim->get_home_plmn_id(&tmp_plmn);
@@ -323,7 +328,6 @@ int nas_5g::send_registration_request()
     set_nssai(nssai);
     reg_req.requested_nssai.s_nssai_list.push_back(nssai);
   }
-  // TODO: fuzz, here is the PDU for rrcConnectionRequest
   // NOTE: initial_registration_request_stored has all modifiable data
   if (initial_registration_request_stored.pack(pdu) != SRSASN_SUCCESS) {
     logger.error("Failed to pack registration request");
