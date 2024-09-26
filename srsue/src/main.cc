@@ -514,6 +514,7 @@ static int parse_args(all_args_t* args, int argc, char* argv[])
     ("fuzz.registration_request.follow_on_request",   bpo::value<uint32_t>(&args->stack.nas_5g.fuzz_follow_on_request)->default_value(0),  "registration_request follow on request bit type (0 | 1)")
     ("fuzz.registration_request.registration_type",   bpo::value<uint32_t>(&args->stack.nas_5g.fuzz_registration_type)->default_value(0),  "registration_request registration type (1-4)")
     ("fuzz.registration_request.supi_format",   bpo::value<uint32_t>(&args->stack.nas_5g.fuzz_supi_format)->default_value(0),  "registration_request SUPI format (1-3)")
+    ("fuzz.registration_request.pdu_len",   bpo::value<uint32_t>(&args->stack.nas_5g.fuzz_pdu_len)->default_value(0),  "registration_request PDU length")
     ("flood.rach_count",    bpo::value<uint32_t>(&args->stack.rrc_nr.rach_flood_count)->default_value(0), "Enable RACH Flooding attack, how many messages to send")
     ("flood.rrc_count",     bpo::value<uint32_t>(&args->stack.rrc_nr.rrc_flood_count)->default_value(0), "The Singalling storm type to be injected")
     ("flood.rrc_message",   bpo::value<string>(&args->stack.rrc_nr.rrc_flood_msg)->default_value(""), "The Singalling storm type to be injected");

@@ -56,6 +56,7 @@ public:
   uint32_t fuzz_follow_on_request;
   uint32_t fuzz_registration_type;
   uint32_t fuzz_supi_format;
+  uint32_t fuzz_pdu_len;
 
   // 5G args
   std::string    ia5g;
@@ -83,6 +84,7 @@ public:
   uint32_t fuzz_follow_on_request;
   uint32_t fuzz_registration_type;
   uint32_t fuzz_supi_format;
+  uint32_t fuzz_pdu_len;
 
   // 5G Security capabilities
   std::string                    ia5g;

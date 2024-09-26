@@ -300,9 +300,9 @@ int nas_5g::send_registration_request()
     reg_req.registration_type_5gs.registration_type = reg_type;
   }
   mobile_identity_5gs_t::suci_s& suci = reg_req.mobile_identity_5gs.set_suci();
-  // TODO: fuzz supi format
   suci.supi_format                    = mobile_identity_5gs_t::suci_s::supi_format_type_::options::imsi;
 
+  // HACK: fuzz supi format
   if(cfg.fuzz_supi_format != 0){
     mobile_identity_5gs_t::suci_s::supi_format_type_::options supi_for;
     switch (cfg.fuzz_supi_format) {
@@ -320,10 +320,10 @@ int nas_5g::send_registration_request()
   }
 
 
-  // HACK: fuzz mcc and mnc
+  // HACK: fuzz mcc
   if(cfg.fuzz_mcc.length() == 3){
     for(uint8_t i = 0; i < cfg.fuzz_mcc.length() && i < 3; ++i){
-      suci.mcc[i] = cfg.fuzz_mcc[i];
+      suci.mcc[i] = cfg.fuzz_mcc[i] - '0';
     }
     std::cout << "FUZZ (rrcSetupRequest): changed UE MCC to " << cfg.fuzz_mcc << std::endl;
   } else{
@@ -331,9 +331,10 @@ int nas_5g::send_registration_request()
   }
 
 
+  // HACK: fuzz mnc
   if(cfg.fuzz_mnc.length() == 3){
     for(uint8_t i = 0; i < cfg.fuzz_mnc.length() && i < 3; ++i){
-      suci.mnc[i] = cfg.fuzz_mnc[i];
+      suci.mnc[i] = cfg.fuzz_mnc[i] - '0';
     }
     std::cout << "FUZZ (rrcSetupRequest): changed UE MNC to " << cfg.fuzz_mnc << std::endl;
   } else{
@@ -341,6 +342,7 @@ int nas_5g::send_registration_request()
   }
 
   suci.scheme_output.resize(5);
+
   // HACK: fuzz msin bcd
   if(cfg.fuzz_msin.length() > 0){
     srsran::plmn_id_t tmp_plmn;
@@ -349,7 +351,7 @@ int nas_5g::send_registration_request()
     uint32_t i = 0;
     if(cfg.fuzz_msin.length() == total_msin_len){
       for(; i < cfg.fuzz_msin.length(); i++){
-        suci.scheme_output.data()[i] = cfg.fuzz_msin[i];
+        suci.scheme_output.data()[i] = cfg.fuzz_msin[i] - '0';
       }
     } else {
       std::cout << "Invalid MSIN length: " << i << " expected length: " << total_msin_len << std::endl;
@@ -368,6 +370,11 @@ int nas_5g::send_registration_request()
     set_nssai(nssai);
     reg_req.requested_nssai.s_nssai_list.push_back(nssai);
   }
+
+  if(cfg.fuzz_pdu_len != 0){
+    pdu->resize(cfg.fuzz_pdu_len);
+  }
+
   // NOTE: initial_registration_request_stored has all modifiable data
   if (initial_registration_request_stored.pack(pdu) != SRSASN_SUCCESS) {
     logger.error("Failed to pack registration request");
@@ -387,7 +394,7 @@ int nas_5g::send_registration_request()
     rrc_nr->write_sdu(std::move(pdu));
   } else {
     logger.debug("Initiating RRC NR Connection");
-    // NOTE: fuzz establishment cause
+    // HACK: fuzz establishment cause
     nr_establishment_cause_t cause;
     switch (cfg.fuzz_cause) {
       case 1:
