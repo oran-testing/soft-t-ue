@@ -53,6 +53,7 @@ public:
   std::string fuzz_msin;
   uint32_t fuzz_cause;
   uint32_t fuzz_protocol_discriminatior;
+  uint32_t fuzz_follow_on_request;
 
   // 5G args
   std::string    ia5g;
@@ -77,6 +78,7 @@ public:
   std::string fuzz_msin;
   uint32_t fuzz_cause;
   uint32_t fuzz_protocol_discriminatior;
+  uint32_t fuzz_follow_on_request;
 
   // 5G Security capabilities
   std::string                    ia5g;

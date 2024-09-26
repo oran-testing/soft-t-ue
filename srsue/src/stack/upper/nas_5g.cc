@@ -272,6 +272,10 @@ int nas_5g::send_registration_request()
   //TODO: fuzz follow_on_request_bit
   reg_req.registration_type_5gs.follow_on_request_bit =
       registration_type_5gs_t::follow_on_request_bit_type_::options::follow_on_request_pending;
+  if(cfg.fuzz_follow_on_request != 0){
+    reg_req.registration_type_5gs.follow_on_request_bit =
+        registration_type_5gs_t::follow_on_request_bit_type_::options::no_follow_on_request_pending;
+  }
   // TODO: fuzz registration_type
   reg_req.registration_type_5gs.registration_type =
       registration_type_5gs_t::registration_type_type_::options::initial_registration;
