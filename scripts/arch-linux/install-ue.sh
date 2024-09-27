@@ -14,7 +14,7 @@ set -x
 
 # Update and install build tools
 pacman -Syu --noconfirm
-pacman -S --needed --noconfirm cmake make gcc pkgconf fftw mbedtls libsctp yaml-cpp gtest zmq boost libconfig iperf3 git net-tools xcb-util-cursor mesa python python-pip
+pacman -S --needed --noconfirm cmake make gcc pkgconf fftw mbedtls libsctp yaml-cpp gtest zmq boost libconfig iperf3 git net-tools xcb-util-cursor mesa python python-pip mbedtls boost lksctp-tools libconfig
 
 # Optional dependencies that may not be in official repositories, but you can try installing via AUR (if needed)
 # Consider using an AUR helper like `yay` to install packages from the AUR
