@@ -89,7 +89,7 @@ def main():
             SharedState.process_list.append({
                 'id': str(uuid.uuid4()),
                 'type': ue['type'],
-                'config': ue['config_file'] + " " + ue['args'],
+                'config': ue['config_file'],
                 'handle': new_ue,
                 'index': SharedState.ue_index
             })

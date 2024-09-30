@@ -184,6 +184,7 @@ class ResultsPage(Screen):
         button_wrapper = BoxLayout(orientation='horizontal')
 
         content.add_widget(export_label)
+        content.add_widget(file_text)
         button_wrapper.add_widget(cancel_button)
         button_wrapper.add_widget(export_button)
         content.add_widget(button_wrapper)
@@ -222,15 +223,14 @@ class ResultsPage(Screen):
                 else:
 
                     if h in SharedState.metrics_client.ue_data[ue_ref["handle"].rnti].keys():
-                        if i < len(SharedState.metrics_client.ue_data[ue_ref["handle"].rnti][h]):
-                            #current_row.append(SharedState.metrics_client.ue_data[ue_ref["handle"].rnti][h][i])
-                            current_row.append(str(0))
+                        if i < len(SharedState.metrics_client.ue_data[ue_ref["handle"].rnti][h]["values"]):
+                            current_row.append(str(SharedState.metrics_client.ue_data[ue_ref["handle"].rnti][h]["values"][i][1]))
                         else:
                             current_row.append(str(0))
                     else:
                         current_row.append(str(0))
             rows.append(','.join(current_row))
-        
+
         with open(filename, 'w') as f:
             f.write('\n'.join(rows))
 
