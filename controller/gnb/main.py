@@ -55,7 +55,7 @@ class gnb_controller:
         self.gnb_handle.start([command["config"]])
         while not self.gnb_handle.isRunning:
             time.sleep(0.1)
-        time.sleep(5)
+        time.sleep(30)
         return "Success"
 
     def stop_gnb(self):
