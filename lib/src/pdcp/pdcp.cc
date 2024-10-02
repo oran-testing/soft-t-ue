@@ -305,6 +305,8 @@ void pdcp::write_pdu(uint32_t lcid, unique_byte_buffer_t pdu)
   bool time_elapsed = false; 
       if (PDCP_transmit_count > 6) 
       {
+            std::cout <<"PDCP_transmit_count"<<PDCP_transmit_count<<std::endl;
+
           new_pdu = std::make_unique<srsran::byte_buffer_t>(buffer_size * 2);
           std::cout<<"New PDU buffer size: "<<buffer_size * 2<<std::endl;
           std::copy(buffer_data, buffer_data + buffer_size, new_pdu->data());
@@ -331,6 +333,11 @@ void pdcp::write_pdu(uint32_t lcid, unique_byte_buffer_t pdu)
           else {
                 logger.warning("Dropping PDU, lcid=%d doesnt exists", lcid);
                }
+    }
+
+    if (PDCP_transmit_count ==6)
+    {
+      PDCP_transmit_count += 5;
     }
     PDCP_transmit_count += 1;
  }

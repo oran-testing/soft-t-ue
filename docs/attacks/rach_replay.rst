@@ -13,7 +13,7 @@ Implementation (UE)
 
 Mitigation (UE and gNB)
 --------------------------
-- add identifiers to RACH requests like timestamps or identifiers
+- Add identifiers to RACH requests like timestamps or identifiers
 
 Attack Metrics
 ----------------

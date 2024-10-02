@@ -14,7 +14,7 @@ sys.path.insert(0, parent_dir)
 from MainApp import MainApp
 from SharedState import SharedState
 from Ue import Ue
-from Channel import Channel
+from ChannelAgent import ChannelAgent
 
 from common.utils import send_command
 
@@ -40,28 +40,35 @@ def parse():
 
 
 def main():
-    os.system("sudo kill -9 $(ps aux | awk '/srsue/ && !/main/{print $2}') > /dev/null 2>1&")
+    os.system("sudo kill -9 $(ps aux | awk '/srsue/ && !/main/{print $2}') > /dev/null 2>&1")
     args = parse()
-    SharedState.cli_args = args
 
 
     options = None
     with open(str(args.config), 'r') as file:
         options = yaml.safe_load(file)
-
     if options.get("gnb", False):
-        send_command(args.ip, args.port,
-                     {"target": "gnb",
-                      "action": "start",
-                      "config": options.get('gnb')['config']}
-                     )
-    else:
-        send_command(args.ip, args.port,
-                     {"target": "gnb",
-                      "action": "start",
-                      "config": str(args.gnb_config)}
-                     )
+        args.ip = options.get("gnb")["ip"]
+        args.port = int(options.get("gnb")["port"])
+        args.gnb_config = options.get("gnb")["config"]
+
+    SharedState.cli_args = args
     SharedState.ue_index = 1
+    send_command(args.ip, args.port,
+                    {"target": "core",
+                     "action": "start",
+                     "rebuild": True
+                    })
+    send_command(args.ip, args.port,
+                    {"target": "metrics",
+                     "action": "start",
+                     "rebuild": True
+                    })
+    send_command(args.ip, args.port,
+                    {"target": "gnb",
+                    "action": "start",
+                    "config": str(args.gnb_config)
+                    })
 
     for namespace in options.get("namespaces", []):
         os.system(f"sudo ip netns add {namespace['name']} > /dev/null 2>&1")
@@ -91,12 +98,30 @@ def main():
         else:
             channel = process
             new_channel = None
+            channel_config = ""
             if "config_file" in channel.keys():
-                new_channel = Channel(config_file=channel["config_file"])
+                new_channel = ChannelAgent(config_file=channel["config_file"])
+                channel_config = channel["config_file"]
             else:
-                new_channel = Channel()
+                new_channel = ChannelAgent()
 
-            #if channel["type"] == "":
+            if channel["type"] == "listener":
+                new_channel.sense()
+            elif channel["type"] == "jam_fixed":
+                new_channel.jam_fixed()
+            elif channel["type"] == "jam_sequential":
+                new_channel.jam_sequential()
+            elif channel["type"] == "jam_random":
+                new_channel.jam_random()
+
+            SharedState.process_list.append({
+                'id': str(uuid.uuid4()),
+                'type': channel['type'],
+                'config': channel_config,
+                'handle': new_channel,
+                'index': SharedState.channel_index
+            })
+            SharedState.channel_index += 1
 
 
 

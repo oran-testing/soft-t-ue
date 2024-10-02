@@ -1,49 +1,53 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 CQI Manipulation attack
 =======
 Bandwidth Hogging Attack Using Manipulated CQI Values
 >>>>>>> 4196d37552bb0dd4264f2b7a3594da230898f4f8
+=======
+CQI Manipulation Attack
+>>>>>>> 5ec96a2e963c0ad06db2e4921468af4e3c35120a
 =====================================================
 
 Implementation (UE Side)
 --------------------------
-- **Override CQI**: Implement code to consistently send high CQI values.
+- **Override CQI**: Implement code to consistently send high CQI values
 
 - **Monitoring Impact**:
-   - **Measure Throughput**: Track throughput and bandwidth allocated to the UE.
-   - **Assess Network Impact**: Evaluate the effects on other users and overall network performance.
+   - **Measure Throughput**: Track throughput and bandwidth allocated to the UE
+   - **Assess Network Impact**: Evaluate the effects on other users and overall network performance
 
 Mitigation Components in srsRAN gNB under Test
 ------------------------------------------------
 1. **Proportional Fair Scheduling (PFS)**:
-    - **Balance Allocation**: Distributes resources considering both channel quality and historical throughput.
-    - **Limit Impact**: Adjusts allocation based on actual performance to mitigate exaggerated CQI effects.
+    - **Balance Allocation**: Distributes resources considering both channel quality and historical throughput
+    - **Limit Impact**: Adjusts allocation based on actual performance to mitigate exaggerated CQI effects
 
 2. **CQI Reporting and Filtering**:
-    - **Thresholds**: Applies thresholds to filter out unrealistic CQI values.
-    - **Configuration**: Configurable to detect and handle abnormal CQI reports.
+    - **Thresholds**: Applies thresholds to filter out unrealistic CQI values
+    - **Configuration**: Configurable to detect and handle abnormal CQI reports
 
 3. **Quality of Service (QoS) Management**:
-    - **Prioritization**: Enforces QoS policies to ensure service needs are met, mitigating bandwidth hogging.
-    - **Resource Allocation**: Allocates resources based on QoS requirements.
+    - **Prioritization**: Enforces QoS policies to ensure service needs are met, mitigating bandwidth hogging
+    - **Resource Allocation**: Allocates resources based on QoS requirements
 
 4. **Resource Allocation Limits**:
-    - **Maximum Limits**: Configures resource limits to prevent excessive bandwidth use by any single UE.
-    - **Rate Limiting**: Implements rate limiting to ensure fair resource distribution.
+    - **Maximum Limits**: Configures resource limits to prevent excessive bandwidth use by any single UE
+    - **Rate Limiting**: Implements rate limiting to ensure fair resource distribution
 
 Metrics to Assess the Attack
 ------------------------------
 1. **Bandwidth Utilization**:
-    - **Throughput Measurement**: Quantify throughput allocated to the modified UE.
-    - **Bandwidth Consumption**: Track the percentage of total network bandwidth used by the UE.
+    - **Throughput Measurement**: Quantify throughput allocated to the modified UE
+    - **Bandwidth Consumption**: Track the percentage of total network bandwidth used by the UE
 
 2. **Network Performance**:
-    - **Impact on Other Users**: Monitor changes in service quality (e.g., throughput, latency) for other UEs.
-    - **Error Rates**: Observe increases in error rates or retransmissions due to congestion.
+    - **Impact on Other Users**: Monitor changes in service quality (e.g., throughput, latency) for other UEs
+    - **Error Rates**: Observe increases in error rates or retransmissions due to congestion
 
 3. **Network Load**:
-    - **Resource Allocation Metrics**: Measure resource usage by the attacking UE compared to others.
-    - **System Performance**: Assess the impact on network CPU and memory usage due to increased load.
+    - **Resource Allocation Metrics**: Measure resource usage by the attacking UE compared to others
+    - **System Performance**: Assess the impact on network CPU and memory usage due to increased load
 
 Notes
 ------

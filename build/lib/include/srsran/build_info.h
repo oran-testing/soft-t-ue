@@ -43,7 +43,7 @@ extern "C" {
 #endif
 
 // the configured build options for srsRAN
-static char build_info[] = "commit 6094c13 on branch RlcBufferoverflowAttack";
+static char build_info[] = "commit 9b566d0 on branch RlcBufferoverflowAttack";
 
 SRSRAN_API char* srsran_get_build_info() {
   return build_info;

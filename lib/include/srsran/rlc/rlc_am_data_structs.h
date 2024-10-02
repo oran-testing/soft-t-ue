@@ -307,8 +307,11 @@ public:
   uint32_t nof_sdus() const { return count; }
 
 private:
-  const static size_t   max_pdcp_sn      = 262143u;
-  const static size_t   buffer_size      = 4096u;
+  //const static size_t   max_pdcp_sn      = 262143u;
+  //const static size_t   buffer_size      = 4096u;
+
+  const static size_t   max_pdcp_sn      = 128u;
+  const static size_t   buffer_size      = 128u;
   const static uint32_t status_report_sn = pdcp_pdu_info<HeaderType>::status_report_sn;
 
   pdcp_pdu_info<HeaderType>& get_pdu_(uint32_t sn)

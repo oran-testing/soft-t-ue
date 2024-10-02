@@ -4,23 +4,34 @@ from kivy.uix.rst import RstDocument
 from kivy.uix.screenmanager import Screen
 from kivy.uix.spinner import Spinner
 from SharedState import SharedState
+from kivy.uix.textinput import TextInput
 
 
 class AttacksPage(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.layout = BoxLayout(orientation='vertical')
+        self.title = Label(text="", font_size="32sp")
+        self.layout.add_widget(self.title)
         attack_option = Spinner(
             text='imsi_capture',
             values=(
-                'sdu_fuzzing',
-                'cqi_manipulation',
+                'rrc_random_fuzzing',
+                'rrc_selective_fuzzing',
                 'rrc_signal_flooding',
+                'cqi_manipulation',
                 'rach_jamming',
                 'rach_replay',
-                'preamble_collision',
-                'rach_signal_flooding',
-                'imsi_capture',
+                'rach_collision',
+                'rach_flooding',
+                'gnb_impersonation',
+                'random_jamming',
+                'fixed_jamming',
+                'sequential_jamming',
+                'targeted_replay',
+                'targeted_spoofing',
+                'fronthaul_dos',
+                'uhd_dos'
             ),
             size_hint=(None, None),
             size=(400, 30)
@@ -33,66 +44,69 @@ class AttacksPage(Screen):
         self.target_message = "All"
         self.previous_doc = RstDocument(source=f"../../docs/attacks/imsi_capture.rst",)
         self.layout.add_widget(self.previous_doc)
-        self.previous_spinners = []
+        self.attack_widgets = []
 
     def set_attack_type(self, spinner, text):
         self.attack_type = text
 
-        for spinner in self.previous_spinners:
+        for spinner in self.attack_widgets:
             self.layout.remove_widget(spinner)
-        self.previous_spinners = []
+        self.attack_widgets = []
+        # TODO: make functions for each attack type
+        getattr(self, "set_" + text)()
 
-        if text == "sdu_fuzzing":
-            target_message = Spinner(
-                text='Target Message',
-                values=('All', 'rrcSetupRequest','rrcRegistrationRequest'),
-                size_hint=(None, None),
-                size=(400, 44)
-            )
-            target_message.bind(text=self.set_target_message)
-            bits_to_fuzz = Spinner(
-                text='Number of Bits to Fuzz',
-                values=[str(i) for i in range(1, 11)],
-                size_hint=(None, None),
-                size=(200, 44)
-            )
-            bits_to_fuzz.bind(text=self.set_fuzzed_bits)
-            self.layout.add_widget(target_message)
-            self.layout.add_widget(bits_to_fuzz)
-            self.previous_spinners.append(target_message)
-            self.previous_spinners.append(bits_to_fuzz)
-        if text == "CQI Manipulation":
-            cqi_value = Spinner(
-                text='CQI Value',
-                values=[str(i * 100) for i in range(10)],
-                size_hint=(None, None),
-                size=(200, 44)
-            )
-            cqi_value.bind(text=self.set_cqi_value)
-            self.layout.add_widget(cqi_value)
-            self.previous_spinners.append(cqi_value)
 
+        # TODO: Document each attack in detail
         new_doc = RstDocument(source=f"../../docs/attacks/{text}.rst",)
         self.layout.add_widget(new_doc)
         if self.previous_doc:
             self.layout.remove_widget(self.previous_doc)
         self.previous_doc = new_doc
 
+    def set_rrc_random_fuzzing(self):
 
-    def set_target_message(self, spinner, text):
-        self.target_message = text
-        if text != "All":
-            SharedState.attack_args = ["--rrc.sdu_fuzzed_bits", str(self.num_fuzzed_bits)
-                           , "--rrc.fuzz_target_message", self.target_message]
-            self.title.text = f"--rrc.sdu_fuzzed_bits {self.num_fuzzed_bits} --rrc.fuzz_target_message {self.target_message}"
+        target_message = Spinner(
+            text='All',
+            values=('All', 'rrcSetupRequest','rrcRegistrationRequest'),
+            size_hint=(None, None),
+            size=(400, 44)
+        )
+        bits_to_fuzz = TextInput(
+            hint_text='Number of Bits to Fuzz',
+            multiline=False,
+            font_size=32,
+            size_hint=(None, None),
+            size=(200, 44)
+        )
+        bits_to_fuzz.bind(text= lambda widget, text : self.rrc_random_fuzzing(text, target_message.text))
+        self.layout.add_widget(target_message)
+        self.layout.add_widget(bits_to_fuzz)
+        self.attack_widgets.append(target_message)
+        self.attack_widgets.append(bits_to_fuzz)
 
-    def set_fuzzed_bits(self, spinner, text):
-        self.num_fuzzed_bits = int(text)
-        SharedState.attack_args = ["--rrc.sdu_fuzzed_bits", str(self.num_fuzzed_bits)
-                       , "--rrc.fuzz_target_message", self.target_message]
-        self.title.text = f"--rrc.sdu_fuzzed_bits {self.num_fuzzed_bits} --rrc.fuzz_target_message {self.target_message}"
 
-    def set_cqi_value(self, spinner, text):
+    def rrc_random_fuzzing(self, bits_text, target_text):
+        if target_text != "All":
+            SharedState.attack_args = ["--rrc.sdu_fuzzed_bits", str(bits_text),
+                           "--rrc.fuzz_target_message", target_text]
+            self.title.text = f"--rrc.sdu_fuzzed_bits {bits_text} --rrc.fuzz_target_message {target_text}"
+        else:
+            SharedState.attack_args = ["--rrc.sdu_fuzzed_bits", str(bits_text)]
+            self.title.text = f"--rrc.sdu_fuzzed_bits {bits_text}"
+
+    def set_cqi_manipulation(self):
+        cqi_value = TextInput(
+            hint_text='CQI Value',
+            size_hint=(None, None),
+            size=(200, 44),
+            font_size=32,
+        )
+        cqi_value.bind(text=self.cqi_manipulation)
+        self.layout.add_widget(cqi_value)
+        self.attack_widgets.append(cqi_value)
+
+
+    def cqi_manipulation(self, spinner, text):
         SharedState.attack_args = ["--phy.cqi_max", text, "--phy.cqi_fixed", text]
         self.title.text = f"--phy.cqi_max {text} --phy.cqi_fixed {text}"
 

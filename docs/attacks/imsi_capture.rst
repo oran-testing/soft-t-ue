@@ -9,8 +9,8 @@ Implementation (gNB)
 --------------------------
 Create a dummy gNB:
 
-- configure the gNB to have a higher signal strength than the other
-- configure the dummy gNB to send IMSI and other sensitive data to a server
+- Configure the gNB to have a higher signal strength than the other
+- Configure the dummy gNB to send IMSI and other sensitive data to a server
 
 Mitigation
 ------------
@@ -19,6 +19,6 @@ Mitigation
 
 Attack Metrics
 ----------------
-- captured IMSIs
-- disconnected UEs
-- disrupted network function
+- Captured IMSIs
+- Disconnected UEs
+- Disrupted network function

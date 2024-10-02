@@ -58,11 +58,22 @@ def shift_bytes_left(byte_obj, shift_amount):
     return shifted_bytes
 
 def send_command(ip, port, cmd_json):
-        try:
-            cmd_string = json.dumps(cmd_json)
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                sock.connect((ip, port))
-                sock.sendall(cmd_string.encode('utf-8'))
-        except Exception as e:
-            print(f"An error occurred: {e}")
+    try:
+        cmd_string = json.dumps(cmd_json)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            print(type(ip), type(port), type(cmd_string))
+            sock.connect((ip, port))
+            sock.sendall(cmd_string.encode('utf-8'))
+            print("SENDING:", cmd_string)
+            
+            # Move recv inside the with block to keep socket open
+            response = sock.recv(1024).decode('utf-8').strip()
+            if json.loads(response)["result"] == "Success":
+                print("RECEIVED: Success")
+                return 0
+            else:
+                print("RECEIVED: Failure")
+                raise ValueError("Received Failure from gNB controller")
 
+    except Exception as e:
+        print(f"(send_command) An error occurred: {e}")

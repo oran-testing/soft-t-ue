@@ -1,5 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 Preamble Collision attack
+=======
+Preamble Collision Attack
+>>>>>>> 5ec96a2e963c0ad06db2e4921468af4e3c35120a
 ==========================================================
 
 Introduction
