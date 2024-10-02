@@ -1,7 +1,7 @@
 gnb:
   config: "../../configs/uhd/gnb_uhd.yaml"
-  port: ""
-  ip: ""
+  port: 5050
+  ip: "192.168.1.11"
 
 namespaces:
   - name: "ue1"

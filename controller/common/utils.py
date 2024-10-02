@@ -60,6 +60,7 @@ def send_command(ip, port, cmd_json):
     try:
         cmd_string = json.dumps(cmd_json)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            print(type(ip), type(port), type(cmd_string))
             sock.connect((ip, port))
             sock.sendall(cmd_string.encode('utf-8'))
             print("SENDING:", cmd_string)

@@ -49,8 +49,8 @@ def main():
         options = yaml.safe_load(file)
     if options.get("gnb", False):
         args.ip = options.get("gnb")["ip"]
-        args.port = options.get("gnb")["port"]
-        args.gnb_config = options.get("gnb")["gnb_config"]
+        args.port = int(options.get("gnb")["port"])
+        args.gnb_config = options.get("gnb")["config"]
 
     SharedState.cli_args = args
     SharedState.ue_index = 1
