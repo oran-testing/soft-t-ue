@@ -156,6 +156,8 @@ static int parse_args(all_args_t* args, int argc, char* argv[])
     ("rrc.fuzz_target_message", bpo::value<string>(&args->stack.rrc_nr.target_message)->default_value(""),                        "The Message to be fuzzed in the RRC")
     ("phy.rach_flood_count",    bpo::value<uint32_t>(&args->stack.rrc_nr.rach_flood_count)->default_value(0),                     "Enable RACH Flooding attack, how many messages to send")
     ("rrc.target_signal_attack",     bpo::value<string>(&args->stack.rrc_nr.target_signal_attack)->default_value(""),              "The Singalling storm type to be injected")
+    ("rrc.rach_jamming_attack",     bpo::value<bool>(&args->stack.rrc_nr.target_signal_attack)->default_value(false),              "Enable Rach Jamming attack")
+    ("rrc.rach_jamming_msg",     bpo::value<string>(&args->stack.rrc_nr.target_signal_attack)->default_value(""),              "RACH Jamming message")
 
     ("nas.apn",               bpo::value<string>(&args->stack.nas.apn_name)->default_value(""),          "Set Access Point Name (APN) for data services")
     ("nas.apn_protocol",      bpo::value<string>(&args->stack.nas.apn_protocol)->default_value(""),  "Set Access Point Name (APN) protocol for data services")
