@@ -1,13 +1,13 @@
 Performing C SOURCE FILE Test HAVE_AVX512 failed with the following output:
 Change Dir: /home/prab/soft-t-ue/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_a488d/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_a488d.dir/build.make CMakeFiles/cmTC_a488d.dir/build
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_acb12/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_acb12.dir/build.make CMakeFiles/cmTC_acb12.dir/build
 gmake[1]: Entering directory '/home/prab/soft-t-ue/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_a488d.dir/src.c.o
-/usr/bin/cc   -DHAVE_AVX512 -mavx512f -mavx512cd -mavx512bw -mavx512dq -DLV_HAVE_AVX512 -o CMakeFiles/cmTC_a488d.dir/src.c.o -c /home/prab/soft-t-ue/build/CMakeFiles/CMakeTmp/src.c
-Linking C executable cmTC_a488d
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a488d.dir/link.txt --verbose=1
-/usr/bin/cc  -DHAVE_AVX512 -mavx512f -mavx512cd -mavx512bw -mavx512dq -DLV_HAVE_AVX512 CMakeFiles/cmTC_a488d.dir/src.c.o -o cmTC_a488d 
+Building C object CMakeFiles/cmTC_acb12.dir/src.c.o
+/usr/bin/cc   -DHAVE_AVX512 -mavx512f -mavx512cd -mavx512bw -mavx512dq -DLV_HAVE_AVX512 -o CMakeFiles/cmTC_acb12.dir/src.c.o -c /home/prab/soft-t-ue/build/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_acb12
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_acb12.dir/link.txt --verbose=1
+/usr/bin/cc  -DHAVE_AVX512 -mavx512f -mavx512cd -mavx512bw -mavx512dq -DLV_HAVE_AVX512 CMakeFiles/cmTC_acb12.dir/src.c.o -o cmTC_acb12 
 gmake[1]: Leaving directory '/home/prab/soft-t-ue/build/CMakeFiles/CMakeTmp'
 
 
