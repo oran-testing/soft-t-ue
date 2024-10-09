@@ -142,6 +142,18 @@ struct rach_cfg_nr_t {
   uint32_t ra_ContentionResolutionTimer;
   uint32_t nof_preambles;
   uint32_t rach_flood_count;
+  uint32_t rach_replay_attack;
+ 
+  // Getter for rach_replay_attack
+  uint32_t get_rach_replay_attack() const {
+    return rach_replay_attack;
+  }
+
+  // Setter for rach_replay_attack
+  void set_rach_replay_attack(uint32_t attack_value) {
+    this->rach_replay_attack = attack_value;
+  }
+
 
   rach_cfg_nr_t() { reset(); }
   void reset()
@@ -152,6 +164,7 @@ struct rach_cfg_nr_t {
     preambleTransMax            = 0;
     ra_responseWindow           = 0;
     nof_preambles               = 0;
+   
   }
 };
 

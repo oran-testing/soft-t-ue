@@ -155,6 +155,9 @@ private:
   srsran::unique_byte_buffer_t fuzz_ccch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_ccch_msg_s msg, std::string msg_name);
   srsran::unique_byte_buffer_t fuzz_dcch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_dcch_msg_s msg, std::string msg_name);
   srsran::unique_byte_buffer_t signal_flood_ccch(uint32_t lcid, srsran::unique_byte_buffer_t pdu, std::string msg_name);
+  
+  srsran::unique_byte_buffer_t rach_replay_ccch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_ccch_msg_s msg, std::string msg_name);
+
 
 
 

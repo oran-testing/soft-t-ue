@@ -41,7 +41,9 @@ namespace srsue {
 
 class rlc_interface_mac;
 
-struct mac_nr_args_t {};
+struct mac_nr_args_t {
+
+};
 
 class mac_nr final : public mac_interface_phy_nr,
                      public mac_interface_rrc_nr,

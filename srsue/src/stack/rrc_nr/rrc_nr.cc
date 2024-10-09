@@ -135,6 +135,9 @@ int rrc_nr::init(phy_interface_rrc_nr*       phy_,
   return SRSRAN_SUCCESS;
 }
 
+
+
+
 void rrc_nr::stop()
 {
   running = false;
@@ -190,10 +193,11 @@ void rrc_nr::log_rrc_message(const std::string&           source,
                              const T&                     msg,
                              const std::string&           msg_type)
 {
+  std::cout<<std::endl;
   std::cout<<"RRC PDU Bytes: "<<pdu->N_bytes<<std::endl;
   std::cout<<"Message name: "<<msg.msg.c1().type().to_string()<<std::endl;
   //std::cout<<"Message name: "<<RRC_message_name
-  std::cout<<state;
+  std::cout<<"RRC Connection state, 0: Not Connected, 1 : Connected. State: "<<state;
   std::cout<<std::endl;
   if (logger.debug.enabled()) {
     asn1::json_writer json_writer;
@@ -258,7 +262,10 @@ uint32_t rrc_nr::get_lcid_for_drbid(uint32_t drb_id)
 }
 
 // PHY interface
-void rrc_nr::in_sync() {}
+void rrc_nr::in_sync() {
+
+
+}
 void rrc_nr::out_of_sync() {}
 
 // MAC interface
@@ -411,6 +418,15 @@ void rrc_nr::set_phy_default_config()
 
 void rrc_nr::handle_sib1(const sib1_s& sib1)
 {
+
+
+rach_cfg_nr_t rach_config;
+rach_config.set_rach_replay_attack(args.rach_replay_attack);
+uint32_t replay_attack_value = rach_config.get_rach_replay_attack();
+std::cout << "Rach replay attack value:(in rrc_nr) " << replay_attack_value << std::endl;
+mac->set_config(rach_config);
+
+
   if (meas_cells.serving_cell().has_sib1()) {
     logger.info("SIB1 already processed");
     return;
@@ -633,6 +649,8 @@ void rrc_nr::send_setup_request(srsran::nr_establishment_cause_t cause)
 
 void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
 {
+
+
   unique_byte_buffer_t pdu = srsran::make_byte_buffer();
   if (pdu == nullptr) {
     logger.error("Couldn't allocate PDU in %s().", __FUNCTION__);
@@ -674,6 +692,15 @@ void rrc_nr::send_ul_ccch_msg(const asn1::rrc_nr::ul_ccch_msg_s& msg)
     return;
   }
 
+
+ // if (args.rach_replay_attack > 0 && (args.target_message == msg_name)){
+  /*
+  if (args.rach_replay_attack > 0 ){
+     std::cout<<"RACH Replay Attack"<<std::endl;
+    rlc->write_sdu(lcid, std::move(rach_replay_ccch_msg(std::move(pdu), msg, msg_name)));
+    return;
+  }
+  */
   rlc->write_sdu(lcid, std::move(pdu));
 }
 
@@ -705,6 +732,17 @@ srsran::unique_byte_buffer_t rrc_nr::fuzz_ccch_msg(srsran::unique_byte_buffer_t 
   return std::move(pdu);
 }
 
+/*
+srsran::unique_byte_buffer_t rrc_nr::rach_replay_ccch_msg(srsran::unique_byte_buffer_t pdu, const asn1::rrc_nr::ul_ccch_msg_s msg, std::string msg_name){
+  while (true){
+  std::cout << "RACH replay message: " << std::endl
+              << "\tMessage Type: " << msg_name << std::endl
+              << "\taddress: " << pdu.get()  << std::endl
+              << "\tMsg length(bytes): " << pdu->N_bytes << std::endl;
+  return std::move(pdu);
+  }
+}
+*/
 
 void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
 {
@@ -733,10 +771,8 @@ void rrc_nr::send_ul_dcch_msg(uint32_t lcid, const ul_dcch_msg_s& msg)
     return;
   }
 
-  if (args.sdu_fuzzed_bits > 0 && (args.target_message == msg_name || args.target_message == "")){
-    pdcp->write_sdu(lcid, std::move(fuzz_dcch_msg(std::move(pdu), msg, msg_name)));
-    return;
-  }
+   
+   
 
   pdcp->write_sdu(lcid, std::move(pdu));
 }
@@ -787,6 +823,9 @@ void rrc_nr::send_rrc_reconfig_complete()
   auto& rrc_reconfig_complete = ul_dcch_msg.msg.set_c1().set_rrc_recfg_complete().crit_exts.set_rrc_recfg_complete();
   ul_dcch_msg.msg.c1().rrc_recfg_complete().rrc_transaction_id = transaction_id;
 
+
+
+  
   send_ul_dcch_msg(srb_to_lcid(nr_srb::srb1), ul_dcch_msg);
 
 }
@@ -1637,6 +1676,7 @@ bool rrc_nr::apply_dl_common_cfg(const asn1::rrc_nr::dl_cfg_common_s& dl_cfg_com
 
 bool rrc_nr::apply_ul_common_cfg(const asn1::rrc_nr::ul_cfg_common_s& ul_cfg_common)
 {
+
   srsran::srsran_band_helper bands;
 
   if (ul_cfg_common.freq_info_ul_present && ul_cfg_common.freq_info_ul.absolute_freq_point_a_present) {
@@ -1648,8 +1688,14 @@ bool rrc_nr::apply_ul_common_cfg(const asn1::rrc_nr::ul_cfg_common_s& ul_cfg_com
     if (ul_cfg_common.init_ul_bwp.rach_cfg_common_present) {
       if (ul_cfg_common.init_ul_bwp.rach_cfg_common.type() == setup_release_c<rach_cfg_common_s>::types_opts::setup) {
         rach_cfg_nr_t rach_cfg_nr = {};
+        
+
+
         make_mac_rach_cfg(ul_cfg_common.init_ul_bwp.rach_cfg_common.setup(), &rach_cfg_nr);
         rach_cfg_nr.rach_flood_count = args.rach_flood_count;
+        //rach_cfg_nr.rach_replay_attack= args.rach_replay_attack;
+        std::cout <<"RACH Flood count "<<args.rach_flood_count<<std::endl;
+         //std::cout <<"Rach_replay_attack "<<args.rach_replay_attack<<std::endl;
         mac->set_config(rach_cfg_nr);
 
         // Make the RACH configuration for PHY
