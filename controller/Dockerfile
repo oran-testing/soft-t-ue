@@ -37,8 +37,9 @@ WORKDIR /opt/soft-t-ue/build
 RUN cmake ../ && \
     make -j$(nproc) && \
     make install && \
-    srsran_install_configs.sh user
+    srsran_install_configs.sh user && \
+    ldconfig
 
 WORKDIR /opt/soft-t-ue/
 
-CMD /usr/local/bin/srsue "${CONFIG}" "${ARGS}"
+CMD /usr/local/bin/srsue "${CONFIG}" $ARGS
