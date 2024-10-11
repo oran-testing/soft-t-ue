@@ -21,7 +21,7 @@ class Iperf:
         if process_type == "server":
             command = ["stdbuf","-oL","-eL","iperf3"] + args
         elif process_type == "client":
-            command = ["sudo", "ip", "netns","exec", f"ue{ue_index}", "stdbuf", "-oL", "-eL", "iperf3"] + args
+            command = ["ip", "netns","exec", f"ue{ue_index}", "stdbuf", "-oL", "-eL", "iperf3"] + args
         else:
             raise ValueError("Invalid Process Type")
             return

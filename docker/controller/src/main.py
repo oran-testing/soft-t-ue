@@ -5,7 +5,6 @@ import pathlib
 import sys
 import time
 import uuid
-import logging
 import yaml
 
 from MainApp import MainApp
@@ -37,7 +36,7 @@ def parse():
 
 
 def main():
-    os.system("sudo kill -9 $(ps aux | awk '/srsue/ && !/main/{print $2}') > /dev/null 2>&1")
+    os.system("kill -9 $(ps aux | awk '/srsue/ && !/main/{print $2}') > /dev/null 2>&1")
     args = parse()
 
 
@@ -68,7 +67,7 @@ def main():
                     })
 
     for namespace in options.get("namespaces", []):
-        os.system(f"sudo ip netns add {namespace['name']} > /dev/null 2>&1")
+        os.system(f"ip netns add {namespace['name']} > /dev/null 2>&1")
 
     time.sleep(0.5)
 

@@ -24,10 +24,7 @@ RUN apt-get update && apt-get upgrade -y && \
     git \
     libxcb-cursor0 \
     libgles2-mesa-dev \
-    gr-osmosdr \
-    python3 \
-    python3-pip && \
-    pip3 install kivy kivy_garden.graph
+    gr-osmosdr
 
 WORKDIR /opt
 
