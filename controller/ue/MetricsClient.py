@@ -27,7 +27,7 @@ class MetricsClient:
         try:
             self.query_api: QueryApi = InfluxDBClient(
                 **{
-                    "url": "http://192.168.1.11:8086",
+                    "url": "http://localhost:8086",
                     "org": self.org,
                     "token": self.token
                 }

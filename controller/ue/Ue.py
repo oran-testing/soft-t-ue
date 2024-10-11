@@ -5,12 +5,10 @@ import sys
 import threading
 import time
 
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, parent_dir)
 
-from common.Iperf import Iperf
-from common.Ping import Ping
-from common.utils import kill_subprocess, send_command, start_subprocess
+from Iperf import Iperf
+from Ping import Ping
+from utils import kill_subprocess, send_command, start_subprocess
 
 
 class Ue:

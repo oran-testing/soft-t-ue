@@ -10,7 +10,7 @@ from ProcessesPage import ProcessesPage
 from ResultsPage import ResultsPage
 from SharedState import SharedState
 
-from common.utils import send_command
+from utils import send_command
 
 
 class MainApp(App):

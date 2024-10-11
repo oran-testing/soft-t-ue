@@ -4,7 +4,7 @@ import sys
 import threading
 from datetime import datetime
 
-from common.utils import kill_subprocess, start_subprocess
+from utils import kill_subprocess, start_subprocess
 
 
 class Iperf:

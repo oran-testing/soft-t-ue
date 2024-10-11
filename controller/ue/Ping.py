@@ -1,15 +1,10 @@
 import os
 import sys
 from datetime import datetime
-
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, parent_dir)
-
-
 import re
 import threading
 
-from common.utils import kill_subprocess, start_subprocess
+from utils import kill_subprocess, start_subprocess
 
 
 class Ping:

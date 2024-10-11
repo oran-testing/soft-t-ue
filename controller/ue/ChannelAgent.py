@@ -1,6 +1,6 @@
 import threading
 
-from common.utils import kill_subprocess, start_subprocess
+from utils import kill_subprocess, start_subprocess
 
 
 class ChannelAgent:

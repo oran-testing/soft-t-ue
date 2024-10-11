@@ -8,15 +8,12 @@ import uuid
 import logging
 import yaml
 
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, parent_dir)
-
 from MainApp import MainApp
 from SharedState import SharedState
 from Ue import Ue
 from ChannelAgent import ChannelAgent
 
-from common.utils import send_command
+from utils import send_command
 
 
 def parse():
