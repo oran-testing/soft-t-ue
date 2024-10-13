@@ -1,7 +1,12 @@
-FROM ubuntu:22.04
+ARG OS_VERSION=24.04
+ARG LIB=uhd
+ARG LIB_VERSION=4.7.0.0
+ARG MARCH=native
+ARG NUM_CORES=""
+
+FROM ubuntu:$OS_VERSION
 
 ENV CONFIG="./configs/zmq/ue_zmq.conf"
-ENV ARGS=""
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get upgrade -y && \
@@ -26,17 +31,20 @@ RUN apt-get update && apt-get upgrade -y && \
     libgles2-mesa-dev \
     gr-osmosdr
 
-WORKDIR /opt
+COPY . /app
 
-RUN git clone https://github.com/oran-testing/soft-t-ue && mkdir -p ./soft-t-ue/build
+WORKDIR /app
 
-WORKDIR /opt/soft-t-ue/build
+RUN mkdir -p build && rm -rf build/*
+
+WORKDIR /app/build
+
 RUN cmake ../ && \
     make -j$(nproc) && \
     make install && \
     srsran_install_configs.sh user && \
     ldconfig
 
-WORKDIR /opt/soft-t-ue/
+WORKDIR /app
 
 CMD /usr/local/bin/srsue "${CONFIG}" $ARGS

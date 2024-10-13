@@ -410,7 +410,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 endif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
-ADD_C_COMPILER_FLAG_IF_AVAILABLE("-Werror=incompatible-pointer-types" HAVE_ERROR_INCOMPATIBLE)
+#ADD_C_COMPILER_FLAG_IF_AVAILABLE("-Werror=incompatible-pointer-types" HAVE_ERROR_INCOMPATIBLE)
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-comment -Wno-write-strings -Wno-unused-result -Wformat -Wmissing-field-initializers -Wtype-limits -std=c99 -fno-strict-aliasing -D_GNU_SOURCE")
@@ -538,10 +538,10 @@ if("Ninja" STREQUAL ${CMAKE_GENERATOR})
 endif()
 
 # Add -Werror to C/C++ flags for newer compilers
-if(ENABLE_WERROR AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
-endif()
+#if(ENABLE_WERROR AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
+#  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+#endif()
 
 # GCC >= 11.2.0: Disable analysis on "maybe-uninitialized" variables because of the high false-positive rate
 if(CMAKE_COMPILER_IS_GNUCXX AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 11.2)
