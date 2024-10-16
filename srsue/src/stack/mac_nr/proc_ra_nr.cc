@@ -83,7 +83,7 @@ void proc_ra_nr::set_config(const srsran::rach_cfg_nr_t& rach_cfg_)
 uint32_t replay_attack_value = rach_cfg.get_rach_replay_attack();
 std::cout << "Rach replay attack value: (from set config pro cra) " << replay_attack_value << std::endl;
 rach_attack_val = replay_attack_value;
- //std::cout << "Rach replay attack attack attack attack value: (from set config pro cra) " << 
+ //std::cout << "Rach replay attack value: (from set config pro cra) " << 
 //rach_attack_val << std::endl;
 
 if (rach_attack_val == 1)
