@@ -13,11 +13,11 @@ class LandingPage(Screen):
         super().__init__(**kwargs)
 
         layout = RelativeLayout()
-        self.background = Image(source='../../docs/images/Webimage.png', allow_stretch=True, keep_ratio=True)
+        self.background = Image(source='assets/Webimage.png', allow_stretch=True, keep_ratio=True)
         layout.add_widget(self.background)
         self.welcome_label = Label(
             text="NTIA Soft T UE",
-            font_size='30sp',
+            font_size='60sp',
             halign='center',
             valign='middle'
         )
@@ -37,8 +37,4 @@ class LandingPage(Screen):
         anim.start(self.background) 
 
         self.animation_completed = 1
-        anim.bind(on_complete=self.switch_to_processes)
-
-    def switch_to_processes(self, *args):
-        self.manager.current = 'processes'
 

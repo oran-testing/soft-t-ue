@@ -4,26 +4,26 @@ services:
     image: srsran/ue
     build:
       context: ..
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/dockerfile
       args:
-        OS_VERSION: "24.04"
+        os_version: "24.04"
     privileged: true
     env_file:
       - .env
     cap_add:
-      - SYS_NICE
-      - CAP_SYS_PTRACE
+      - sys_nice
+      - cap_sys_ptrace
     volumes:
-      # Access USB to use some SDRs
+      # access usb to use some sdrs
       - /dev/bus/usb/:/dev/bus/usb/
-      # Access UHD images
+      # access uhd images
       - /usr/share/uhd/images:/usr/share/uhd/images
-      # Store logs in /tmp
+      # store logs in /tmp
       - ue-storage:/tmp
     environment:
-      - CONFIG=${UE_CONFIG_PATH:-configs/zmq/ue_zmq.conf}
-      - ARGS=${UE_ARGS}
-    # Allow network connection for ZMQ
+      - config=${ue_config_path:-configs/zmq/ue_zmq.conf}
+      - args=${ue_args}
+    # allow network connection for zmq
     ports:
       -  2000:2000/tcp
       -  2001:2001/tcp
@@ -37,12 +37,14 @@ services:
     env_file:
       - .env
     environment:
-      - CONFIG=${UE_CONTROLLER_CONFIG}
+      - config=${ue_controller_config}
     ports:
-      - 5050:${UE_CONTROLLER_PORT}/tcp
+      - 5050:${ue_controller_port}/tcp
     networks:
       controller:
         ipv4_address: 172.19.1.4
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   ue-storage:

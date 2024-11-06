@@ -10,7 +10,6 @@ from Iperf import Iperf
 from Ping import Ping
 from utils import kill_subprocess, send_command, start_subprocess
 
-
 class Ue:
     def __init__(self, ue_index):
         self.ue_index = ue_index
@@ -22,13 +21,33 @@ class Ue:
         self.output = ""
         self.rnti = ""
 
-    def start(self, args):
-        command = ["sudo", "srsue"] + args
-        self.process = start_subprocess(command)
-        self.isRunning = True
-        self.stop_thread = threading.Event()
-        self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
-        self.log_thread.start()
+    def start(self, args, mode="baremetal"):
+        if mode == "docker":
+            self.container = client.containers.run(
+                "srsran/ue",
+                name="srsran_ue",
+                detach=True,
+                network_mode="host",
+                volumes={
+                    "/dev/bus/usb/": {"bind": "/dev/bus/usb/", "mode": "rw"},
+                    "/usr/share/uhd/images": {"bind": "/usr/share/uhd/images", "mode": "rw"},
+                    "ue-storage": {"bind": "/tmp", "mode": "rw"},
+                },
+                environment={
+                    "config": "configs/zmq/ue_zmq.conf",
+                    "args": "your_args_here",
+                },
+                cap_add=["SYS_NICE", "SYS_PTRACE"],
+                privileged=True
+            )
+
+        else:
+            command = ["sudo", "srsue"] + args
+            self.process = start_subprocess(command)
+            self.isRunning = True
+            self.stop_thread = threading.Event()
+            self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
+            self.log_thread.start()
 
     def start_metrics(self):
         send_command("127.0.0.1", 5000, {"target": "iperf", "port": str(5000 + self.ue_index)})

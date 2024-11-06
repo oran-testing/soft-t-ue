@@ -33,8 +33,6 @@ RUN poetry install --no-dev
 
 COPY ./src ./src
 
-COPY configs ./src/configs
-
 WORKDIR /app/src/
 
 CMD poetry run python3 main.py --config "${CONFIG}" $ARGS
