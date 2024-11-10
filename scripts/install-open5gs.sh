@@ -9,6 +9,10 @@ fi
 PS4='[DEBUG] '
 set -x
 
+sudo apt-get install cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev ##
+sudo apt install docker-compose																							##
+sudo apt install docker.io																								##
+
 # Add Docker's official GPG key:
 apt-get update
 apt-get install -y ca-certificates curl
@@ -27,10 +31,11 @@ apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin do
 cd /opt
 #TEST123
 # Clone and install srsRAN
-git clone https://github.com/oran-testing/srsRAN_Project.git
+##git clone https://github.com/oran-testing/srsRAN_Project.git
 cd srsRAN_Project
 git checkout ue-tester
 cd docker
 docker compose build 5gc
+
 
 set -x
