@@ -43,8 +43,9 @@ cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
 make -j $(nproc)
 make install
 cd ..
+srsran_install_configs.sh user
 sudo docker compose build srsue
-sudo docker compose up srsue
+#sudo docker compose up srsue
 
 ##srsran_install_configs.sh user
 
