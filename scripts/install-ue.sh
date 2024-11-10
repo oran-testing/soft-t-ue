@@ -32,17 +32,18 @@ pip install kivy kivy_garden.graph
 
 # [Build](https://docs.srsran.com/projects/4g/en/latest/app_notes/source/zeromq/source/index.html)
 # the srsRAN 4G with ZeroMQ enabled.
-pwd
-cd ..
-pwd
-cd soft-t-ue
-# mkdir -p build
-# cd build
-# cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
-# make -j $(nproc)
-# make install
+# pwd
 # cd ..
-# sudo docker compose build srsue
+# pwd
+# cd soft-t-ue
+pwd
+mkdir -p build
+cd build
+cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
+make -j $(nproc)
+make install
+cd ..
+sudo docker compose build srsue
 #sudo docker compose up srsue
 
 ##srsran_install_configs.sh user
