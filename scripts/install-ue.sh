@@ -26,12 +26,15 @@ apt-get install -y gr-osmosdr python3 python3-pip
 pip install kivy kivy_garden.graph
 
 # We're installing an add-on application software package, which belongs in `/opt` per the [Filesystem Hierarchy Standard](https://www.pathname.com/fhs/pub/fhs-2.3.html#OPTADDONAPPLICATIONSOFTWAREPACKAGES).
-cd /opt
+#cd /opt
 
 ##git clone https://github.com/oran-testing/soft-t-ue
 
 # [Build](https://docs.srsran.com/projects/4g/en/latest/app_notes/source/zeromq/source/index.html)
 # the srsRAN 4G with ZeroMQ enabled.
+pwd
+cd ..
+pwd
 cd soft-t-ue
 mkdir -p build
 cd build
