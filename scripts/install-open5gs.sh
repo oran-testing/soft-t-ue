@@ -25,7 +25,7 @@ apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 cd /opt
-
+#TEST123
 # Clone and install srsRAN
 git clone https://github.com/oran-testing/srsRAN_Project.git
 cd srsRAN_Project
