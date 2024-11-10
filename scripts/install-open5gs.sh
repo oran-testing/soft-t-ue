@@ -37,6 +37,7 @@ pwd
 cd srsRAN_Project
 ##git checkout ue-tester
 cd docker
+sudo systemctl restart docker
 sudo docker compose build 5gc
 
 
