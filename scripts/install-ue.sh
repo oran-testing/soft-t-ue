@@ -46,7 +46,7 @@ cd ..
 srsran_install_configs.sh user
 cd docker
 sudo docker compose build srsue
-#sudo docker compose up srsue
+sudo docker compose up srsue
 
 ##srsran_install_configs.sh user
 
