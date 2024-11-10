@@ -36,11 +36,15 @@ pwd
 cd ..
 pwd
 cd soft-t-ue
-mkdir -p build
-cd build
-cmake ../
-make -j $(nproc)
-make install
-srsran_install_configs.sh user
+# mkdir -p build
+# cd build
+# cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
+# make -j $(nproc)
+# make install
+# cd ..
+# sudo docker compose build srsue
+#sudo docker compose up srsue
+
+##srsran_install_configs.sh user
 
 set -x
