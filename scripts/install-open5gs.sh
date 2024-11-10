@@ -9,7 +9,7 @@ fi
 PS4='[DEBUG] '
 set -x
 
-sudo apt-get install cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev ##
+sudo apt-get install -y cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev ##
 sudo apt install docker-compose																							##
 sudo apt install docker.io																								##
 
@@ -39,6 +39,6 @@ cd srsRAN_Project
 cd docker
 sudo systemctl restart docker
 sudo docker compose build 5gc
-
+sudo docker compose up 5gc
 
 set -x
