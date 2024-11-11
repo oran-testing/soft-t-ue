@@ -41,7 +41,7 @@ cd build
 cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
 make -j $(nproc)
 sudo make install
-sudo systemctl status docker
+##sudo systemctl status docker
 sudo systemctl restart docker
 cd ..
 ##git checkout ue-tester
