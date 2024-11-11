@@ -23,7 +23,7 @@ apt-get install -y cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev lib
 apt-get install -y libzmq3-dev
 apt-get install -y net-tools libboost-all-dev libconfig++-dev iperf3 git libxcb-cursor0? libgles2-mesa-dev?
 apt-get install -y gr-osmosdr python3 python3-pip
-pip install kivy kivy_garden.graph
+#pip install kivy kivy_garden.graph
 
 # We're installing an add-on application software package, which belongs in `/opt` per the [Filesystem Hierarchy Standard](https://www.pathname.com/fhs/pub/fhs-2.3.html#OPTADDONAPPLICATIONSOFTWAREPACKAGES).
 #cd /opt
@@ -36,7 +36,6 @@ pip install kivy kivy_garden.graph
 # cd ..
 # pwd
 # cd soft-t-ue
-pwd
 mkdir -p build
 cd build
 cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
