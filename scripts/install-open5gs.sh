@@ -35,9 +35,17 @@ pwd
 # Clone and install srsRAN
 ##git clone https://github.com/oran-testing/srsRAN_Project.git
 cd srsRAN_Project
+
+mkdir build
+cd build
+cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
+make -j $(nproc)
+sudo make install
+sudo systemctl status docker
+sudo systemctl restart docker
+cd ..
 ##git checkout ue-tester
 cd docker
-sudo systemctl restart docker
 sudo docker compose build 5gc
 sudo docker compose up 5gc
 
