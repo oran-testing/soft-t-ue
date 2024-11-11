@@ -47,8 +47,7 @@ apt-get install -y net-tools libboost-all-dev libconfig++-dev iperf3 git libxcb-
 # # cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
 # # make -j $(nproc)
 # # make install
-pwd
-cd ~/
-sudo gnb -c ./soft-t-ue/configs/zmq/gnb_zmq.yaml
+
+sudo gnb -c ./configs/zmq/gnb_zmq.yaml
 
 set -x
