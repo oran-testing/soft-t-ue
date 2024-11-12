@@ -57,7 +57,7 @@ python3 main.py
 ```
 
 When configuring the iperf3, choose yes:
-![Soft-T-UE-System.png](https://github.com/oran-testing/soft-t-ue/blob/grafana_integration/docs/images/configuring_iperf3_yes.png)
+![configuring_iperf3_yes.png](https://github.com/all655/soft-t-ue/docs/images/configuring_iperf3_yes.png)
 
 ## System Architecture
 
