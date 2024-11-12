@@ -42,7 +42,7 @@ class Ue:
         """Run the WebSocket server for sending logs."""
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        start_server = websockets.serve(self.websocket_handler, "localhost", 8765)
+        start_server = websockets.serve(self.websocket_handler, "localhost", 8765 + self.ue_index)
         loop.run_until_complete(start_server)
         loop.run_forever()
 

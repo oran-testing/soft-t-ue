@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UE Logs</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .ue-container { margin-bottom: 20px; }
+        .ue-header { font-weight: bold; }
+        .log { background: #f4f4f4; padding: 10px; height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>UE Logs</h1>
+    <div id="ueLogs"></div>
+
+    <script>
+        const ws = new WebSocket(`ws://${window.location.host}`);
+
+        ws.onopen = () => {
+            console.log("Connected to Node.js WebSocket server");
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const ueId = data.ueId;
+            const log = data.log;
+
+            let ueDiv = document.getElementById(ueId);
+            if (!ueDiv) {
+                ueDiv = document.createElement("div");
+                ueDiv.id = ueId;
+                ueDiv.className = "ue-container";
+                ueDiv.innerHTML = `<div class="ue-header">${ueId}</div><div class="log" id="${ueId}-log"></div>`;
+                document.getElementById("ueLogs").appendChild(ueDiv);
+            }
+
+            const logDiv = document.getElementById(`${ueId}-log`);
+            logDiv.innerText += log + "\n";
+            logDiv.scrollTop = logDiv.scrollHeight;  // Auto-scroll to the bottom
+        };
+
+        ws.onclose = () => {
+            console.log("Disconnected from Node.js WebSocket server");
+        };
+    </script>
+</body>
+</html>
+
