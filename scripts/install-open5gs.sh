@@ -6,7 +6,7 @@ if [ "$EUID" -ne 0 ]; then
 	exit 1
 fi
 
-PS4='[DEBUG] '
+PS4='[install-open5gs.sh] '
 set -x
 
 # Add Docker's official GPG key:
@@ -24,12 +24,14 @@ echo \
 apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-cd /opt
-
 # Clone and install srsRAN
-git clone https://github.com/oran-testing/srsRAN_Project.git
-cd srsRAN_Project
-git checkout ue-tester
+if [ -d /opt/srsRAN_Project/ ]; then
+	echo "/opt/srsRAN_Project/ exists skipping"
+else
+	git clone https://github.com/srsran/srsRAN_Project.git /opt/srsRAN_Project/
+fi
+
+cd /opt/srsRAN_Project
 cd docker
 docker compose build 5gc
 
