@@ -97,7 +97,6 @@ def await_children() -> None:
         for process in process_list:
             if process["handle"].isRunning:
                 process_running = True
-                logger.debug(f"RUNNING: {process['handle']}")
         time.sleep(1)
 
 if __name__ == '__main__':

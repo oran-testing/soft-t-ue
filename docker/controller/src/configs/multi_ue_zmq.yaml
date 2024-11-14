@@ -8,8 +8,8 @@ namespaces:
 
 processes:
   - type: "clean"
-    config_file: "../../configs/zmq/multi/ue1_zmq.conf"
+    config_file: "../../../configs/zmq/multi/ue1_zmq.conf"
   - type: "clean"
-    config_file: "../../configs/zmq/multi/ue2_zmq.conf"
+    config_file: "../../../configs/zmq/multi/ue2_zmq.conf"
   - type: "clean"
-    config_file: "../../configs/zmq/multi/ue3_zmq.conf"
+    config_file: "../../../configs/zmq/multi/ue3_zmq.conf"

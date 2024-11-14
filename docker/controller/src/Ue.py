@@ -1,7 +1,7 @@
-import asyncio
 import time
 import os
 import threading
+import asyncio
 from Iperf import Iperf
 from Ping import Ping
 from utils import kill_subprocess, send_command, start_subprocess
@@ -17,21 +17,25 @@ class Ue:
         self.ping_client = Ping()
         self.output = ""
         self.rnti = ""
-        self.websocket_clients = set()  # Track connected WebSocket clients
-        self.log_queue = asyncio.Queue()  # Queue to hold logs for WebSocket
+        self.websocket_client = None  # Single WebSocket client
+        self.log_buffer = []  # Store logs until a client connects
 
     async def websocket_handler(self, websocket, path):
-        """Handle incoming WebSocket connections and stream logs to each client."""
-        self.websocket_clients.add(websocket)
+        """Handle incoming WebSocket connection and stream logs to the client."""
+        self.websocket_client = websocket
         try:
+            # Send all buffered logs once the client connects
+            for log in self.log_buffer:
+                await websocket.send(log)
+            self.log_buffer.clear()  # Clear buffer after sending
+
+            # Keep the connection open to send new logs or commands
             while True:
-                message = await self.log_queue.get()  # Wait for a log message from the queue
-                await websocket.send(message)  # Send the message to the client
-                self.log_queue.task_done()
+                await asyncio.sleep(0.1)  # Prevent blocking the event loop
         except websockets.exceptions.ConnectionClosed:
-            pass
+            print("WebSocket client disconnected")
         finally:
-            self.websocket_clients.remove(websocket)  # Remove client on disconnect
+            self.websocket_client = None  # Reset client on disconnect
 
     def start_websocket_server(self):
         """Start the WebSocket server in a separate thread."""
@@ -62,10 +66,45 @@ class Ue:
             # Start the log collection thread
             self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
             self.log_thread.start()
+            self.send_message("command", " ".join(command))
 
-    def start_metrics(self):
-        # Define start_metrics logic
-        pass
+    def send_message(self, message_type, message_text):
+        """Send either a 'command' or 'log' message to the connected WebSocket client."""
+        message_str = '{ "type": "' + message_type + '", "text": "' + message_text + '"}'
+        if self.websocket_client:
+            try:
+                # Send the message to the connected WebSocket client
+                asyncio.run(self.websocket_client.send(message_str))
+            except Exception as e:
+                print(f"Failed to send message: {e}")
+        else:
+            # Buffer log messages if no client is connected
+            if message_type == "log":
+                self.log_buffer.append(message_str)
+
+    def collect_logs(self):
+        """Collect logs from the process and send them to the WebSocket client."""
+        while self.isRunning and not self.stop_thread.is_set():
+            if self.process and self.process.poll() is None:
+                line = self.process.stdout.readline().strip()
+
+                if isinstance(line, bytes):
+                    line = line.decode('utf-8', errors='replace')
+
+                if line:
+                    self.send_message("log", line)  # Send log to WebSocket client
+
+                    self.output += line
+                    if "rnti" in line:
+                        self.rnti = line.split("0x")[1][:4]
+                    if "PDU" in line:
+                        self.start_metrics()
+                        self.isConnected = True
+            else:
+                if self.websocket_client:
+                    self.send_message("log", "Process Terminated")
+                self.isRunning = False
+                break
 
     def stop(self):
         self.stop_thread.set()
@@ -73,35 +112,12 @@ class Ue:
         self.iperf_client.stop()
         self.isRunning = False
 
-    def collect_logs(self):
-        """Collect logs from the process and add them to the log queue for the WebSocket server."""
-        while self.isRunning and not self.stop_thread.is_set():
-            if self.process and self.process.poll() is None:
-                line = self.process.stdout.readline()
-                if line:
-                    self.output += line
-                    if "rnti" in line:
-                        self.rnti = line.split("0x")[1][:4]
-                    if "PDU" in line:
-                        self.start_metrics()
-                        self.isConnected = True
-                    
-                    # Add the log line to the queue for broadcasting
-                    asyncio.run(self.log_queue.put(line))
-            else:
-                # If the process terminates, send a termination message
-                asyncio.run(self.log_queue.put("Process Terminated"))
-                self.isRunning = False
-                break
-
     def __repr__(self):
         return f"srsRAN UE{self.ue_index} object, running: {self.isRunning}"
-
 
 if __name__ == "__main__":
     test = Ue(1)
     test.start(["./configs/zmq/ue_zmq.conf"])
     while True:
         time.sleep(1)
-        print(test.output)
 
