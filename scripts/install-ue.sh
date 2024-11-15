@@ -31,6 +31,8 @@ apt-get install -y net-tools libboost-all-dev libconfig++-dev iperf3 git libxcb-
 apt-get install -y gr-osmosdr python3 python3-pip
 # \
 # **Make and build:**
+pwd
+ls
 mkdir -p build
 cd build
 cmake ../ -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
