@@ -12,9 +12,9 @@ PS4='[DEBUG] '
 set -x
 # \
 # **Install Docker and needed libraries:**
-sudo apt-get install -y cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev ##
-sudo apt install docker-compose																							##
-sudo apt install docker.io																								##
+sudo apt-get install -y cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev
+sudo apt install docker-compose	
+sudo apt install docker.io	
 # \
 # Add Docker's official GPG key:
 apt-get update
