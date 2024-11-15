@@ -30,10 +30,7 @@ echo \
 	tee /etc/apt/sources.list.d/docker.list >/dev/null
 apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-pwd
-ls
-cd ..
-ls
+
 cd srsRAN_Project
 mkdir build
 cd build
@@ -44,7 +41,6 @@ sudo make install
 sudo systemctl restart docker
 # The status of Docker can be checked at anytime with: sudo systemctl status
 # docker
-pwd
 cd ..
 # If desired, the UE can be tested with: git checkout ue-tester
 cd docker
