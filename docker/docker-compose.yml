@@ -4,26 +4,26 @@ services:
     image: srsran/ue
     build:
       context: ..
-      dockerfile: docker/dockerfile
+      dockerfile: docker/Dockerfile
       args:
-        os_version: "24.04"
+        OS_VERSION: "24.04"
     privileged: true
     env_file:
       - .env
     cap_add:
-      - sys_nice
-      - cap_sys_ptrace
+      - SYS_NICE
+      - CAP_SYS_PTRACE
     volumes:
-      # access usb to use some sdrs
+      # Access USB to use some SDRs
       - /dev/bus/usb/:/dev/bus/usb/
-      # access uhd images
+      # Access UHD images
       - /usr/share/uhd/images:/usr/share/uhd/images
-      # store logs in /tmp
+      # Store logs in /tmp
       - ue-storage:/tmp
     environment:
-      - config=${ue_config_path:-configs/zmq/ue_zmq.conf}
-      - args=${ue_args}
-    # allow network connection for zmq
+      - CONFIG=${UE_CONFIG_PATH:-configs/zmq/ue_zmq.conf}
+      - ARGS=${UE_ARGS}
+    # Allow network connection for ZMQ
     ports:
       -  2000:2000/tcp
       -  2001:2001/tcp
@@ -37,19 +37,34 @@ services:
     env_file:
       - .env
     environment:
-      - config=${ue_controller_config}
+      - CONFIG=${UE_CONTROLLER_CONFIG}
     ports:
-      - 5050:${ue_controller_port}/tcp
+      - 5050:${UE_CONTROLLER_PORT}/tcp
     networks:
       controller:
         ipv4_address: 172.19.1.4
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+
+  webui:
+    container_name: webui
+    image: webui
+    build:
+      context: webui
+    env_file:
+      - .env
+    environment:
+      - PORT=${WEBUI_PORT}
+    networks:
+    - internal_network
+    ports:
+      - 3000:${WEBUI_PORT}/tcp
+      - "127.0.0.1:8765-8865:8765-8865"
 
 volumes:
   ue-storage:
 
 networks:
+  internal_network:
+    driver: bridge
   controller:
     ipam:
       driver: default
