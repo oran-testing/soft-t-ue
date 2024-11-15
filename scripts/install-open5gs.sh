@@ -42,6 +42,7 @@ sudo make install
 sudo systemctl restart docker
 # The status of Docker can be checked at anytime with: sudo systemctl status
 # docker
+pwd
 cd ..
 # If desired, the UE can be tested with: git checkout ue-tester
 cd docker
