@@ -24,40 +24,57 @@ system.
 
 ## Installation
 
-If testing with ZMQ one machine can be used. If using an RU run with two
-machines A and B.
+Testing can be done with one machine (ZMQ) or two. Each command should be run in a seperate terminal.
 
-To install the UE run (Machine A):
+Before installing, clone the soft-t-ue repo and the srsRAN_Project repo.
+
+To install the UE, run (Machine A):
 
 ```bash
-sudo ./scripts/install-ue.sh
+sudo ./soft-t-ue/scripts/install-ue.sh
+```
+
+To install the 5gs, run (Machine B):
+
+```bash
+sudo ./soft-t-ue/scripts/install-open5gs.sh
 ```
 
 To install the gNB run (Machine B):
 
 ```bash
-sudo ./scripts/install-open5gs.sh
-sudo ./scripts/install-gnb.sh
-```
-
-## Running
-
-To start the gNB daemon (Machine B):
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl start gnb-controller.service
-```
-
-To run the GUI (Machine A):
-
-```bash
-cd controller/ue
-python3 main.py
+sudo ./soft-t-ue/scripts/install-gnb.sh
 ```
 
 When configuring the iperf3, choose yes:
 ![configuring_iperf3_yes](https://github.com/all655/soft-t-ue/blob/all655/docs/images/configuring_iperf3_yes.png)
+
+## Running
+
+**To run the UE, run (Machine A):**
+
+```bash
+cd soft-t-ue/docker
+sudo docker compose up srsue
+```
+
+**To run the 5gs, run (Machine B):**
+
+```bash
+cd srsRAN_Project/docker
+sudo docker compose up 5gc
+```
+\
+**<span style="color: #e03e2d;">!!!</span>
+gNB should run last
+<span style="color: #e03e2d;">!!!</span>** \
+Otherwise, gnB will not work.
+
+**To run the gNB run (Machine B):**
+
+```bash
+sudo gnb -c ./soft-t-ue/configs/zmq/gnb_zmq.yaml
+```
 
 ## System Architecture
 
