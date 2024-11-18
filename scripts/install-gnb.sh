@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# # install-gnb.sh
+# # `install-gnb.sh` -- Install the gNB
 #
 # Check if the script is run as root:
 if [ "$EUID" -ne 0 ]; then
@@ -32,7 +32,12 @@ Group=nogroup
 WantedBy=multi-user.target
 EOF
 # \
-# Install build tools:
+# Install build tools
+#
+# Install the required build tools for the
+# [srsRAN 4G](https://docs.srsran.com/projects/4g/en/latest/general/source/1_installation.html#installation-from-source)
+# and the
+# [srsRAN project](https://docs.srsran.com/projects/project/en/latest/user_manuals/source/installation.html#manual-installation).
 apt-get update && apt-get upgrade -y
 apt-get install -y cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev
 apt-get install -y libzmq3-dev

@@ -1,6 +1,6 @@
 #!/bin/bash
 #   
-# # install-open5gs.sh
+# # `install-open5gs.sh` -- Install the 5gs
 #
 # Check if the script is run as root
 if [ "$EUID" -ne 0 ]; then
@@ -11,6 +11,7 @@ fi
 PS4='[DEBUG] '
 set -x
 # \
+# [Docker](https://docs.docker.com/engine/install/ubuntu/)
 # **Install Docker and needed libraries:**
 sudo apt-get install -y cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev
 sudo apt install docker-compose	

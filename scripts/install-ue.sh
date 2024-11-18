@@ -12,6 +12,7 @@ fi
 PS4='[DEBUG] '
 set -x
 # \
+# [Docker](https://docs.docker.com/engine/install/ubuntu/)
 # **Install Docker and needed libraries:**
 sudo apt-get install -y cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev 
 sudo apt install docker-compose	
@@ -33,7 +34,12 @@ apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # \
-# Install build tools:
+# Install build tools
+#
+# Install the required build tools for the
+# [srsRAN 4G](https://docs.srsran.com/projects/4g/en/latest/general/source/1_installation.html#installation-from-source)
+# and the
+# [srsRAN project](https://docs.srsran.com/projects/project/en/latest/user_manuals/source/installation.html#manual-installation).
 apt-get update && apt-get upgrade -y
 apt-get install -y cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev
 apt-get install -y libzmq3-dev
@@ -41,6 +47,8 @@ apt-get install -y net-tools libboost-all-dev libconfig++-dev iperf3 git libxcb-
 apt-get install -y gr-osmosdr python3 python3-pip
 # \
 # **Make and build:**
+# [Build](https://docs.srsran.com/projects/4g/en/latest/app_notes/source/zeromq/source/index.html)
+# the srsRAN 4G with ZeroMQ enabled.
 cd soft-t-ue
 mkdir -p build
 cd build
