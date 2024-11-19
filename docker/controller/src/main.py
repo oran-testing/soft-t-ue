@@ -101,8 +101,5 @@ def await_children() -> None:
 
 if __name__ == '__main__':
     configure()
-
-    logging.debug(f"Running as: {os.getlogin()}")
-
     process_list = start_processes()
     await_children()

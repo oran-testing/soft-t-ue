@@ -38,11 +38,7 @@ services:
       - .env
     environment:
       - CONFIG=${UE_CONTROLLER_CONFIG}
-    ports:
-      - 5050:${UE_CONTROLLER_PORT}/tcp
-    networks:
-      controller:
-        ipv4_address: 172.19.1.4
+    network_mode: "host"
 
   webui:
     container_name: webui
@@ -53,11 +49,7 @@ services:
       - .env
     environment:
       - PORT=${WEBUI_PORT}
-    networks:
-    - internal_network
-    ports:
-      - 3000:${WEBUI_PORT}/tcp
-      - "127.0.0.1:8765-8865:8765-8865"
+    network_mode: "host"
 
 volumes:
   ue-storage:
