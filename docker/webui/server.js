@@ -23,7 +23,7 @@ wss.on('connection', (ws) => {
     // Send buffered logs to the client upon connection
     Object.keys(logBuffers).forEach(ueKey => {
         logBuffers[ueKey].forEach(log => {
-            ws.send(JSON.stringify({ ueId: ueKey, text: log , type: "log"}));
+            ws.send(JSON.stringify({ ueId: ueKey, text: log.text , type: log.type}));
         });
     });
 
@@ -32,10 +32,10 @@ wss.on('connection', (ws) => {
     // Set up live streaming of new logs for the client
     Object.keys(ueWsClients).forEach(ueKey => {
         ueWsClients[ueKey].on('message', (message) => {
-            //const logMessage = message.toString();
             const strMessage = Buffer.isBuffer(message) ? message.toString('utf-8') : message;
             const decodedMessage = JSON.parse(strMessage);
             ws.send(JSON.stringify({ ueId: ueKey, text: decodedMessage.text, type: decodedMessage.type}));
+            logBuffers[ueKey].push(decodedMessage)
         });
     });
 
@@ -69,19 +69,9 @@ async function scanLocalhostPorts() {
                     console.log(`Failed to parse message: ${error}`);  // Log parsing errors
                     return; // Skip further processing if JSON is invalid
                 }
+                console.log(parsedMessage)
 
-                // Check if the message is a command or log
-                if (parsedMessage.type === "command") {
-                    // Forward the command message to all connected WebSocket clients
-                    wss.clients.forEach(client => {
-                        if (client.readyState === WebSocket.OPEN) {
-                            client.send(JSON.stringify({ ueId: ueKey, type: "command", text: parsedMessage.text }));
-                        }
-                    });
-                } else if (parsedMessage.type === "log") {
-                    // Store or broadcast the log message
-                    logBuffers[ueKey].push(parsedMessage.text);
-                }
+                logBuffers[ueKey].push(parsedMessage);
             });
 
             ueWs.on('close', () => {

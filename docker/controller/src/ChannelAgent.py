@@ -1,4 +1,6 @@
+# NOTE: this software is still under development, use with caution, do not include in the main system
 import threading
+
 
 from utils import kill_subprocess, start_subprocess
 

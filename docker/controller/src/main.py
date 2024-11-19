@@ -51,6 +51,14 @@ def configure() -> None:
     with open(str(args.config), 'r') as file:
         Config.options = yaml.safe_load(file)
 
+
+def kill_existing(process_names : List[str]) -> None:
+    """
+    Finds and kills any stray processes that might interfere with the system
+    """
+    for name in process_names:
+        os.system("sudo kill -9 $(ps aux | awk '/{" + name + "}/{print $2}')")
+
 def start_processes() -> List[Dict[str, Union[str, Ue, int]]]:
     """
     Starts any necessary processes using Config
@@ -100,6 +108,9 @@ def await_children() -> None:
         time.sleep(1)
 
 if __name__ == '__main__':
+    kill_existing(["srsue", "gnb", "iperf3"])
     configure()
     process_list = start_processes()
+    for namespace in Config.options.get("namespaces", []):
+        os.system("sudo ip netns add " + namespace["name"])
     await_children()

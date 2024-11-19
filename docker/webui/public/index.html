@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UE Logs</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,6 +24,12 @@
             border-radius: 8px;
             padding: 10px;
             background-color: #1e1e1e;
+            display: flex;
+            flex-direction: row;
+        }
+        .log-container{
+            display: flex;
+            flex-direction: column;
         }
         .ue-header {
             font-weight: bold;
@@ -36,6 +43,15 @@
             padding: 10px;
             height: 200px;
             overflow-y: auto;
+            border-radius: 5px;
+            border: 1px solid #333;
+            flex: 1;
+        }
+        .graph-container {
+            width: 50%;
+            height: 200px;
+            margin-left: 20px;
+            background-color: #1e1e1e;
             border-radius: 5px;
             border: 1px solid #333;
         }
@@ -64,20 +80,76 @@
                 ueDiv = document.createElement("div");
                 ueDiv.id = ueId;
                 ueDiv.className = "ue-container";
-                ueDiv.innerHTML = `<div class="ue-header">${ueId}</div><div class="log" id="${ueId}-log"></div>`;
+                ueDiv.innerHTML = `
+                    <div class="log-container">
+                      <div class="ue-header">${ueId}</div>
+                      <div class="log" id="${ueId}-log"></div>
+                    </div>
+                    <div class="graph-container">
+                        <canvas id="${ueId}-graph"></canvas>
+                    </div>`;
                 document.getElementById("ueLogs").appendChild(ueDiv);
             }
 
             const logDiv = document.getElementById(`${ueId}-log`);
-            
-            // If the message type is "command", update the title (header) of the log box
+            const graphCanvas = document.getElementById(`${ueId}-graph`);
+            let chart = graphCanvas.chart;
+
             if (messageType === "command") {
                 const header = ueDiv.querySelector(".ue-header");
                 header.innerText = `${ueId} - Command: ${log}`;
             } else if (messageType === "log") {
-                // Otherwise, append the log message to the log box
                 logDiv.innerText += log;
-                logDiv.scrollTop = logDiv.scrollHeight;  // Auto-scroll to the bottom
+                logDiv.scrollTop = logDiv.scrollHeight;
+            } else if (messageType === "brate" || messageType == "latency") {
+                if (!chart) {
+                    chart = new Chart(graphCanvas, {
+                        type: 'line',
+                        data: {
+                            labels: [],
+                            datasets: [{
+                                label: 'Achieved Throughput (MBits/sec)',
+                                data: [],
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'UL Message Latency (microseconds)',
+                                data: [],
+                                backgroundColor: 'rgba(192, 75, 75, 0.2)',
+                                borderColor: 'rgba(192, 75, 75, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                x: { type: 'linear', position: 'bottom' },
+                                y: { min: 0 }
+                            }
+                        }
+                    });
+                    graphCanvas.chart = chart;
+                    chart.canvas.parentNode.style.height = '450px';
+                    chart.canvas.parentNode.style.width = '50vw';
+                }
+
+                const floatValue = parseFloat(data.text);
+                const currentTime = chart.data.labels.length > 0 ? chart.data.labels[chart.data.labels.length - 1] + 1 : 0;
+                if(messageType == "brate"){
+                  chart.data.labels.push(currentTime);
+                  chart.data.datasets[0].data.push(floatValue);
+                }
+                else {
+                  chart.data.datasets[1].data.push(floatValue * 1000);
+                }
+                if (chart.data.labels.length > 200) {
+                    while(chart.data.labels.length >= 200){
+                      chart.data.labels.shift();
+                      chart.data.datasets[0].data.shift();
+                    }
+                }
+                chart.update();  // Update the chart with new data
             }
         };
 
@@ -87,4 +159,3 @@
     </script>
 </body>
 </html>
-
