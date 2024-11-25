@@ -20,7 +20,7 @@ system.
 - [gNB Documentation](https://github.com/oran-testing/soft-t-ue/blob/main/docs/gNB.md)
 - [Attack Documentation](https://github.com/oran-testing/soft-t-ue/blob/main/docs/attacks)
 
-**NOTE: This system is designed to run on ubuntu and is tested on ubuntu 20.04**
+**NOTE: This system is designed to run on ubuntu and is tested on ubuntu 24.04**
 
 ## Installation
 
@@ -47,7 +47,8 @@ sudo ./soft-t-ue/scripts/install-gnb.sh
 ```
 
 When configuring the iperf3, choose yes:
-![configuring_iperf3_yes](https://github.com/all655/soft-t-ue/blob/all655/docs/images/configuring_iperf3_yes.png)
+
+![Soft-T-UE-System.png](docs/images/configuring_iperf3_yes.png)
 
 ## Running
 
@@ -78,4 +79,4 @@ sudo gnb -c ./soft-t-ue/configs/zmq/gnb_zmq.yaml
 
 ## System Architecture
 
-![Soft-T-UE-System.png](https://github.com/oran-testing/soft-t-ue/blob/grafana_integration/docs/images/Soft-T-UE-System.png)
+![Soft-T-UE-System.png](docs/images/Soft-T-UE-System.png)

@@ -1,7 +1,7 @@
 #!/bin/bash
 # # `install-ue.sh` -- Install the Test UE
 #
-# This script was written for Ubuntu 22. It may fail on any other OS/version.
+# This script was written for Ubuntu 24.04. It may fail on any other OS/version.
 #
 # Check if the script is run as root:
 if [ "$EUID" -ne 0 ]; then
@@ -12,8 +12,7 @@ fi
 PS4='[DEBUG] '
 set -x
 # \
-# [Docker](https://docs.docker.com/engine/install/ubuntu/)
-# **Install Docker and needed libraries:**
+# **Install [Docker](https://docs.docker.com/engine/install/ubuntu/) and needed libraries:**
 sudo apt-get install -y cmake make gcc g++ pkg-config libfftw3-dev libmbedtls-dev libsctp-dev libyaml-cpp-dev libgtest-dev 
 sudo apt install docker-compose	
 sudo apt install docker.io
@@ -57,7 +56,7 @@ make -j $(nproc)
 make install
 # Sometimes Docker misbehaves and can be fixed with a simple restart:
 sudo systemctl restart docker
-# The status of Docker can be checked at anytime with: sudo systemctl status docker
+# The status of Docker can be checked at anytime with: `sudo systemctl status docker`
 cd ..
 srsran_install_configs.sh user
 cd docker
