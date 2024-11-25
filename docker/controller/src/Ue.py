@@ -7,6 +7,7 @@ import websockets
 
 from Iperf import Iperf
 from Ping import Ping
+from Metrics import Metrics
 from utils import kill_subprocess, send_command, start_subprocess
 
 
@@ -20,11 +21,13 @@ from utils import kill_subprocess, send_command, start_subprocess
 class Ue:
     def __init__(self, ue_index):
         self.ue_index = ue_index
+        self.ue_config = ""
         self.isRunning = False
         self.isConnected = False
         self.process = None
         self.iperf_client = Iperf(self.send_message)
         self.ping_client = Ping(self.send_message)
+        self.metrics_client = Metrics(self.send_message)
         self.output = ""
         self.rnti = ""
         self.websocket_client = None  # Single WebSocket client
@@ -64,6 +67,10 @@ class Ue:
         loop.run_forever()
 
     def start(self, args, mode="baremetal"):
+        for argument in args:
+            if ".conf" in argument:
+                self.ue_config = argument
+
         if mode == "docker":
             # Docker setup if needed
             pass
@@ -110,6 +117,7 @@ class Ue:
             ue_index=self.ue_index
         )
         self.ping_client.start(["10.45.1.1"])
+        self.metrics_client.start(self.ue_config)
 
 
     def collect_logs(self):

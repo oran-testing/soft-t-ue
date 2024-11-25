@@ -75,7 +75,9 @@ class Metrics:
                 lines = list(reader)
                 if len(lines) > last_index:  # If new data exists
                     for i in range(last_index, len(lines) - 1):
-                        self.send_callback(lines[i])
+                        for key, value in lines[i].items():
+                            if value:
+                                self.send_callback(key, value)
                     last_index = len(lines)
             time.sleep(1)  # Wait for 1 second
 
@@ -84,7 +86,7 @@ class Metrics:
 
 if __name__ == "__main__":
     # test class functionality
-    test = Metrics(lambda string: print(string))
+    test = Metrics(lambda msg_type, msg_text: print(msg_type + " : " + msg_text))
     test.start("../../../configs/zmq/ue_zmq.conf")
     while True:
         time.sleep(1)
