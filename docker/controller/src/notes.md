@@ -3,11 +3,6 @@ show metrics in RT
 display running processes
 show process logs
 
-useless:
-- grafana metrics
-- integrated docs pages
-- choosing attacks in the GUI
-
 detremental:
 - static paths
 - config defaults

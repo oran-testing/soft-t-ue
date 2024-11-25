@@ -9,6 +9,14 @@ from Iperf import Iperf
 from Ping import Ping
 from utils import kill_subprocess, send_command, start_subprocess
 
+
+# UE process manager class:
+# subprocesses: srsRAN UE, Iperf, Ping, Metrics monitor
+#
+# Handles all process and data management for one UE
+#
+# Collects data from UE iperf and ping, then sends them to the webui
+
 class Ue:
     def __init__(self, ue_index):
         self.ue_index = ue_index
@@ -76,6 +84,8 @@ class Ue:
 
     def send_message(self, message_type, message_text):
         """Send either a 'command' or 'log' message to the connected WebSocket client."""
+        if not message_text or not message_type:
+            return
         message_str = '{ "type": "' + message_type + '", "text": "' + message_text + '"}'
         command_str = '{ "type": "command", "text": "' + " ".join(self.ue_command) + '"}'
 
