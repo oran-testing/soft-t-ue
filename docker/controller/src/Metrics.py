@@ -76,7 +76,7 @@ class Metrics:
                 if len(lines) > last_index:  # If new data exists
                     for i in range(last_index, len(lines) - 1):
                         for key, value in lines[i].items():
-                            if value:
+                            if value and key in ["dl_brate", "rsrp", "dl_mcs", "dl_snr"]:
                                 self.send_callback(key, value)
                     last_index = len(lines)
             time.sleep(1)  # Wait for 1 second

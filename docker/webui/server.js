@@ -16,18 +16,29 @@ const server = app.listen(port, () => {
     console.log(`Express server running on http://localhost:${port}`);
 });
 
+const add_to_buffer = (ueKey, decodedMessage) => {
+  if(!Object.keys(logBuffers[ueKey]).includes(decodedMessage.type)){
+    logBuffers[ueKey][decodedMessage.type] = []
+  }
+  if(logBuffers[ueKey][decodedMessage.type].length >= 50){
+    logBuffers[ueKey][decodedMessage.type].shift()
+  }
+  logBuffers[ueKey][decodedMessage.type].push(decodedMessage);
+}
+
 const wss = new WebSocket.Server({ server });
 wss.on('connection', (ws) => {
     console.log("Client connection received");
 
     // Send buffered logs to the client upon connection
     Object.keys(logBuffers).forEach(ueKey => {
-        logBuffers[ueKey].forEach(log => {
-            ws.send(JSON.stringify({ ueId: ueKey, text: log.text , type: log.type}));
+        Object.keys(logBuffers[ueKey]).forEach(logType => {
+            logBuffers[ueKey][logType].forEach(log => {
+                ws.send(JSON.stringify({ ueId: ueKey, text: log.text, type: logType }));
+            });
         });
     });
 
-    // TODO: other log types
 
     // Set up live streaming of new logs for the client
     Object.keys(ueWsClients).forEach(ueKey => {
@@ -35,7 +46,7 @@ wss.on('connection', (ws) => {
             const strMessage = Buffer.isBuffer(message) ? message.toString('utf-8') : message;
             const decodedMessage = JSON.parse(strMessage);
             ws.send(JSON.stringify({ ueId: ueKey, text: decodedMessage.text, type: decodedMessage.type}));
-            logBuffers[ueKey].push(decodedMessage)
+            add_to_buffer(ueKey, decodedMessage);
         });
     });
 
@@ -71,7 +82,7 @@ async function scanLocalhostPorts() {
                 }
                 console.log(parsedMessage)
 
-                logBuffers[ueKey].push(parsedMessage);
+                add_to_buffer(ueKey, parsedMessage);
             });
 
             ueWs.on('close', () => {

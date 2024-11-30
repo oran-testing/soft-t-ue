@@ -120,17 +120,24 @@
 
                 const floatValue = parseFloat(data.text);
                 const currentTime = chart.data.labels.length > 0 ? chart.data.labels[chart.data.labels.length - 1] + 1 : 0;
+                chart.data.labels.push(currentTime);
                 if(messageType == "brate"){
-                  chart.data.labels.push(currentTime);
                   chart.data.datasets[0].data.push(floatValue);
                 }
                 else {
                   chart.data.datasets[1].data.push(floatValue * 1000);
                 }
-                if (chart.data.labels.length > 200) {
-                    while(chart.data.labels.length >= 200){
+                if (chart.data.labels.length > 25) {
+                    while(chart.data.labels.length >= 25){
                       chart.data.labels.shift();
-                      chart.data.datasets[0].data.shift();
+                    }
+
+                    while(chart.data.datasets[0].length >= 25){
+                      chart.data.datasets[0].shift();
+                    }
+
+                    while(chart.data.datasets[1].length >= 25){
+                      chart.data.datasets[1].shift();
                     }
                 }
                 chart.update();  // Update the chart with new data
@@ -197,8 +204,8 @@
                 const floatValue = parseFloat(data.text);
                 const currentTime = channelChart.data.labels.length > 0 ? channelChart.data.labels[channelChart.data.labels.length - 1] + 1 : 0;
 
+                channelChart.data.labels.push(currentTime);
                 if(messageType == "dl_brate"){
-                      channelChart.data.labels.push(currentTime);
                       channelChart.data.datasets[0].data.push(floatValue * 1e-6);
                 } else if (messageType == "rsrp"){
                       channelChart.data.datasets[1].data.push(floatValue);
@@ -208,10 +215,25 @@
                       channelChart.data.datasets[3].data.push(floatValue);
                 }
 
-                if (channelChart.data.labels.length > 200) {
-                    while(channelChart.data.labels.length >= 200){
+                if (channelChart.data.labels.length > 25) {
+                    while(channelChart.data.labels.length >= 25){
                       channelChart.data.labels.shift();
-                      channelChart.data.datasets[0].data.shift();
+                    }
+
+                    while(channelChart.data.datasets[0].length >= 25){
+                      channelChart.data.datasets[0].shift();
+                    }
+
+                    while(channelChart.data.datasets[1].length >= 25){
+                      channelChart.data.datasets[1].shift();
+                    }
+
+                    while(channelChart.data.datasets[2].length >= 25){
+                      channelChart.data.datasets[2].shift();
+                    }
+
+                    while(channelChart.data.datasets[3].length >= 25){
+                      channelChart.data.datasets[3].shift();
                     }
                 }
                 chart.update();  // Update the chart with new data
