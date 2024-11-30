@@ -74,9 +74,6 @@ class Ue:
             unwritten_output["ping"] = [str(item[1]) for item in self.ping_client.output]
             self.ping_client.output = []
 
-        if self.metrics_client.isRunning and self.metrics_client.output:
-            #unwritten_output["metrics"] = self.metrics_client.output
-            self.metrics_client.output = []
         return unwritten_output
 
     async def websocket_handler(self, websocket, path):

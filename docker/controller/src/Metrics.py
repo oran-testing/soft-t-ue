@@ -12,9 +12,9 @@ from utils import kill_subprocess, start_subprocess
 
 class Metrics:
     def __init__(self, send_message_callback):
-        self.output = []
         self.isRunning = False
         self.send_callback = send_message_callback
+        self.file_path = ""
 
     def get_metrics_config(self, file_path):
         keys = ["metrics_csv_enable", "metrics_csv_filename"]
@@ -78,10 +78,6 @@ class Metrics:
                         for key, value in lines[i].items():
                             if value:
                                 self.send_callback(key, value)
-                                if key in self.output.keys():
-                                    self.output[key].append(value)
-                                else:
-                                    self.output[key] = [value]
                     last_index = len(lines)
             time.sleep(1)  # Wait for 1 second
 

@@ -4,6 +4,7 @@ import os
 import time
 import sys
 import shutil
+from datetime import datetime
 
 import uuid
 import argparse
@@ -112,7 +113,8 @@ def await_children(export_params) -> None:
         if not export_dir.exists():
             raise ValueError(f"Directory does not exist: {export_dir}")
         export_data = True
-        export_path = export_dir / "test"
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  # Format: YYYYMMDD_HHMMSS
+        export_path = export_dir / f"test_run_{timestamp}"
         export_path.mkdir(parents=True, exist_ok=True)
 
     process_running = True
@@ -128,19 +130,24 @@ def await_children(export_params) -> None:
                 for filename, output in process["handle"].get_unwritten_output().items():
                     file_path = export_path / f"{filename}.csv"
                     with file_path.open("a") as f:
-                        f.writelines(["\n"] + output)
+                        f.write("\n" + '\n'.join(output))
 
                 # Export main output
                 output_filename = export_path / process["handle"].get_output_filename()
                 with output_filename.open("a") as f:
-                    f.writelines(process["handle"].output)
-                process["handle"].output = []  # Clear the output once written
-            #for pcap_key, pcap_file in process["handle"].pcap_data.items():
-            #    if pcap_file:
-            #        pcap_path = pathlib.Path(pcap_file)
-            #        if pcap_path.is_file():
-            #            target_file = export_path / pcap_path.name
-            #            shutil.copy(pcap_path, target_file)
+                    f.write("\n" + '\n'.join(process["handle"].output))
+                process["handle"].output = []
+                for pcap_key, pcap_file in process["handle"].pcap_data.items():
+                    if pcap_file:
+                        pcap_path = pathlib.Path(pcap_file)
+                        if pcap_path.is_file():
+                            target_file = export_path / pcap_path.name
+                            shutil.copy(pcap_path, target_file)
+
+
+                if process["handle"].metrics_client.file_path:
+                    target_file = export_path / f"metrics_ue{process['handle'].ue_index}.csv" 
+                    shutil.copy(process["handle"].metrics_client.file_path, target_file)
         time.sleep(1)
 
 
