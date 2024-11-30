@@ -4,6 +4,7 @@ import threading
 import asyncio
 import uuid
 import websockets
+import configparser
 
 from Iperf import Iperf
 from Ping import Ping
@@ -34,11 +35,36 @@ class Ue:
         self.log_buffer = []  # Store logs until a client connects
         self.error_log = []
         self.ue_command = []
+        self.usim_data = {}
+        self.pcap_data = {}
 
     def get_output_filename(self):
         return f"srsue_{self.ue_config.split('/')[-1]}_{self.ue_index}.log"
 
+    def get_info_from_config(self):
+        config = configparser.ConfigParser()
+        config.read(self.ue_config)
+
+        self.pcap_data = {
+            "mac_filename": config.get("pcap", "mac_filename", fallback=None),
+            "mac_nr_filename": config.get("pcap", "mac_nr_filename", fallback=None),
+            "nas_filename": config.get("pcap", "nas_filename", fallback=None)
+        }
+
+        self.usim_data = {
+            "mode": config.get("usim", "mode", fallback=None),
+            "algo": config.get("usim", "algo", fallback=None),
+            "opc": config.get("usim", "opc", fallback=None),
+            "k": config.get("usim", "k", fallback=None),
+            "imsi": config.get("usim", "imsi", fallback=None),
+            "imei": config.get("usim", "imei", fallback=None)
+        }
+
+
     def get_unwritten_output(self):
+        """
+        Get a list of all unsaved output from each child process
+        """
         unwritten_output = {}
         if self.iperf_client.isRunning and self.iperf_client.output:
             unwritten_output["iperf"] = [str(item[1]) for item in self.iperf_client.output]
@@ -88,6 +114,7 @@ class Ue:
         for argument in args:
             if ".conf" in argument:
                 self.ue_config = argument
+                self.get_info_from_config()
 
         if mode == "docker":
             # Docker setup if needed

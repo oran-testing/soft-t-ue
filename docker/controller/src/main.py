@@ -3,6 +3,7 @@
 import os
 import time
 import sys
+import shutil
 
 import uuid
 import argparse
@@ -134,7 +135,12 @@ def await_children(export_params) -> None:
                 with output_filename.open("a") as f:
                     f.writelines(process["handle"].output)
                 process["handle"].output = []  # Clear the output once written
-
+            #for pcap_key, pcap_file in process["handle"].pcap_data.items():
+            #    if pcap_file:
+            #        pcap_path = pathlib.Path(pcap_file)
+            #        if pcap_path.is_file():
+            #            target_file = export_path / pcap_path.name
+            #            shutil.copy(pcap_path, target_file)
         time.sleep(1)
 
 
