@@ -25,14 +25,16 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-COPY pyproject.toml ./
+COPY pyproject.toml .
+COPY ./src .
+COPY ./configs configs
 
 RUN pip3 install --no-cache-dir poetry
 
-RUN poetry install --no-dev
+RUN poetry install --only main
 
-COPY ./src ./src
 
-WORKDIR /app/src/
+WORKDIR /app/
 
-CMD poetry run python3 main.py --config "${CONFIG}" $ARGS
+CMD ["sh", "-c", "poetry run python3 main.py --config \"$CONFIG\" $ARGS"]
+

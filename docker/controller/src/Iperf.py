@@ -22,14 +22,14 @@ class Iperf:
     def start(self, args, process_type="server", ue_index=1):
         command = []
         if process_type == "server":
-            command = ["sudo","stdbuf","-oL","-eL","iperf3"] + args
+            command = ["stdbuf","-oL","-eL","iperf3"] + args
         elif process_type == "client":
-            command = ["sudo", "ip", "netns","exec", f"ue{ue_index}", "stdbuf", "-oL", "-eL", "iperf3"] + args
+            command = ["ip", "netns","exec", f"ue{ue_index}", "stdbuf", "-oL", "-eL", "iperf3"] + args
         else:
             raise ValueError("Invalid Process Type")
             return
-        os.system("sudo ip ro add 10.45.0.0/16 via 10.53.1.2 > /dev/null 2>&1")
-        os.system(f"sudo ip netns exec ue{ue_index} ip ro add default via 10.45.1.1 dev tun_srsue > /dev/null 2>&1")
+        os.system("ip ro add 10.45.0.0/16 via 10.53.1.2 > /dev/null 2>&1")
+        os.system(f"ip netns exec ue{ue_index} ip ro add default via 10.45.1.1 dev tun_srsue > /dev/null 2>&1")
         time.sleep(2)
         self.process = start_subprocess(command)
         self.isRunning = True

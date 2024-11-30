@@ -2,6 +2,7 @@
 
 import os
 import time
+import sys
 
 import uuid
 import argparse
@@ -46,6 +47,8 @@ def configure() -> None:
     logging.basicConfig(level=Config.log_level,
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
+    logging.getLogger("asyncio").setLevel(logging.WARNING)
+    logging.getLogger("selectors").setLevel(logging.WARNING)
 
     Config.filename = args.config
     with open(str(args.config), 'r') as file:
@@ -57,7 +60,7 @@ def kill_existing(process_names : List[str]) -> None:
     Finds and kills any stray processes that might interfere with the system
     """
     for name in process_names:
-        os.system("sudo kill -9 $(ps aux | awk '/{" + name + "}/{print $2}')")
+        os.system("kill -9 $(ps aux | awk '/{" + name + "}/{print $2}')")
 
 def start_processes() -> List[Dict[str, Union[str, Ue, int]]]:
     """
@@ -95,22 +98,61 @@ def start_processes() -> List[Dict[str, Union[str, Ue, int]]]:
 
     return process_list
 
-def await_children() -> None:
+def await_children(export_params) -> None:
     """
     Wait for all child processes to stop
     """
+    export_data = False
+    export_path = None
+
+    # Handle export parameters
+    if export_params:
+        export_dir = pathlib.Path(export_params["output_directory"])
+        if not export_dir.exists():
+            raise ValueError(f"Directory does not exist: {export_dir}")
+        export_data = True
+        export_path = export_dir / "test"
+        export_path.mkdir(parents=True, exist_ok=True)
+
     process_running = True
     while process_running:
         process_running = False
         for process in process_list:
             if process["handle"].isRunning:
                 process_running = True
+
+            if export_data:
+                logger.debug(f"Exporting Data For: {process['handle']}")
+                # Export unwritten outputs
+                for filename, output in process["handle"].get_unwritten_output().items():
+                    file_path = export_path / f"{filename}.csv"
+                    with file_path.open("a") as f:
+                        f.writelines(["\n"] + output)
+
+                # Export main output
+                output_filename = export_path / process["handle"].get_output_filename()
+                with output_filename.open("a") as f:
+                    f.writelines(process["handle"].output)
+                process["handle"].output = []  # Clear the output once written
+
         time.sleep(1)
 
+
 if __name__ == '__main__':
+    if os.geteuid() != 0:
+        logger.error("The Soft-T-UE controller must be run as root. Exiting.")
+        sys.exit(1)
+
     kill_existing(["srsue", "gnb", "iperf3"])
     configure()
-    process_list = start_processes()
     for namespace in Config.options.get("namespaces", []):
-        os.system("sudo ip netns add " + namespace["name"])
-    await_children()
+        os.system("ip netns add " + namespace["name"])
+
+    process_list = start_processes()
+
+    export_params = Config.options.get("data_export", False)
+
+    await_children(export_params)
+
+
+

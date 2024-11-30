@@ -28,12 +28,30 @@ class Ue:
         self.iperf_client = Iperf(self.send_message)
         self.ping_client = Ping(self.send_message)
         self.metrics_client = Metrics(self.send_message)
-        self.output = ""
+        self.output = []
         self.rnti = ""
         self.websocket_client = None  # Single WebSocket client
         self.log_buffer = []  # Store logs until a client connects
         self.error_log = []
         self.ue_command = []
+
+    def get_output_filename(self):
+        return f"srsue_{self.ue_config.split('/')[-1]}_{self.ue_index}.log"
+
+    def get_unwritten_output(self):
+        unwritten_output = {}
+        if self.iperf_client.isRunning and self.iperf_client.output:
+            unwritten_output["iperf"] = [str(item[1]) for item in self.iperf_client.output]
+            self.iperf_client.output = []
+
+        if self.ping_client.isRunning and self.ping_client.output:
+            unwritten_output["ping"] = [str(item[1]) for item in self.ping_client.output]
+            self.ping_client.output = []
+
+        if self.metrics_client.isRunning and self.metrics_client.output:
+            #unwritten_output["metrics"] = self.metrics_client.output
+            self.metrics_client.output = []
+        return unwritten_output
 
     async def websocket_handler(self, websocket, path):
         """Handle incoming WebSocket connection and stream logs to the client."""
@@ -75,7 +93,7 @@ class Ue:
             # Docker setup if needed
             pass
         else:
-            command = ["sudo", "srsue"] + args
+            command = ["srsue"] + args
             self.ue_command = command
             self.process = start_subprocess(command)
             self.isRunning = True
@@ -132,7 +150,7 @@ class Ue:
                 if line:
                     self.send_message("log", line)  # Send log to WebSocket client
 
-                    self.output += line
+                    self.output.append(line)
                     if "rnti" in line:
                         self.rnti = line.split("0x")[1][:4]
                     if "PDU" in line:
