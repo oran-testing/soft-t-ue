@@ -1,6 +1,3 @@
-gnb:
-  config: "../../configs/zmq/multi/gnb_zmq.yaml"
-
 namespaces:
   - name: "ue1"
   - name: "ue2"
@@ -8,8 +5,13 @@ namespaces:
 
 processes:
   - type: "clean"
-    config_file: "../../../configs/zmq/multi/ue1_zmq.conf"
+    config_file: "configs/zmq/multi/ue1_zmq.conf"
   - type: "clean"
-    config_file: "../../../configs/zmq/multi/ue2_zmq.conf"
+    config_file: "configs/zmq/multi/ue2_zmq.conf"
   - type: "clean"
-    config_file: "../../../configs/zmq/multi/ue3_zmq.conf"
+    config_file: "configs/zmq/multi/ue3_zmq.conf"
+
+data_export:
+  output_directory: "/tmp/"
+  iq_capture: true
+  iperf_capture: true

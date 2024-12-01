@@ -96,9 +96,20 @@
                             }]
                         },
                         options: {
+                            animation: false,
+                            elements: {
+                              point:{
+                                pointStyle: "star",
+                                radius: 3,
+                                hoverBorderWidth: 5,
+                              },
+                              line: {
+                                tension: 0.3,
+                              }
+                            },
                             plugins: {
                                 legend: {
-                                    position: 'right', // Move legend to the right
+                                    position: 'bottom',
                                     labels: {
                                       font: {
                                         size: 18,
@@ -179,9 +190,20 @@
                         ]
                         },
                         options: {
+                            animation: false,
+                            elements: {
+                              point:{
+                                pointStyle: "star",
+                                radius: 3,
+                                hoverBorderWidth: 5,
+                              },
+                              line: {
+                                tension: 1,
+                              }
+                            },
                             plugins: {
                                 legend: {
-                                    position: 'right', // Move legend to the right
+                                    position: 'bottom', // Move legend to the right
                                 labels: {
                                 font: {
                                     size: 18,

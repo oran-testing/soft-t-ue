@@ -125,8 +125,6 @@ def await_children(export_params) -> None:
                 process_running = True
 
             if export_data:
-                logger.debug(f"Exporting Data For: {process['handle']}")
-                # Export unwritten outputs
                 for filename, output in process["handle"].get_unwritten_output().items():
                     file_path = export_path / f"{filename}.csv"
                     with file_path.open("a") as f:
