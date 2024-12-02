@@ -40,6 +40,10 @@ def configure() -> None:
     parser.add_argument("--log-level",
                     default="DEBUG",
                     help="Set the logging level. Options: DEBUG, INFO, WARNING, ERROR, CRITICAL")
+    parser.add_argument("--docker",
+                    type=bool,
+                    default=False,
+                    help="Start all processes as docker containers")
     args = parser.parse_args()
     Config.log_level = getattr(logging, args.log_level.upper(), 1)
 
@@ -53,6 +57,7 @@ def configure() -> None:
     logging.getLogger("selectors").setLevel(logging.WARNING)
 
     Config.filename = args.config
+    Config.enable_docker = args.docker
     with open(str(args.config), 'r') as file:
         Config.options = yaml.safe_load(file)
 
@@ -81,7 +86,7 @@ def start_processes() -> List[Dict[str, Union[str, Ue, int]]]:
         if process_config["type"] in ["tester", "clean"]:
             if not os.path.exists(process_config["config_file"]):
                 raise ValueError(f"Error initializing processes: UE config file not found {process_config['config_file']}")
-            new_ue = Ue(ue_index)
+            new_ue = Ue(Config.enable_docker, ue_index)
             if process_config['type'] == "tester":
                 if "args" not in process_config.keys():
                     raise ValueError(f"Error initializing processes: Tester UE requires arguments")

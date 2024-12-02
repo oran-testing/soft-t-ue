@@ -34,12 +34,16 @@ services:
   controller:
     container_name: controller
     image: controller
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - CONFIG=${UE_CONTROLLER_CONFIG}
+    privileged: true
     build:
       context: controller
     env_file:
       - .env
-    environment:
-      - CONFIG=${UE_CONTROLLER_CONFIG}
     network_mode: "host"
 
   webui:
@@ -52,6 +56,8 @@ services:
     environment:
       - PORT=${WEBUI_PORT}
     network_mode: "host"
+    depends_on:
+      - controller
 
 volumes:
   ue-storage:

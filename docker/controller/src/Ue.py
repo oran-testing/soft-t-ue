@@ -5,6 +5,7 @@ import asyncio
 import uuid
 import websockets
 import configparser
+import docker
 
 from Iperf import Iperf
 from Ping import Ping
@@ -20,8 +21,13 @@ from utils import kill_subprocess, send_command, start_subprocess
 # Collects data from UE iperf and ping, then sends them to the webui
 
 class Ue:
-    def __init__(self, ue_index):
+    def __init__(self, enable_docker, ue_index):
+        self.docker_enabled = enable_docker
+        self.docker_client = docker.from_env() if self.docker_enabled else None
+        self.docker_container = None
+
         self.ue_index = ue_index
+
         self.ue_config = ""
         self.isRunning = False
         self.isConnected = False
@@ -31,10 +37,12 @@ class Ue:
         self.metrics_client = Metrics(self.send_message)
         self.output = []
         self.rnti = ""
-        self.websocket_client = None  # Single WebSocket client
-        self.log_buffer = []  # Store logs until a client connects
+
+        self.websocket_client = None
+        self.log_buffer = []
         self.error_log = []
         self.ue_command = []
+
         self.usim_data = {}
         self.pcap_data = {}
 
@@ -107,26 +115,59 @@ class Ue:
         loop.run_until_complete(start_server)
         loop.run_forever()
 
-    def start(self, args, mode="baremetal"):
+    def start(self, args):
         for argument in args:
             if ".conf" in argument:
                 self.ue_config = argument
                 self.get_info_from_config()
 
-        if mode == "docker":
+        if self.docker_enabled:
             # Docker setup if needed
-            pass
+            # Docker container setup
+            container_name = f"srsran_ue_{self.ue_index}"
+            environment = {
+                "CONFIG": self.ue_config,
+                "ARGS": " ".join(args[1:]),  # Pass additional args as a single string
+            }
+            try:
+                # Check if the container already exists
+                containers = self.docker_client.containers.list(all=True, filters={"name": container_name})
+                if containers:
+                    self.docker_container = containers[0]
+                    self.docker_container.start()  # Restart if stopped
+                    print(f"Restarted existing Docker container {container_name}")
+                else:
+                    # Run a new container
+                    self.docker_container = self.docker_client.containers.run(
+                        image="srsran/ue",
+                        name=container_name,
+                        environment=environment,
+                        volumes={
+                            "/dev/bus/usb/": {"bind": "/dev/bus/usb/", "mode": "rw"},
+                            "/usr/share/uhd/images": {"bind": "/usr/share/uhd/images", "mode": "ro"},
+                            "ue-storage": {"bind": "/tmp", "mode": "rw"}
+                        },
+                        privileged=True,
+                        cap_add=["SYS_NICE", "SYS_PTRACE"],
+                        network_mode="host",  # Match Docker Compose
+                        detach=True,
+                    )
+                    print(f"Started new Docker container {container_name}")
+
+
+                self.docker_logs = self.docker_container.logs(stream=True, follow=True)
+                self.isRunning = True
+            except docker.errors.APIError as e:
+                self.error_log.append(f"Failed to start Docker container: {e}")
         else:
             command = ["srsue"] + args
             self.ue_command = command
             self.process = start_subprocess(command)
             self.isRunning = True
+
+        if self.isRunning:
             self.stop_thread = threading.Event()
-
-            # Start the WebSocket server
             self.start_websocket_server()
-
-            # Start the log collection thread
             self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
             self.log_thread.start()
 
@@ -166,7 +207,11 @@ class Ue:
         """Collect logs from the process and send them to the WebSocket client."""
         while self.isRunning and not self.stop_thread.is_set():
             if self.process and self.process.poll() is None:
-                line = self.process.stdout.readline().strip()
+                line = None
+                if self.docker_enabled:
+                    line = next(self.docker_logs, None)
+                else:
+                    line = self.process.stdout.readline().strip()
 
                 if isinstance(line, bytes):
                     line = line.decode('utf-8', errors='replace')
@@ -188,8 +233,18 @@ class Ue:
                 break
 
     def stop(self):
+        if self.docker_enabled:
+            if self.docker_container:
+                try:
+                    self.docker_container.stop()
+                    self.docker_container.remove()
+                    print(f"Docker container stopped and removed: {self.docker_container.name}")
+                except docker.errors.APIError as e:
+                    self.error_log.append(f"Failed to stop Docker container: {e}")
+        else:
+            kill_subprocess(self.process)
+
         self.stop_thread.set()
-        kill_subprocess(self.process)
         self.iperf_client.stop()
         self.isRunning = False
 
