@@ -6,7 +6,7 @@ ARG NUM_CORES=""
 
 FROM ubuntu:$OS_VERSION
 
-ENV CONFIG="configs/zmq/ue_zmq_b.conf"
+ENV CONFIG="configs/zmq/ue_zmq_docker.conf"
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get upgrade -y && \

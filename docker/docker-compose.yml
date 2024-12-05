@@ -22,13 +22,15 @@ services:
       - ue-storage:/tmp
 
     environment:
-      - CONFIG=${UE_CONFIG_PATH:-configs/zmq/ue_zmq.conf}
+      - CONFIG=${UE_CONFIG_PATH:-configs/zmq/ue_zmq_docker.conf}
       - ARGS=${UE_ARGS}
 
     # Allow network connection for ZMQ
     ports:
       -  2000:2000/tcp
       -  2001:2001/tcp
+    #networks:
+      #  -  srsue_network
     network_mode: host
 
   controller:
@@ -63,7 +65,7 @@ volumes:
   ue-storage:
 
 networks:
-  internal_network:
+  srsue_network:
     driver: bridge
   controller:
     ipam:
