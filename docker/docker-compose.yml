@@ -26,12 +26,11 @@ services:
       - ARGS=${UE_ARGS}
 
     # Allow network connection for ZMQ
-    ports:
-      -  2000:2000/tcp
-      -  2001:2001/tcp
-    #networks:
-      #  -  srsue_network
-    network_mode: host
+    #ports:
+      #  -  2000:2000/tcp
+      #-  2001:2001/tcp
+    networks:
+      -  srsue_network
 
   controller:
     container_name: controller
