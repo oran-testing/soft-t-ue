@@ -12,29 +12,21 @@ RUN apt-get update && \
         build-essential \
         git \
         iperf3 \
-        libgl1-mesa-glx \
-        libglu1-mesa \
-        libsdl2-dev \
-        libsdl2-image-dev \
-        libsdl2-mixer-dev \
-        libsdl2-ttf-dev \
-        xorg-dev \
-        libmtdev1 \
-        && apt-get clean && rm -rf /var/lib/apt/lists/*
+        iproute2 \
+        inetutils-ping
 
 
 WORKDIR /app
 
-COPY pyproject.toml ./
+COPY pyproject.toml .
+COPY ./src .
+COPY ./configs configs
 
 RUN pip3 install --no-cache-dir poetry
 
-RUN poetry install --no-dev
+RUN poetry install --only main
 
-COPY ./src ./src
 
-COPY configs ./src/configs
+WORKDIR /app/
 
-WORKDIR /app/src/
-
-CMD poetry run python3 main.py --config "${CONFIG}" $ARGS
+CMD ["poetry", "run", "python3", "main.py", "--config", "${CONFIG}", "--docker", "1"]

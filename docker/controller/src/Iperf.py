@@ -2,19 +2,22 @@ import re
 import select
 import sys
 import threading
+import os
+import time
 from datetime import datetime
 
 from utils import kill_subprocess, start_subprocess
 
 
 class Iperf:
-    def __init__(self):
+    def __init__(self, send_message_callback):
         self.isRunning = False
         self.process = None
         self.output = []
         self.initialized = False
         self.name = "Iperf -- Stopped"
         self.process_type = ""
+        self.send_callback = send_message_callback
 
     def start(self, args, process_type="server", ue_index=1):
         command = []
@@ -25,6 +28,9 @@ class Iperf:
         else:
             raise ValueError("Invalid Process Type")
             return
+        os.system("ip ro add 10.45.0.0/16 via 10.53.1.2 > /dev/null 2>&1")
+        os.system(f"ip netns exec ue{ue_index} ip ro add default via 10.45.1.1 dev tun_srsue > /dev/null 2>&1")
+        time.sleep(2)
         self.process = start_subprocess(command)
         self.isRunning = True
         self.name = f"Iperf -- {process_type}"
@@ -55,6 +61,7 @@ class Iperf:
                                 ((datetime.now() - self.start_time).total_seconds(),
                                 float(bitrate[0]))
                             )
+                            self.send_callback("brate", bitrate[0])
 
             else:
                 self.output.append(0.0)
