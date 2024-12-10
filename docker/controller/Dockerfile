@@ -11,16 +11,7 @@ RUN apt-get update && \
         python3-venv \
         build-essential \
         git \
-        iperf3 \
-        libgl1-mesa-glx \
-        libglu1-mesa \
-        libsdl2-dev \
-        libsdl2-image-dev \
-        libsdl2-mixer-dev \
-        libsdl2-ttf-dev \
-        xorg-dev \
-        libmtdev1 \
-        && apt-get clean && rm -rf /var/lib/apt/lists/*
+        iperf3
 
 
 WORKDIR /app
@@ -36,5 +27,4 @@ RUN poetry install --only main
 
 WORKDIR /app/
 
-CMD ["sh", "-c", "poetry run python3 main.py --config \"$CONFIG\" $ARGS"]
-
+CMD ["poetry", "run", "python3", "main.py", "--config", "${CONFIG}"]

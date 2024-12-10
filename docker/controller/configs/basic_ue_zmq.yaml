@@ -3,7 +3,7 @@ namespaces:
 
 processes:
   - type: "tester" # This means attack
-    config_file: "configs/zmq/ue_zmq.conf"
+    config_file: "configs/zmq/ue_zmq_docker.conf"
     args: "--rrc.sdu_fuzzed_bits 1 --rrc.fuzz_target_message 'rrcSetupRequest'" # this means fuzz bits in the rrc setup
 
 data_export:
