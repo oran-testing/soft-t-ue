@@ -122,22 +122,22 @@ class Ue:
                 self.get_info_from_config()
 
         if self.docker_enabled:
-            # Docker setup if needed
-            # Docker container setup
-            container_name = f"srsran_ue_{self.ue_index}"
+            container_name = f"srsran_ue_{str(uuid.uuid4())}"
             environment = {
                 "CONFIG": self.ue_config,
-                "ARGS": " ".join(args[1:]),  # Pass additional args as a single string
+                "ARGS": " ".join(args[1:]),
             }
             try:
                 # Check if the container already exists
+                # V
                 containers = self.docker_client.containers.list(all=True, filters={"name": container_name})
                 if containers:
                     self.docker_container = containers[0]
                     self.docker_container.start()  # Restart if stopped
                     print(f"Restarted existing Docker container {container_name}")
                 else:
-                    # Run a new container
+                    network_name = "docker_srsue_network"
+                    self.docker_network = self.docker_client.networks.get(network_name)
                     self.docker_container = self.docker_client.containers.run(
                         image="srsran/ue",
                         name=container_name,
@@ -149,7 +149,7 @@ class Ue:
                         },
                         privileged=True,
                         cap_add=["SYS_NICE", "SYS_PTRACE"],
-                        network_mode="host",  # Match Docker Compose
+                        network=network_name,
                         detach=True,
                     )
                     print(f"Started new Docker container {container_name}")
@@ -159,17 +159,20 @@ class Ue:
                 self.isRunning = True
             except docker.errors.APIError as e:
                 self.error_log.append(f"Failed to start Docker container: {e}")
+                print(f"Failed to start Docker container: {e}")
         else:
             command = ["srsue"] + args
             self.ue_command = command
             self.process = start_subprocess(command)
             self.isRunning = True
 
+
         if self.isRunning:
             self.stop_thread = threading.Event()
             self.start_websocket_server()
             self.log_thread = threading.Thread(target=self.collect_logs, daemon=True)
             self.log_thread.start()
+
 
 
     def send_message(self, message_type, message_text):
@@ -205,32 +208,29 @@ class Ue:
 
     def collect_logs(self):
         """Collect logs from the process and send them to the WebSocket client."""
+
         while self.isRunning and not self.stop_thread.is_set():
-            if self.process and self.process.poll() is None:
-                line = None
-                if self.docker_enabled:
-                    line = next(self.docker_logs, None)
-                else:
-                    line = self.process.stdout.readline().strip()
+            line = None
 
-                if isinstance(line, bytes):
-                    line = line.decode('utf-8', errors='replace')
-
-                if line:
-                    self.send_message("log", line)  # Send log to WebSocket client
-
-                    self.output.append(line)
-                    if "rnti" in line:
-                        self.rnti = line.split("0x")[1][:4]
-                    if "PDU" in line:
-                        self.start_metrics()
-                        self.isConnected = True
-
+            if self.docker_enabled:
+                line = next(self.docker_logs, None)
+                print(line)
             else:
-                if self.websocket_client:
-                    self.send_message("log", "Process Terminated")
-                self.isRunning = False
-                break
+                line = self.process.stdout.readline().strip()
+
+            if isinstance(line, bytes):
+                line = line.decode('utf-8', errors='replace')
+
+            if line:
+                self.send_message("log", line)  # Send log to WebSocket client
+
+                self.output.append(line)
+                if "rnti" in line:
+                    self.rnti = line.split("0x")[1][:4]
+                if "PDU" in line:
+                    self.start_metrics()
+                    self.isConnected = True
+
 
     def stop(self):
         if self.docker_enabled:
@@ -252,8 +252,8 @@ class Ue:
         return f"srsRAN UE{self.ue_index} object, running: {self.isRunning}"
 
 if __name__ == "__main__":
-    test = Ue(1)
-    test.start(["./configs/zmq/ue_zmq.conf"])
+    test = Ue(True, 1)
+    test.start(["./configs/zmq/ue_zmq_docker.conf"])
     while True:
         time.sleep(1)
 
