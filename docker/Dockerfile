@@ -29,7 +29,8 @@ RUN apt-get update && apt-get upgrade -y && \
     git \
     libxcb-cursor0 \
     libgles2-mesa-dev \
-    gr-osmosdr
+    gr-osmosdr \
+    iproute2
 
 
 COPY . /app
