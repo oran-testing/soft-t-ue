@@ -11,7 +11,9 @@ RUN apt-get update && \
         python3-venv \
         build-essential \
         git \
-        iperf3
+        iperf3 \
+        iproute2 \
+        inetutils-ping
 
 
 WORKDIR /app
@@ -27,4 +29,4 @@ RUN poetry install --only main
 
 WORKDIR /app/
 
-CMD ["poetry", "run", "python3", "main.py", "--config", "${CONFIG}"]
+CMD ["poetry", "run", "python3", "main.py", "--config", "${CONFIG}", "--docker", "1"]

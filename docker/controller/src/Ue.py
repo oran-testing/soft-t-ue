@@ -6,6 +6,7 @@ import uuid
 import websockets
 import configparser
 import docker
+import logging
 
 from Iperf import Iperf
 from Ping import Ping
@@ -40,7 +41,6 @@ class Ue:
 
         self.websocket_client = None
         self.log_buffer = []
-        self.error_log = []
         self.ue_command = []
 
         self.usim_data = {}
@@ -97,7 +97,7 @@ class Ue:
             while True:
                 await asyncio.sleep(0.1)  # Prevent blocking the event loop
         except websockets.exceptions.ConnectionClosed:
-            self.error_log.append("WebSocket client disconnected")
+            logging.error("WebSocket client disconnected")
         finally:
             self.websocket_client = None  # Reset client on disconnect
 
@@ -111,9 +111,15 @@ class Ue:
         """Run the WebSocket server for sending logs."""
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        start_server = websockets.serve(self.websocket_handler, "localhost", 8765 + self.ue_index)
-        loop.run_until_complete(start_server)
-        loop.run_forever()
+
+        try:
+            start_server = websockets.serve(self.websocket_handler, "localhost", 8765 + self.ue_index)
+            loop.run_until_complete(start_server)
+            loop.run_forever()
+        except Exception as e:
+            logging.error(f"Failed to run WebSocket server: {e}")
+        finally:
+            loop.close()
 
     def start(self, args):
         for argument in args:
@@ -134,7 +140,7 @@ class Ue:
                 if containers:
                     self.docker_container = containers[0]
                     self.docker_container.start()  # Restart if stopped
-                    print(f"Restarted existing Docker container {container_name}")
+                    logging.debug(f"Restarted existing Docker container {container_name}")
                 else:
                     network_name = "docker_srsue_network"
                     self.docker_network = self.docker_client.networks.get(network_name)
@@ -152,14 +158,13 @@ class Ue:
                         network=network_name,
                         detach=True,
                     )
-                    print(f"Started new Docker container {container_name}")
+                    logging.debug(f"Started new Docker container {container_name}")
 
 
                 self.docker_logs = self.docker_container.logs(stream=True, follow=True)
                 self.isRunning = True
             except docker.errors.APIError as e:
-                self.error_log.append(f"Failed to start Docker container: {e}")
-                print(f"Failed to start Docker container: {e}")
+                logging.error(f"Failed to start Docker container: {e}")
         else:
             command = ["srsue"] + args
             self.ue_command = command
@@ -184,15 +189,13 @@ class Ue:
 
         if self.websocket_client:
             try:
-                # Send the message to the connected WebSocket client
                 asyncio.run(self.websocket_client.send(message_str))
                 if self.ue_command:
                     asyncio.run(self.websocket_client.send(command_str))
                     self.ue_command = []
             except Exception as e:
-                self.error_log.append(f"Failed to send message: {e}")
+                logging.error(f"Failed to send message: {e}")
         else:
-            # Buffer log messages if no client is connected
             if message_type == "log":
                 self.log_buffer.append(message_str)
 
@@ -203,7 +206,7 @@ class Ue:
             ue_index=self.ue_index
         )
         self.ping_client.start(["10.45.1.1"])
-        self.metrics_client.start(self.ue_config)
+        self.metrics_client.start(self.ue_config, self.docker_container)
 
 
     def collect_logs(self):
@@ -214,7 +217,6 @@ class Ue:
 
             if self.docker_enabled:
                 line = next(self.docker_logs, None)
-                print(line)
             else:
                 line = self.process.stdout.readline().strip()
 
@@ -222,6 +224,7 @@ class Ue:
                 line = line.decode('utf-8', errors='replace')
 
             if line:
+                logging.debug(f"SRSUE: {line}")
                 self.send_message("log", line)  # Send log to WebSocket client
 
                 self.output.append(line)
@@ -238,9 +241,9 @@ class Ue:
                 try:
                     self.docker_container.stop()
                     self.docker_container.remove()
-                    print(f"Docker container stopped and removed: {self.docker_container.name}")
+                    logging.info(f"Docker container stopped and removed: {self.docker_container.name}")
                 except docker.errors.APIError as e:
-                    self.error_log.append(f"Failed to stop Docker container: {e}")
+                    logging.error(f"Failed to stop Docker container: {e}")
         else:
             kill_subprocess(self.process)
 

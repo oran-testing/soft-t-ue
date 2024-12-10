@@ -16,6 +16,7 @@ class Metrics:
         self.send_callback = send_message_callback
         self.file_path = ""
 
+
     def get_metrics_config(self, file_path):
         keys = ["metrics_csv_enable", "metrics_csv_filename"]
         metrics_config = {}
@@ -51,10 +52,11 @@ class Metrics:
             raise FileNotFoundError(f"The file '{file_path}' was not found.")
         except ValueError as e:
             raise ValueError(f"Error processing file '{file_path}': {e}")
-    
+
         return metrics_config
 
-    def start(self, config_path):
+    def start(self, config_path, docker_container):
+        self.docker_container = docker_container
         metrics_config = self.get_metrics_config(config_path)
         if not metrics_config["metrics_csv_enable"]:
             return
@@ -64,22 +66,30 @@ class Metrics:
         self.log_thread.start()
 
     def report_new_metric(self):
-        with open(self.file_path, 'r') as file:
-            reader = csv.DictReader(file, delimiter=';')
-            lines = list(reader)  # Load all lines initially
-
-        last_index = -1  # Keep track of the last read line
+        last_index = 0
         while True:
-            with open(self.file_path, 'r') as file:
-                reader = csv.DictReader(file, delimiter=';')
-                lines = list(reader)
-                if len(lines) > last_index:  # If new data exists
-                    for i in range(last_index, len(lines) - 1):
-                        for key, value in lines[i].items():
-                            if value and key in ["dl_brate", "rsrp", "dl_mcs", "dl_snr"]:
-                                self.send_callback(key, value)
-                    last_index = len(lines)
-            time.sleep(1)  # Wait for 1 second
+            metrics_output = []
+            if self.docker_container:
+                command = f"cat {self.file_path}"
+                exec_result = self.docker_container.exec_run(command)
+                if exec_result.exit_code != 0:
+                    logging.error(f"Failed to read {self.file_path}")
+                    time.sleep(10)
+                    continue
+                file_content = exec_result.output.decode('utf-8')
+                metrics_output = file_content.split()
+            else:
+                with open(self.file_path, 'r') as file:
+                    metrics_output = file.readlines()
+
+            if len(metrics_output) > last_index:
+                metrics_index_map = metrics_output[0].split(";")
+                for i in range(last_index, len(metrics_output) - 1):
+                    for value in metrics_output[i].split(';'):
+                        if value and i < len(metrics_index_map) and metrics_index_map[i] in ["dl_brate", "rsrp", "dl_mcs", "dl_snr"]:
+                            self.send_callback(metrics_index_map[i], value)
+                last_index = len(metrics_output)
+            time.sleep(10)
 
     def __repr__(self):
         return f"Metrics Manager Process Object, running: {self.isRunning}"

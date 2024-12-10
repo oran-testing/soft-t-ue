@@ -37,6 +37,8 @@ services:
     image: controller
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      # Allow results writing to host machine
+      - /tmp:/tmp
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
       - CONFIG=${UE_CONTROLLER_CONFIG}
